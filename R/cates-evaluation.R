@@ -7,9 +7,8 @@
 #' @param X Covariate matrix (no intercept).
 #' @param cates Estimated CATEs. CATEs must be estimated using only the training sample.
 #' @param is_train Logical vector denoting which observations belong to the training sample.
-#' @param pscore Estimated propensity scores. They must be estimated using only the training sample. If not provided by the user, they are estimated internally via an honest regression forest.
-#' @param strategy String indicating the desired identification strategy. One of "wr", "ht", "aipw".
-#' @param denoise String denoting whether to include optional constructed covariates to the regressions. One of "none", "cddf1", "cddf2", "mck1", "mck2", "mck3". Useful to reduce the variance of the estimation.
+#' @param pscore Propensity scores. If unknown, they must be estimated using only the training sample. If not provided by the user, they are estimated internally via an honest \code{\link[grf]{regression_forest}}.
+#' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
 #' Return.
@@ -37,16 +36,12 @@
 #' @seealso Other functions
 #'
 #' @export
-evalue_cates <- function(y, D, X, cates, is_train, pscore = NULL, strategy = "wr", denoise = "none") {
+evalue_cates <- function(y, D, X, cates, is_train, pscore = NULL, verbose = TRUE) {
   ## 0.) Handling inputs and checks.
   if (is.logical(D)) D <- as.numeric(D)
   if (any(!(D %in% c(0, 1)))) stop("Invalid 'D'. Only binary treatments are allowed.", call. = FALSE)
   if (!is.matrix(X) & !is.data.frame(X)) stop("Invalid 'X'. This must be either a matrix or a data frame.", call. = FALSE)
   if (!is.logical(is_train)) stop("Invalid 'is_train'. This must be a logical vector.", call. = FALSE)
-  if (!(strategy %in% c("wr", "ht", "aipw"))) stop("Invalid 'strategy'. This must be one of 'wr', 'ht', 'aipw'.", call. = FALSE)
-  if (!(denoise %in% c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"))) stop("Invalid 'strategy'. This must be one of 'none', 'cddf1', 'cddf2', 'mck1', 'mck2', 'mck3'.", call. = FALSE)
-  if (strategy == "aipw" & denoise != "none") stop("If 'aipw' is the selected strategy, then 'denoise' must be 'none'.", call. = FALSE)
-  if (strategy != "ht" & denoise %in% c("mck2", "mck3")) stop("'denoise' can be set to 'mck2' or 'mck3' only if 'strategy' is 'ht'.", call. = FALSE)
 
   # mu_val <- mu0_val <- mu1_val <- NULL
 
@@ -69,27 +64,24 @@ evalue_cates <- function(y, D, X, cates, is_train, pscore = NULL, strategy = "wr
     pscore_val <- stats::predict(pscore_forest, X_val)$predictions
   }
 
-  if (strategy == "aipw") scores <- aggTrees::dr_scores(y_val, D_val, X_val) else scores <- NULL
-
-  ## 2.) Estimate regression functions for the optional covariates in training sample.
-  if (denoise != "none") {
-    # Estimate functions that we always need when including denoise terms.
-    mu0_forest <- grf::regression_forest(X_tr[D_tr == 0, ], y_tr[D_tr == 0])
-    mu0_val <- stats::predict(mu0_forest, X_val)$predictions
-
-    # We need to estimate \mu only under one (strategy, denoise) combination. Similarly, we need to estimate \mu_1 only under two (strategy, denoise) combinations.
-    if (strategy == "wr" & denoise == "mck1") {
-      mu_forest <- grf::regression_forest(X_tr, y_tr)
-      mu_val <- stats::predict(mu_forest, X_val)$predictions
-    } else if (strategy == "ht" & denoise %in% c("mck2", "mck3")) {
-      mu1_forest <- grf::regression_forest(X_tr[D_tr == 1, ], y_tr[D_tr == 1])
-      mu1_val <- stats::predict(mu1_forest, X_val)$predictions
-    }
-  }
-
+  ## 2.) Estimate nuisance functions using the training sample and doubly-robust scores using the validation sample and cross-fitting.
+  if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
+  mu_forest <- grf::regression_forest(X_tr, y_tr)
+  mu0_forest <- grf::regression_forest(X_tr[D_tr == 0, ], y_tr[D_tr == 0])
+  mu1_forest <- grf::regression_forest(X_tr[D_tr == 1, ], y_tr[D_tr == 1])
+  
+  mu_val <- stats::predict(mu_forest, X_val)$predictions
+  mu0_val <- stats::predict(mu0_forest, X_val)$predictions
+  mu1_val <- stats::predict(mu1_forest, X_val)$predictions
+  
+  scores <- aggTrees::dr_scores(y_val, D_val, X_val)
+    
   ## 3.) Estimate BLP and GATES in validation sample.
-  blp_results <- blp_regression(y_val, D_val, cates_val, strategy, denoise, pscore_val, mu_val, mu0_val, mu1_val, scores)
+  if (verbose) cat("BLP estimation; \n")
+  blp_results <- blp_estimation(y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores)
 
   ## Output.
-
+  out <- list("BLP" = blp_results)
+  class_out <- "evalue_cates"
+  return(out)
 }

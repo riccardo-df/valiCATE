@@ -4,16 +4,7 @@
 \alias{evalue_cates}
 \title{CATEs Evaluation}
 \usage{
-evalue_cates(
-  y,
-  D,
-  X,
-  cates,
-  is_train,
-  pscore = NULL,
-  strategy = "wr",
-  denoise = "none"
-)
+evalue_cates(y, D, X, cates, is_train, pscore = NULL, verbose = TRUE)
 }
 \arguments{
 \item{y}{Observed outcomes.}
@@ -26,11 +17,9 @@ evalue_cates(
 
 \item{is_train}{Logical vector denoting which observations belong to the training sample.}
 
-\item{pscore}{Estimated propensity scores. They must be estimated using only the training sample. If not provided by the user, they are estimated internally via an honest regression forest.}
+\item{pscore}{Propensity scores. If unknown, they must be estimated using only the training sample. If not provided by the user, they are estimated internally via an honest \code{\link[grf]{regression_forest}}.}
 
-\item{strategy}{String indicating the desired identification strategy. One of "wr", "ht", "aipw".}
-
-\item{denoise}{String denoting whether to include optional constructed covariates to the regressions. One of "none", "cddf1", "cddf2", "mck1", "mck2", "mck3". Useful to reduce the variance of the estimation.}
+\item{verbose}{Logical, set to FALSE to prevent the function from printing the progresses.}
 }
 \value{
 Return.
@@ -40,7 +29,11 @@ Evaluates the quality of CATEs estimates by implementing several Generic Machine
 }
 \details{
 Currently, the routine supports only single-splits.\cr
-Regression functions are estimated via honest \code{\link[grf]{regression_forest}}s.
+Regression functions are estimated via honest \code{\link[grf]{regression_forest}}s.\cr
+If strategy is set to \code{"aipw"}, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and using honest regression forests
+(see the \code{\link[aggTrees]{dr_scores}} function).\cr
+If not provided, \code{cates} are estimated internally using a causal forest estimator and the training sample.\cr
+If not provided, \code{pscore} are estimated internally using a regression forest.\cr
 }
 \examples{
 ## Generate data.

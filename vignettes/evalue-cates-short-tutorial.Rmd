@@ -24,7 +24,7 @@ The core idea is that applying machine learning tools to the estimation of heter
 - Best Linear Predictor (BLP) of the actual CATEs using the estimated CATEs;
 - Sorted Group Average Treatment Effects (GATES).
 
-To estimate these objects, we first construct estimates of the CATEs using an observed training sample, and we then post-process them using an external validation sample. All of this is performed by calling the `evalue_cates` function. Results allow us to evaluate the quality of our estimates and to assess whether we detect systematic heterogeneous effects. 
+To estimate these objects, we first construct estimates of the CATEs using an observed training sample, and we then post-process them using an external validation sample. All of this is performed by calling the `evalue_cates` function. Results allow us to evaluate the quality of our CATEs estimates and to assess whether we detect systematic heterogeneous effects. 
 
 Before diving in the technical details, we need to define notation:
 
@@ -35,10 +35,11 @@ Before diving in the technical details, we need to define notation:
 - $\mu_d ( X_i ) = \mathbb{E} [ Y_i | X_i, D_i = d ]$ &rarr; Conditional mean of $Y_i$ given $X_i$ among those units such as $D_i = d$;
 - $p ( X_i ) = \mathbb{P} [ D_i = 1 | X_i ]$ &rarr; Propensity score;
 - $H_i = \frac{D_i - p (X_i)}{p (X_i) ( 1 - p (X_i) )}$ &rarr; Horvitz-Thompson operator;
+- $w ( X_i ) = \frac{1}{\hat{p} ( X_i ) [ 1 - \hat{p} ( X_i )]}$ &rarr; Propensity score weights;
 - $\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATEs.
 
 ### Calling the `evalue_cates` Function
-When calling the `evalue_cates` function, we need to supply the whole sample using the first three arguments: `y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, $X_i$. Additionally, the user must provide estimates of the CATEs $\hat{\tau} ( \cdot )$ obtained using only the training sample by using the `cates` argument. Finally, the argument `is_train` must consist of a logical vector with the `TRUE`s signalling those observations used to estimate the CATEs. This allows the `evalue_cates` function to know which observations must be used to post-process the estimates.
+When calling the `evalue_cates` function, we need to supply the whole sample using the first three arguments: `y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, the user must provide estimates of the CATEs $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, the argument `is_train` must consist of a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs. This allows the `evalue_cates` function to know which observations must be used to post-process the CATEs estimates.
 
 Let us see an example. First, we generate some data.
 
@@ -57,7 +58,7 @@ mu1 <- 0.5 * X[, 1] + X[, 2]
 y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 ```
 
-Second, we need to split the sample into a training sample and a validation sample or arbitrary size. Here we perform a 50/50 split.
+Second, we need to split the sample into a training sample and a validation sample or arbitrary sizes. Here we perform an approximate 50/50 split.
 
 ```{r sample-split, eval = FALSE}
 ## Sample split.
@@ -78,22 +79,22 @@ Third, we have to estimate the CATEs using only the training sample. Any methodo
 ```{r cates-estimation, eval = FALSE}
 ## CATEs estimation.
 library(grf)
-forest <- causal_forest(X_tr, y_tr, D_tr)
-cates <- predict(forest, X)$predictions # Notice we predict on the whole sample.
+forest <- causal_forest(X_tr, y_tr, D_tr) # We use only the training sample.
+cates <- predict(forest, X)$predictions # We predict on the whole sample.
 ```
 
-We are now able to call the `evalue_cates` function. As mentioned above, we need to supply $Y_i$, $D_i$, and $X_i$ using the first three arguments. The fourth argument is used to provide estimates $\hat{\tau} ( X_i )$ obtained using only the training sample. The fifth argument is a logical vector denoting which observations belong to the training sample. The sixth argument is used to supply the propensity score $p (\cdot)$. In this vignette, we generated our data by mimicking a Bernoulli experiment, thus we have knowledge of the actual propensity score (0.5 for all units). Otherwise, we could pass estimates $\hat{p} ( \cdot )$ obtained using only the training sample.[^2] Finally, the last two arguments allow the user to choose her preferred specification for the estimation of the BLP and the GATES (details below).
+We are now able to call the `evalue_cates` function. As mentioned above, we need to supply $Y_i$, $D_i$, and $X_i$ using the first three arguments. The fourth argument is used to provide estimates $\hat{\tau} ( X_i )$ obtained using only the training sample. Finally, the fifth argument must be a logical vector denoting which observations belong to the training sample. We also have an optional sixth argument that we can use to supply the propensity scores $p ( X_i )$. In this vignette, we generated our data by mimicking a Bernoulli experiment, thus we have knowledge of the actual propensity score (0.5 for all units). Otherwise, we could pass estimates $\hat{p} ( X_i )$ obtained using only the training sample.[^2]
 
 ```{r call-main, eval = FALSE}
 ## Call main function.
-pscore <- rep(0.5, n)
-evaluation <- evalue_cates(y, D, X, cates, is_train = train_idx, pscore = pscore, strategy = "wr", denoise = "cddf2")
+pscore <- rep(0.5, length(y))
+evaluation <- evalue_cates(y, D, X, cates, is_train = train_idx, pscore = pscore)
 ```
 
-After the call, the `evalue_cates` function first estimates some of the nuisance functions $\hat{\mu} ( \cdot )$, $\hat{\mu}_0 ( \cdot )$, $\hat{\mu}_1 ( \cdot )$ according to the `strategy` and `denoise` arguments using only the training sample. Then, it estimates the BLP and the GATES using only the validation sample. In the following, we provide details about this. 
+After handling the inputs and running some checks, the `evalue_cates` function estimates the BLP and the GATES using only the validation sample. In the following, we detail this process.
 
-### Best Linear Predictor
-The first target of interest is the BLP of the actual CATEs using the estimated CATEs:
+#### Best Linear Predictor
+The first object targeted by the `evalue_cates` function is the BLP of the actual CATEs using the estimated CATEs:
 
 $$ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )] := \beta_1 + \beta_2 [ \hat{\tau} ( X_i ) - \mathbb{E} [ \hat{\tau} ( X_i ) ] ]$$
 with $\beta_1 = \mathbb{E} [ \tau ( X_i ) ]$ and $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]$. The BLP is of interest for two main reasons:
@@ -101,48 +102,53 @@ with $\beta_1 = \mathbb{E} [ \tau ( X_i ) ]$ and $\beta_2 = Cov [ \tau ( X_i ), 
 - First, it is a refined predictor of $\tau ( \cdot )$, in the sense that it is an unbiased predictor of $\tau ( \cdot )$ and improves over $\hat{\tau} ( \cdot )$ in the mean squared error sense (Chernozhukov et al., 2017);
 - Second, rejecting the hypothesis $\beta_2 = 0$ means that $a)$ there is systematic heterogeneity, and $b)$ $\hat{\tau} ( \cdot )$ is a "good" predictor.[^3]
 
-The `evalueCATE` package provides three strategies for identifying and estimating the BLP, each involving running a suitable linear regression.[^4] The user can choose her preferred methodology by controlling the `strategy` argument when calling the `evalue_cates` function.
+The `evalue_cates` function estimates the BLP using three different strategies, each involving fitting a suitable linear model using only observations in the validation sample.[^4] [^5]
 
-#### Best Linear Predictor - Weighted Residuals
-When weighting the residuals is the chosen identification strategy (that is, when `strategy = "wr"`), the following linear model is fitted via OLS using only observations in the validation sample:
+- **Weighted Residuals**:
 
-$$ Y_i = \beta_1 [ D_i - \hat{p} ( X_i ) ] + \beta_2 \{ [ D_i - \hat{p} ( X_i ) ] [ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] ] \} + \epsilon_i $$
-with $\mathbb{E} [ w ( X_i) \epsilon_i X_i ] = 0$, $w ( X_i ) = \frac{1}{\hat{p} ( X_i ) [ 1 - \hat{p} ( X_i )]}$, and $\mathbb{E}_{n, V}$ denoting the sample average with respect to the validation sample.[^5] 
+$$ Y_i = \beta_1 [ D_i - p ( X_i ) ] + \beta_2 \{ [ D_i - p ( X_i ) ] [ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] ] \} + \epsilon_i $$
+with the model fitted via WLS using weights $w ( X_i)$, and $\mathbb{E}_{n, V}$ denoting the sample average with respect to the validation sample. Results can be accessed by calling `evaluation$BLP$wr_none`.
 
-#### Best Linear Predictor - Horvitz-Thompson
-When constructing new outcomes using the Horvitz-Thompson transformation $\hat{H}_i \cdot Y_i$ is the chosen identification strategy (that is, when `strategy = "ht"`), the following linear model is fitted via OLS using only observations in the validation sample:[^6]
+- **Horvitz-Thompson**
 
-$$ \hat{H}_i Y_i = \psi_1 + \psi_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
-with $\mathbb{E} [ \epsilon_i X_i ] = 0$.
+$$ H_i Y_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
+with the model fitted via OLS. Results can be accessed by calling `evaluation$BLP$ht_none`.
 
-#### Best Linear Predictor - AIPW scores
-When constructing doubly-robust scores $\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) - \hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{\hat{p} ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} ( X_i )}$ is the chosen identification strategy (that is, when `strategy = "ht"`), the following linear model is fitted via OLS using only observations in the validation sample:[^7]
+- **AIPW**
 
-$$ \hat{\Gamma}_i = \zeta_1 + \zeta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
-with $\mathbb{E} [ \epsilon_i X_i ] = 0$. 
+$$ \hat{\Gamma}_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
+with the model fitted via OLS, and $\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) - \hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{\hat{p} ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} ( X_i )}$.[^6] Results can be accessed by calling `evaluation$BLP$aipw`.
 
 ### Sorted Group Average Treatment Effects
-The second target of interest are the group average treatment effects:
+The second object targeted by the `evalue_cates` function are the group average treatment effects, with the groups formed by cutting the distribution of $\hat{\tau} ( \cdot )$ into $K$ bins:[^7]
 
-$$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | G_k ], \,\,\, k = 1, \dots, K$$
-with $G_k$ denoting the set of units belonging to the $k$-th group. The groups can be defined in various ways. Here we follow the approach of (Chernozhukov et al., 2017) and define the groups by cutting the distribution of $\hat{\tau} ( \cdot )$ into $k$ quantiles. 
+$$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ], \,\,\, k = 1, \dots, K$$
+with $- \infty = \ell_0 < \ell_1 < \dots < \ell_K < + \infty$. The GATES are of interest for two main reasons:
 
-The GATES are of interest for two main reasons:
+- First, they provided a nonlinear predictor of $\tau ( \cdot )$, as they provide the BLP of $\tau ( \cdot )$ using the group indicators $\mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k )$ (Chernozhukov et al., 2017);
+- Second, they allow us to assess whether there is systematic heterogeneity. For example, one could test the hypothesis that all the GATES are the same $\gamma_1 = \dots = \gamma_K$, or that the difference between the largest and the smallest GATES is zero $\gamma_1 = \gamma_K$. If we reject these hypotheses, the GATES also provide a way to quantify how different groups show differential reactions to the treatment.
 
-- First, they provided a nonlinear predictor of $\tau ( \cdot )$, as they provide the BLP of $\tau ( \cdot )$ using the group indicators $G_k$ (Chernozhukov et al., 2017);
-- Second, they allow us to assess whether there is systematic heterogeneity. For example, one could test the hypothesis that all GATES are the same $\gamma_1 = \dots = \gamma_K$, or that the difference between the largest and the smallest GATES is zero $\gamma_1 = \gamma_K$. If we reject these hypotheses, the GATES also provide a way to quantify how different groups show differential reactions to the treatment.
+The `evalue_cates` function estimates the GATES using the same three strategies used for the BLP estimation. As before, all linear models are fitted using only observations in the validation sample.
 
-The `evalueCATE` package provides again three strategies for identifying and estimating the GATES. As before, the user can choose her preferred methodology by controlling the `strategy` argument when calling the `evalue_cates` function.
+- **Weighted Residuals**
 
-#### Sorted Groups Average Treatment Effects - Weighted Residuals
-When weighting the residuals is the chosen identification strategy (that is, when `strategy = "wr"`), the following linear model is fitted via OLS using only observations in the validation sample:
+$$ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p ( X_i ) ] \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+with the model fitted via WLS using weights $w ( X_i)$. Results can be accessed by calling `evaluation$GATES$wr_none`.
 
-START AGAINF FROM HERE.
+- **Horvitz-Thompson**
+
+$$ H_i Y_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$ht_none`.
+
+- **AIPW**
+
+$$ \Gamma_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$aipw`.
 
 [^1]: Complete references to these papers are listed in the home page.
 [^2]: If we do not use the `pscore` argument at all, the `evalue_cates` function will estimate the propensity scores internally via a honest regression forest constructed using only the training sample.
 [^3]: Failing to reject the hypothesis $\beta_2 = 0$ means that either there is no heterogeneity or $\hat{\tau} ( \cdot )$ is a "bad" predictor of $\tau ( \cdot )$. Without additional evidence, we are not able to disentangle this.
 [^4]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs. This applies also to the identification and estimation of the GATES.
-[^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regression by controlling the `denoise` argument. This applies to all the regressions discussed in this vignette. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evalueCATEs/articles/denoising.html).
-[^6]: In randomized experiments, we construct the new outcomes by using $H_i$ rather than $\hat{H}_i$.
-[^7]: The doubly-robust scores $\Gamma_i$ must be estimated in the validation sample via $F$-fold cross-fitting.
+[^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. For each of the strategies detailed above, the `evalue_cates` function fits several linear model, each including a different set of additional covariates. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evalueCATEs/articles/denoising.html).
+[^6]: The doubly-robust scores $\Gamma_i$ are estimated internally using the the validation sample and 5-fold cross-fitting.
+[^7]: The $K$ bins can be defined in various ways. Here we follow the approach of (Chernozhukov et al., 2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles.

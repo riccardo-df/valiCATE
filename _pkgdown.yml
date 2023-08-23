@@ -7,7 +7,9 @@ navbar:
   type: default
   left:
   - text: "Get started"
-    href: articles/evalueCATE-vignette.html
+    href: articles/evalue-cates-short-tutorial.html
+  - text: "Denoising"
+      href: articles/denoising.html
   - text: "Reference"
     href: reference/index.html
   right:
