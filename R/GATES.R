@@ -179,9 +179,9 @@ gates_estimation <- function(y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   counter <- 1
   
   for (model in models) {
-    coef <- sort(model$coefficients[1:k])
-    names(coef) <- paste0("gamma", 1:k)
-    model$coefficients[1:k] <- coef
+    coef <- sort(model$coefficients[1:n_groups])
+    names(coef) <- paste0("gamma", 1:n_groups)
+    model$coefficients[1:n_groups] <- coef
     
     out[[counter]] <- model
     counter <- counter + 1

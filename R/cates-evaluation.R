@@ -140,8 +140,11 @@ evalue_cates <- function(y, D, X, cates, is_train, pscore = NULL, n_groups = 5, 
 
   if (is.null(pscore)) {
     pscore_forest <- grf::regression_forest(X_tr, D_tr)
-    pscore_val <- stats::predict(pscore_forest, X_val)$predictions
+    pscore <- stats::predict(pscore_forest, X)$predictions
   }
+  
+  pscore_tr <- pscore[train_idx]
+  pscore_val <- pscore[!train_idx]
 
   ## 2.) Estimate nuisance functions using the training sample and doubly-robust scores using the validation sample and cross-fitting.
   if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
