@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Introduction
 As described in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html), the estimation of the BLP and the GATES involves fitting suitable linear models via OLS.[^1] These regressions allow the inclusion of optional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation. In this article, we discuss which covariates are incorporated in the regressions by the `evalue_cates` function.
 
 The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html).

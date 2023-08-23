@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 library(evalueCATE)
 ```
 
-## Introduction
 In this tutorial, we show how to use the `evalueCATE` package to estimate and make inference about key features of heterogeneous treatment effects. The discussion is loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021), and Imai and Li (2022).[^1]
 
 The core idea is that applying machine learning tools to the estimation of heterogeneous treatment effects may produce "low-quality" estimates of the Conditional Average Treatment Effects (CATEs). Thus, we move our target to features of the CATEs that $a)$ are of interest to researchers and policy makers, and $b)$ can be consistently estimated under mild assumptions. These features are:
@@ -93,7 +92,7 @@ evaluation <- evalue_cates(y, D, X, cates, is_train = train_idx, pscore = pscore
 
 After handling the inputs and running some checks, the `evalue_cates` function estimates the BLP and the GATES using only the validation sample. In the following, we detail this process.
 
-#### Best Linear Predictor
+### Best Linear Predictor
 The first object targeted by the `evalue_cates` function is the BLP of the actual CATEs using the estimated CATEs:
 
 $$ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )] := \beta_1 + \beta_2 [ \hat{\tau} ( X_i ) - \mathbb{E} [ \hat{\tau} ( X_i ) ] ]$$
