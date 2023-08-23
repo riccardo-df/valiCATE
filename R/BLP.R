@@ -12,7 +12,7 @@
 #' @param scores Estimated doubly-robust scores. They must be estimated via K-fold cross-fitting. 
 #'
 #' @return
-#' A list of fitted models.
+#' A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.
 #'
 #' @examples
 #' ## Generate data.
@@ -61,7 +61,7 @@
 #' blp_results <- blp_estimation(y_val, D_val, cates_val, 
 #'                               pscore_val, mu_val, mu0_val, mu1_val, scores_val)
 #'
-#' ## Compare true ATE vs estimated ATE (i.e., \hat{\beta}_1).
+#' ## Compare true ATE vs estimated ATE.
 #' cat("True ATE      : ", round(mean(mu1 - mu0), 3), " 
 #' Estimated ATE 
 #'     - wr_none :  ", round(blp_results$wr_none$coefficients["beta1"], 3), "
@@ -76,8 +76,8 @@
 #'     - ht_mck3 : ", round(blp_results$ht_mck3$coefficients["beta1"], 3), " 
 #'     - aipw    : ", round(blp_results$aipw$coefficients["beta1"], 3), sep = "")
 #' 
-#' ## Compare true "quality" of CATEs estimated vs estimated quality (i.e., \hat{\beta}_2).
-#' ## We can do this because we know that, by DGP, we have heterogeneous effects.
+#' ## Compare true "quality" of estimated CATEs vs estimated quality.
+#' ## (We can do this because we know that, by DGP, we have heterogeneous effects.)
 #' cat("True quality      : ", cor(mu1[!train_idx] - mu0[!train_idx], cates_val), " 
 #' Estimated quality 
 #'     - wr_none     : ", round(blp_results$wr_none$coefficients["beta2"], 3), "
@@ -92,16 +92,16 @@
 #'     - ht_mck3     : ", round(blp_results$ht_mck3$coefficients["beta2"], 3), " 
 #'     - aipw        : ", round(blp_results$aipw$coefficients["beta2"], 3), sep = "")
 #'
-#' @md
 #' @details
 #' \code{\link{blp_estimation}} estimates the best linear predictor (BLP) of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in 
 #' the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).\cr
 #' 
-#' The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the \href{PUT LINK HERE}{online vignette} for details.\cr
+#' The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the \href{https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+#' for details.\cr
 #' 
 #' Standard errors are estimated using the Eicker-Huber-White estimator.
 #'
-#' @import estimatr stats
+#' @import estimatr
 #'
 #' @author Riccardo Di Francesco
 #'
@@ -125,20 +125,37 @@ blp_estimation <- function(y, D, cates, pscore, mu, mu0, mu1, scores) {
   Hmu1_pscore <- H * mu1 * (1 - pscore)
   Hmu0_pscore_mu1_pscore <- Hmu0_pscore + Hmu1_pscore
   
-  ## 2.) Fit linear models via OLS.
-  wr_none_model <- estimatr::lm_robust(y ~ 0 + ., data = data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates), weights = wr_weights, se_type = "HC1") 
-  wr_cddf1_model <- estimatr::lm_robust(y ~ 0 + ., data = data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu0" = mu0), weights = wr_weights, se_type = "HC1") 
-  wr_cddf2_model <- estimatr::lm_robust(y ~ 0 + ., data = data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu0" = mu0, "constant" = rep(1, length(y)), "pscore" = pscore, "pscore.tauhat" = interaction_pscore_cates), weights = wr_weights, se_type = "HC1") 
-  wr_mck1_model <- estimatr::lm_robust(y ~ 0 + ., data = data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu" = mu), weights = wr_weights, se_type = "HC1") 
-  ht_none_model <- estimatr::lm_robust(Hy ~ 0 + ., data = data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates), se_type = "HC1") 
-  ht_cddf1_model <- estimatr::lm_robust(Hy ~ 0 + ., data = data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "Hmu0" = Hmu0), se_type = "HC1") 
-  ht_cddf2_model <- estimatr::lm_robust(Hy ~ 0 + ., data = data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "Hmu0" = Hmu0, "Hpscore" = Hpscore, "Hpscore_tauhat" = Hinteraction_pscore_cates), se_type = "HC1") 
-  ht_mck1_model <- estimatr::lm_robust(Hy ~ 0 + ., data = data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "Hmu0.pscore" = Hmu0_pscore, "H1_pscore.tauhat" = new_mck_covariate), se_type = "HC1") 
-  ht_mck2_model <- estimatr::lm_robust(Hy ~0 + ., data = data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "Hpscore" = Hpscore, "Hmu0.pscore" = Hmu0_pscore, "Hmu1.1_pscore" = Hmu1_pscore), se_type = "HC1") 
-  ht_mck3_model <- estimatr::lm_robust(Hy ~ 0 + ., data = data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "Hpscore" = Hpscore, "Hmu0.pscore+Hmu1.1_pscore" = Hmu0_pscore_mu1_pscore), se_type = "HC1") 
-  aipw_model <- estimatr::lm_robust(aipw ~ 0 + ., data = data.frame("aipw" = scores, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates), se_type = "HC1") 
+  ## 2.) Define specifications.
+  wr_none_dta <- data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates)
+  wr_cddf1_dta <- data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu0" = mu0)
+  wr_cddf2_dta <- data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates, "constant" = rep(1, length(y)), "mu0" = mu0, "pscore" = pscore, "pscore.tauhat" = interaction_pscore_cates)
+  wr_mck1_dta <- data.frame("y" = y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu" = mu)
   
-  ## 3.) Output.
+  ht_none_dta <- data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates)
+  ht_cddf1_dta <- data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0)
+  ht_cddf2_dta <- data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0, "H.pscore" = Hpscore, "H.pscore.tauhat" = Hinteraction_pscore_cates)
+  ht_mck1_dta <- data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0, "H.1_pscore.tauhat" = new_mck_covariate)
+  ht_mck2_dta <- data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "H.mu1.1_pscore" = Hmu1_pscore)
+  ht_mck3_dta <- data.frame("Hy" = HY, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
+  
+  aipw_dta <- data.frame("aipw" = scores, "beta1" = rep(1, length(y)), "beta2" = demeaned_cates)
+  
+  ## 3.) Fit linear models.
+  wr_none_model <- estimatr::lm_robust(y ~ 0 + ., wr_none_dta, weights = wr_weights, se_type = "HC1") 
+  wr_cddf1_model <- estimatr::lm_robust(y ~ 0 + ., wr_cddf1_dta, weights = wr_weights, se_type = "HC1") 
+  wr_cddf2_model <- estimatr::lm_robust(y ~ 0 + ., wr_cddf2_dta, weights = wr_weights, se_type = "HC1") 
+  wr_mck1_model <- estimatr::lm_robust(y ~ 0 + ., wr_mck1_dta, weights = wr_weights, se_type = "HC1") 
+  
+  ht_none_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_none_dta, se_type = "HC1") 
+  ht_cddf1_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_cddf1_dta, se_type = "HC1") 
+  ht_cddf2_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_cddf2_dta, se_type = "HC1") 
+  ht_mck1_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_mck1_dta, se_type = "HC1") 
+  ht_mck2_model <- estimatr::lm_robust(Hy ~0 + ., ht_mck2_dta, se_type = "HC1") 
+  ht_mck3_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_mck3_dta, se_type = "HC1") 
+  
+  aipw_model <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
+  
+  ## 4.) Output.
   out <- list("wr_none" = wr_none_model, "wr_cddf1" = wr_cddf1_model, "wr_cddf2" = wr_cddf2_model, "wr_mck1" = wr_mck1_model, 
               "ht_none" = ht_none_model, "ht_cddf1" = ht_cddf1_model, "ht_cddf2" = ht_cddf2_model, "ht_mck1" = ht_mck1_model, "ht_mck2" = ht_mck2_model, "ht_mck3" = ht_mck3_model,
               "aipw" = aipw_model)

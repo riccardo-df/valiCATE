@@ -24,16 +24,17 @@ blp_estimation(y, D, cates, pscore, mu, mu0, mu1, scores)
 \item{scores}{Estimated doubly-robust scores. They must be estimated via K-fold cross-fitting.}
 }
 \value{
-A list of fitted models.
+A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.
 }
 \description{
 Estimates the best linear predictor of the actual CATEs using the estimated CATEs.
 }
 \details{
-\code{\link{blp_estimation}} estimates the best linear predictor (BLP) of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in
+\code{\link{blp_estimation}} estimates the best linear predictor (BLP) of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in 
 the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).\cr
 
-The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the online vignette for more details; \code{vignette("evalue-cates-short-tutorial", package = "evalueCATE")}.\cr
+The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the \href{https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+for details.\cr
 
 Standard errors are estimated using the Eicker-Huber-White estimator.
 }
@@ -84,7 +85,7 @@ pscore_val <- rep(0.5, length(y_val))
 blp_results <- blp_estimation(y_val, D_val, cates_val, 
                               pscore_val, mu_val, mu0_val, mu1_val, scores_val)
 
-## Compare true ATE vs estimated ATE (i.e., \hat{\beta}_1).
+## Compare true ATE vs estimated ATE.
 cat("True ATE      : ", round(mean(mu1 - mu0), 3), " 
 Estimated ATE 
     - wr_none :  ", round(blp_results$wr_none$coefficients["beta1"], 3), "
@@ -99,8 +100,8 @@ Estimated ATE
     - ht_mck3 : ", round(blp_results$ht_mck3$coefficients["beta1"], 3), " 
     - aipw    : ", round(blp_results$aipw$coefficients["beta1"], 3), sep = "")
 
-## Compare true "quality" of CATEs estimated vs estimated quality (i.e., \hat{\beta}_2).
-## We can do this because we know that, by DGP, we have heterogeneous effects.
+## Compare true "quality" of estimated CATEs vs estimated quality.
+## (We can do this because we know that, by DGP, we have heterogeneous effects.)
 cat("True quality      : ", cor(mu1[!train_idx] - mu0[!train_idx], cates_val), " 
 Estimated quality 
     - wr_none     : ", round(blp_results$wr_none$coefficients["beta2"], 3), "

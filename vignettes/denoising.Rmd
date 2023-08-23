@@ -14,13 +14,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-As described in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html), the estimation of the BLP and the GATES involves fitting suitable linear models via OLS.[^1] These regressions allow the inclusion of optional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation. In this article, we discuss which covariates are incorporated in the regressions by the `evalue_cates` function.
+As described in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html), some estimation strategies for the BLP and the GATES involve fitting suitable linear models.[^1] These regressions allow the inclusion of optional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation. In this article, we discuss which covariates are incorporated in the regressions by the `evalue_cates` function.
 
 The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html).
 
 There are several possible sets of constructed covariates that one can include in the regressions to reduce the variance of the estimation. Some of these sets have been proposed by Chernozukov et al. (2017), while others are new. For both the BLP and the GATES results, the `evalue_cates` function returns a bunch of fitted models, one for each of these sets. Thus, the user can compare the results across the different models.
 
-The optional constructed covariates depend on the nuisance functions $\mu ( \cdot )$, $\mu_0 ( \cdot )$, $\mu_1 ( \cdot )$, and $p ( \cdot )$. The `evalue_cates` function constructs estimates of these functions internally using only the training sample and honest regression forests. Exception is the propensity score $p ( \cdot )$, which can be provided by the user.
+The optional constructed covariates depend on the nuisance functions $\mu ( \cdot )$, $\mu_0 ( \cdot )$, $\mu_1 ( \cdot )$, and $p ( \cdot )$. The `evalue_cates` function constructs estimates of these functions internally using only the training sample and honest regression forests. Notice that the propensity score $p ( X_i )$ or its estimates $\hat{p} ( X_i )$ can be provided by the user to skip internal computation.
 
 Suppose that we assign the results of the `evalue_cates` function call to a variable called `evaluation`.
 
@@ -28,7 +28,7 @@ Suppose that we assign the results of the `evalue_cates` function call to a vari
 evaluation <- evalue_cates(y, D, X, cates, is_train = train_idx, pscore = pscore)
 ```
 
-In the following, we list the additional covariates that are included in the fitted models returned by the `evalue_cates` function. 
+In the following, we list the covariates that are included in the fitted models returned by the `evalue_cates` function. 
 
 ### Weighted Residual
 The `evalue_cates` function returns four different BLP and GATES models fitted using the weighted residual strategy.
@@ -51,19 +51,19 @@ The `evalue_cates` function returns six different BLP and GATES models fitted us
 
 - BLP:
   * `evaluation$BLP$ht_none` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html);
-  * `evaluation$BLP$ht_cddf1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot \hat{\mu}_0 ( X_i )$;
-  * `evaluation$BLP$ht_cddf2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot p ( X_i ), \hat{H}_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i )$;
-  * `evaluation$BLP$ht_mck1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$;
-  * `evaluation$BLP$ht_mck2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot p ( X_i ), \hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$;
-  * `evaluation$BLP$ht_mck3` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot p ( X_i ), \{ \hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$.
+  * `evaluation$BLP$ht_cddf1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot \hat{\mu}_0 ( X_i )$;
+  * `evaluation$BLP$ht_cddf2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i )$;
+  * `evaluation$BLP$ht_mck1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$;
+  * `evaluation$BLP$ht_mck2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$;
+  * `evaluation$BLP$ht_mck3` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$.
 
 - GATES:
   * `evaluation$GATES$ht_none` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html);
-  * `evaluation$GATES$ht_cddf1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus  $\hat{H}_i \cdot \hat{\mu}_0 ( X_i )$; 
-  * `evaluation$GATES$ht_cddf2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, \hat{H}_i \cdot p ( X_i ) \cdot \mathbb{1} (G_K)$; 
-  * `evaluation$GATES$ht_mck1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$; 
-  * `evaluation$GATES$ht_mck2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot p ( X_i ), \hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$; 
-  * `evaluation$GATES$ht_mck3` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $\hat{H}_i \cdot p ( X_i ), \{ \hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$. 
+  * `evaluation$GATES$ht_cddf1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus  $H_i \cdot \hat{\mu}_0 ( X_i )$; 
+  * `evaluation$GATES$ht_cddf2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_K)$; 
+  * `evaluation$GATES$ht_mck1` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$; 
+  * `evaluation$GATES$ht_mck2` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$; 
+  * `evaluation$GATES$ht_mck3` &rarr; The model discussed in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) plus $H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$. 
   
 ### AIPW
 The `evalue_cates` function returns only one BLP and GATES model fitted using the AIPW strategy.  
