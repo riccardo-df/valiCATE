@@ -8,7 +8,7 @@ To get started, please check the online [vignette](https://riccardo-df.github.io
 The current development version of the package can be installed using the `devtools` package:
 
 ```
-devtools::install_github("riccardo-df/evalueCATEs") # run install.packages("devtools") if needed.
+devtools::install_github("riccardo-df/evalueCATE") # run install.packages("devtools") if needed.
 ```
 
 ## References
