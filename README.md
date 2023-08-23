@@ -2,7 +2,7 @@
 
 R package to implement several methodologies to estimate and make inference about key features of heterogeneous treatment effects.
 
-To get started, please check the online [vignette](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html) for a short tutorial.
+To get started, please check the online [vignette](https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html) for a short tutorial.
 
 ## Installation  
 The current development version of the package can be installed using the `devtools` package:
