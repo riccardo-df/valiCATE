@@ -87,12 +87,13 @@
     
     
 <p>As described in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a>, the estimation of the BLP and the GATES involves fitting
-suitable linear models via OLS.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> These regressions allow the inclusion of
-optional constructed covariates which are not necessary for identifying
-the targets but can significantly reduce the variance of the estimation.
-In this article, we discuss which covariates are incorporated in the
-regressions by the <code>evalue_cates</code> function.</p>
+tutorial</a>, some estimation strategies for the BLP and the GATES
+involve fitting suitable linear models.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> These regressions
+allow the inclusion of optional constructed covariates which are not
+necessary for identifying the targets but can significantly reduce the
+variance of the estimation. In this article, we discuss which covariates
+are incorporated in the regressions by the <code>evalue_cates</code>
+function.</p>
 <p>The notation is the same as in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>.</p>
 <p>There are several possible sets of constructed covariates that one
@@ -106,15 +107,14 @@ the different models.</p>
 <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, <span class="math inline">\(\mu_1 ( \cdot )\)</span>, and <span class="math inline">\(p ( \cdot )\)</span>. The
 <code>evalue_cates</code> function constructs estimates of these
 functions internally using only the training sample and honest
-regression forests. Exception is the propensity score <span class="math inline">\(p ( \cdot )\)</span>, which can be provided by the
-user.</p>
+regression forests. Notice that the propensity score <span class="math inline">\(p ( X_i )\)</span> or its estimates <span class="math inline">\(\hat{p} ( X_i )\)</span> can be provided by the
+user to skip internal computation.</p>
 <p>Suppose that we assign the results of the <code>evalue_cates</code>
 function call to a variable called <code>evaluation</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></code></pre></div>
-<p>In the following, we list the additional covariates that are included
-in the fitted models returned by the <code>evalue_cates</code>
-function.</p>
+<p>In the following, we list the covariates that are included in the
+fitted models returned by the <code>evalue_cates</code> function.</p>
 <div class="section level3">
 <h3 id="weighted-residual">Weighted Residual<a class="anchor" aria-label="anchor" href="#weighted-residual"></a>
 </h3>
@@ -182,28 +182,28 @@ strategy.</p>
 tutorial</a>;</li>
 <li>
 <code>evaluation$BLP$ht_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot
-\hat{\mu}_0 ( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
+X_i )\)</span>;</li>
 <li>
 <code>evaluation$BLP$ht_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot
-\hat{\mu}_0 ( X_i ), \hat{H}_i \cdot p ( X_i ), \hat{H}_i \cdot p ( X_i
-) \cdot \hat{\tau} ( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
+X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i
+)\)</span>;</li>
 <li>
 <code>evaluation$BLP$ht_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot
-\hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau}
-( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
+X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i
+)\)</span>;</li>
 <li>
 <code>evaluation$BLP$ht_mck2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot p ( X_i ),
-\hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1
-- p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), H_i
+\cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ]
+\cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
 <li>
 <code>evaluation$BLP$ht_mck3</code> → The model discussed in the <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot p ( X_i ),
-\{ \hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + \hat{H}_i \cdot
-[ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), \{
+H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
+) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
 </ul>
 </li>
 <li>GATES:
@@ -215,32 +215,32 @@ tutorial</a>;</li>
 <li>
 <code>evaluation$GATES$ht_cddf1</code> → The model discussed in the
 <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot
-\hat{\mu}_0 ( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
+X_i )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_cddf2</code> → The model discussed in the
 <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot
-\hat{\mu}_0 ( X_i ), \hat{H}_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1),
-\dots, \hat{H}_i \cdot p ( X_i ) \cdot \mathbb{1} (G_K)\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
+X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p (
+X_i ) \cdot \mathbb{1} (G_K)\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck1</code> → The model discussed in the
 <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot
-\hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau}
-( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
+X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i
+)\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck2</code> → The model discussed in the
 <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot p ( X_i ),
-\hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1
-- p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), H_i
+\cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ]
+\cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck3</code> → The model discussed in the
 <a href="https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html">short
-tutorial</a> plus <span class="math inline">\(\hat{H}_i \cdot p ( X_i ),
-\{ \hat{H}_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + \hat{H}_i \cdot
-[ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
+tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), \{
+H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
+) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
 </ul>
 </li>
 </ul>

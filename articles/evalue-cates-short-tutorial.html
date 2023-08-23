@@ -156,7 +156,7 @@ used to post-process the CATEs estimates.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1986</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
+<span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">k</span><span class="op">)</span><span class="op">)</span></span>
@@ -185,6 +185,7 @@ forest.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## CATEs estimation.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X_tr</span>, <span class="va">y_tr</span>, <span class="va">D_tr</span><span class="op">)</span> <span class="co"># We use only the training sample.</span></span>
 <span><span class="va">cates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co"># We predict on the whole sample.</span></span></code></pre></div>
 <p>We are now able to call the <code>evalue_cates</code> function. As
@@ -200,24 +201,26 @@ for all units). Otherwise, we could pass estimates <span class="math inline">\(\
 training sample.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
-<span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y_val</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">n_groups</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
+<span></span>
+<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, <span class="va">pscore</span>, <span class="va">n_groups</span><span class="op">)</span></span></code></pre></div>
 <p>After handling the inputs and running some checks, the
 <code>evalue_cates</code> function estimates the BLP and the GATES using
-only the validation sample. In the following, we detail this
-process.</p>
+only the validation sample. In the following, we detail the main results
+returned by the function.</p>
 </div>
 <div class="section level3">
 <h3 id="best-linear-predictor">Best Linear Predictor<a class="anchor" aria-label="anchor" href="#best-linear-predictor"></a>
 </h3>
-<p>The first object targeted by the <code>evalue_cates</code> function
+<p>The first object estimated by the <code>evalue_cates</code> function
 is the BLP of the actual CATEs using the estimated CATEs:</p>
 <p><span class="math display">\[ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )]
 := \beta_1 + \beta_2 [ \hat{\tau} ( X_i ) - \mathbb{E} [ \hat{\tau} (
 X_i ) ] ]\]</span> with <span class="math inline">\(\beta_1 = \mathbb{E}
-[ \tau ( X_i ) ]\)</span> and <span class="math inline">\(\beta_2 = Cov
-[ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i )
-]\)</span>. The BLP is of interest for two main reasons:</p>
+[ \tau ( X_i ) ]\)</span> the average treatment effect, and <span class="math inline">\(\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ]
+/ Var [ \hat{\tau} ( X_i ) ]\)</span>. The BLP is of interest for two
+main reasons:</p>
 <ul>
 <li>First, it is a refined predictor of <span class="math inline">\(\tau
 ( \cdot )\)</span>, in the sense that it is an unbiased predictor of
@@ -244,14 +247,28 @@ using only observations in the validation sample.<a href="#fn4" class="footnote-
 via WLS using weights <span class="math inline">\(w ( X_i)\)</span>, and
 <span class="math inline">\(\mathbb{E}_{n, V}\)</span> denoting the
 sample average with respect to the validation sample. Results can be
-accessed by calling <code>evaluation$BLP$wr_none</code>.</p>
+accessed by calling <code>evaluation$BLP$wr_none</code>.
+<code>evaluation$BLP$wr_cddf1</code>,
+<code>evaluation$BLP$wr_cddf2</code>, and
+<code>evaluation$BLP$wr_mck1</code> allow the user to access the results
+of the models that build on the one displayed here by adding different
+sets of optional covariates (check the <a href="https://riccardo-df.github.io/evalueCATE/articles/denoising.html">denoising
+vignette</a> for details).</p>
 <ul>
 <li><strong>Horvitz-Thompson</strong></li>
 </ul>
 <p><span class="math display">\[ H_i Y_i = \beta_1 + \beta_2 \{
 \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} +
 \epsilon_i \]</span> with the model fitted via OLS. Results can be
-accessed by calling <code>evaluation$BLP$ht_none</code>.</p>
+accessed by calling <code>evaluation$BLP$ht_none</code>.
+<code>evaluation$BLP$ht_cddf1</code>,
+<code>evaluation$BLP$ht_cddf2</code>,
+<code>evaluation$BLP$ht_mck1</code>,
+<code>evaluation$BLP$ht_mck2</code>, and
+<code>evaluation$BLP$ht_mck3</code> allow the user to access the results
+of the models that build on the one displayed here by adding different
+sets of optional covariates (check the <a href="https://riccardo-df.github.io/evalueCATE/articles/denoising.html">denoising
+vignette</a> for details).</p>
 <ul>
 <li><strong>AIPW</strong></li>
 </ul>
@@ -266,9 +283,9 @@ accessed by calling <code>evaluation$BLP$ht_none</code>.</p>
 <div class="section level3">
 <h3 id="sorted-group-average-treatment-effects">Sorted Group Average Treatment Effects<a class="anchor" aria-label="anchor" href="#sorted-group-average-treatment-effects"></a>
 </h3>
-<p>The second object targeted by the <code>evalue_cates</code> function
-are the group average treatment effects, with the groups formed by
-cutting the distribution of <span class="math inline">\(\hat{\tau} (
+<p>The second object estimated by the <code>evalue_cates</code> function
+are the sorted group average treatment effects, with the groups formed
+by cutting the distribution of <span class="math inline">\(\hat{\tau} (
 \cdot )\)</span> into <span class="math inline">\(K\)</span> bins:<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a></p>
 <p><span class="math display">\[ \gamma_k := \mathbb{E} [ \tau ( X_i ) |
 \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ], \,\,\, k = 1, \dots,
@@ -291,21 +308,37 @@ the treatment.</li>
 </ul>
 <p>The <code>evalue_cates</code> function estimates the GATES using the
 same three strategies used for the BLP estimation. As before, all linear
-models are fitted using only observations in the validation sample.</p>
+models are fitted using only observations in the validation sample.
+Additionally, <code>evalue_cates</code> also implements a nonparametric
+estimator of the GATES.</p>
 <ul>
 <li><strong>Weighted Residuals</strong></li>
 </ul>
 <p><span class="math display">\[ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p
 ( X_i ) ] \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
 \epsilon_i \]</span> with the model fitted via WLS using weights <span class="math inline">\(w ( X_i)\)</span>. Results can be accessed by
-calling <code>evaluation$GATES$wr_none</code>.</p>
+calling <code>evaluation$GATES$wr_none</code>.
+<code>evaluation$GATES$wr_cddf1</code>,
+<code>evaluation$GATES$wr_cddf2</code>, and
+<code>evaluation$GATES$wr_mck1</code> allow the user to access the
+results of the models that build on the one displayed here by adding
+different sets of optional covariates (check the <a href="https://riccardo-df.github.io/evalueCATE/articles/denoising.html">denoising
+vignette</a> for details).</p>
 <ul>
 <li><strong>Horvitz-Thompson</strong></li>
 </ul>
 <p><span class="math display">\[ H_i Y_i = \sum_{k = 1}^K \gamma_k
 \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
 \epsilon_i \]</span> with the model fitted via OLS. Results can be
-accessed by calling <code>evaluation$GATES$ht_none</code>.</p>
+accessed by calling <code>evaluation$GATES$ht_none</code>.
+<code>evaluation$GATES$ht_cddf1</code>,
+<code>evaluation$GATES$ht_cddf2</code>,
+<code>evaluation$GATES$ht_mck1</code>,
+<code>evaluation$GATES$ht_mck2</code>, and
+<code>evaluation$GATES$ht_mck3</code> allow the user to access the
+results of the models that build on the one displayed here by adding
+different sets of optional covariates (check the <a href="https://riccardo-df.github.io/evalueCATE/articles/denoising.html">denoising
+vignette</a> for details).</p>
 <ul>
 <li><strong>AIPW</strong></li>
 </ul>
@@ -313,6 +346,10 @@ accessed by calling <code>evaluation$GATES$ht_none</code>.</p>
 \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
 \epsilon_i \]</span> with the model fitted via OLS. Results can be
 accessed by calling <code>evaluation$GATES$aipw</code>.</p>
+<ul>
+<li><strong>Nonparametric</strong></li>
+</ul>
+<p>SKETCH IMAI AND LI HERE.</p>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr>
@@ -322,7 +359,8 @@ home page.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
 <li id="fn2"><p>If we do not use the <code>pscore</code> argument at
 all, the <code>evalue_cates</code> function will estimate the propensity
 scores internally via a honest regression forest constructed using only
-the training sample.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+the training sample. However, notice that most methodologies implemented
+here are valid only under randomized experiments, where <span class="math inline">\(p ( \cdot )\)</span> is known.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 <li id="fn3"><p>Failing to reject the hypothesis <span class="math inline">\(\beta_2 = 0\)</span> means that either there is no
 heterogeneity or <span class="math inline">\(\hat{\tau} ( \cdot
 )\)</span> is a “bad” predictor of <span class="math inline">\(\tau (
@@ -337,14 +375,14 @@ GATES.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 necessary for identifying the targets but can significantly reduce the
 variance of the estimation can be included in the regressions. For each
 of the strategies detailed above, the <code>evalue_cates</code> function
-fits several linear model, each including a different set of additional
-covariates. Details can be found in the <a href="https://riccardo-df.github.io/evalueCATE/articles/denoising.html">denoising
+fits a number of linear models, each including a different set of
+additional covariates. Details can be found in the <a href="https://riccardo-df.github.io/evalueCATE/articles/denoising.html">denoising
 vignette</a>.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
 <li id="fn6"><p>The doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated internally using
 the the validation sample and 5-fold cross-fitting.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
 <li id="fn7"><p>The <span class="math inline">\(K\)</span> bins can be
-defined in various ways. Here we follow the approach of (Chernozhukov et
-al., 2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+defined in various ways. Here we follow the approach of Chernozhukov et
+al. (2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>
