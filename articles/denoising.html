@@ -86,7 +86,7 @@
 
     
     
-<p>As described in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<p>As described in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>, some estimation strategies for the BLP and the GATES
 involve fitting suitable linear models.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> These regressions
 allow the inclusion of optional constructed covariates which are not
@@ -94,7 +94,7 @@ necessary for identifying the targets but can significantly reduce the
 variance of the estimation. In this article, we discuss which covariates
 are incorporated in the regressions by the <code>evalue_cates</code>
 function.</p>
-<p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>.</p>
 <p>There are several possible sets of constructed covariates that one
 can include in the regressions to reduce the variance of the estimation.
@@ -125,18 +125,18 @@ GATES models fitted using the weighted residual strategy.</p>
 <p>BLP:</p>
 <ul>
 <li>
-<code>evaluation$BLP$wr_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
-<code>evaluation$BLP$wr_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu}_0 ( X_i
 )\)</span>;</li>
 <li>
-<code>evaluation$BLP$wr_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(1, \hat{\mu}_0 ( X_i ), p
 ( X_i ), p ( X_i ) \cdot \hat{\tau} ( X_i )\)</span>;</li>
 <li>
-<code>evaluation$BLP$wr_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 )\)</span>.</li>
 </ul>
@@ -146,22 +146,22 @@ tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 <ul>
 <li>
 <code>evaluation$GATES$wr_none</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
 <code>evaluation$GATES$wr_cddf1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu}_0 ( X_i
 )\)</span>;</li>
 <li>
 <code>evaluation$GATES$wr_cddf2</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu}_0 ( X_i ), p (
 X_i ) \cdot \mathbb{1} (G_1), \dots, p ( X_i ) \cdot \mathbb{1}
 (G_K)\)</span>;</li>
 <li>
 <code>evaluation$GATES$wr_mck1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 )\)</span>.</li>
 </ul>
@@ -178,29 +178,29 @@ strategy.</p>
 <li>BLP:
 <ul>
 <li>
-<code>evaluation$BLP$ht_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
-<code>evaluation$BLP$ht_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i
 )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i
 )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_mck2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_mck2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), H_i
 \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ]
 \cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_mck3</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_mck3</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), \{
 H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 ) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
@@ -210,34 +210,34 @@ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 <ul>
 <li>
 <code>evaluation$GATES$ht_none</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
 <code>evaluation$GATES$ht_cddf1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_cddf2</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p (
 X_i ) \cdot \mathbb{1} (G_K)\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i
 )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck2</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), H_i
 \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ]
 \cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck3</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), \{
 H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 ) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
@@ -254,14 +254,14 @@ model fitted using the AIPW strategy.</p>
 <li>BLP:
 <ul>
 <li>
-<code>evaluation$BLP$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$BLP$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>.</li>
 </ul>
 </li>
 <li>GATES:
 <ul>
 <li>
-<code>evaluation$GATES$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATEs/articles/evalue-cates-short-tutorial.html">short
+<code>evaluation$GATES$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short
 tutorial</a>.</li>
 </ul>
 </li>
