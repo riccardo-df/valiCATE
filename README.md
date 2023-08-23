@@ -1,4 +1,4 @@
-# CATEs Evaluation
+# CATEs Evaluation <a href="https://riccardo-df.github.io/evalueCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
 
 R package to implement several methodologies to estimate and make inference about key features of heterogeneous treatment effects.
 
