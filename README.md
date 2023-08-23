@@ -1,6 +1,6 @@
 # CATEs Evaluation <a href="https://riccardo-df.github.io/evalueCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
 
-R package to implement several methodologies to estimate and make inference about key features of heterogeneous treatment effects.
+R package to estimate and make inference about key features of heterogeneous treatment effects.
 
 To get started, please check the online [vignette](https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html) for a short tutorial.
 
