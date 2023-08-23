@@ -1,0 +1,79 @@
+---
+title: "Denoise Terms"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Denoise Terms}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+As described in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html), the estimation of BLP and GATES involves running suitable linear regressions.[^1] These regressions allow the inclusion of optional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation. In this article, we demonstrate how to utilize the `denoise` argument to incorporate these covariates in the regressions.
+
+The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evalueCATEs/articles/evalue-cates-short-tutorial.html):
+
+- $Y_i$ &rarr; Observed outcome;
+- $D_i$ &rarr; Treatment indicator;
+- $X_i$ &rarr; covariate vector;
+- $\mathbb{1} (G_k)$ &rarr; Dummy variable equal to one if the $i$-th unit belongs to the $k$-th group;[^2]
+- $\mu ( X_i ) = \mathbb{E} [ Y_i | X_i ]$;
+- $\mu_d ( X_i ) = \mathbb{E} [ Y_i | X_i, D_i = d ]$;
+- $p ( X_i ) = \mathbb{P} [ D_i = 1 | X_i ]$;
+- $H_i = \frac{D_i - p (X_i)}{p (X_i) ( 1 - p (X_i) )}$;
+- $\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$.
+
+There are several possible sets of constructed covariates that one can include in the regressions to reduce the variance of the estimation. Some of these sets have been proposed by Chernozukov et al. (2017), while others are new. The user can choose her preferred set by using the `denoise` argument when calling the `evalue_cates` function.[^3] 
+
+Notice that the available sets of constructed covariates differ depending on the value of the `strategy` argument. Moreover, for a given set, the constructed covariates may differ between the BLP and the GATES regressions.
+
+Additionally, note that the denoise terms below use estimates of the propensity score $\hat{p} ( \cdot )$. However, in randomized experiments, we have knowledge of the actual propensity score $p ( \cdot)$, which is going to be used in such cases.  
+
+### Weighted Residual
+When weighting the residuals is the chosen identification strategy (that is, when `strategy = "wr"`), the user can choose one of the following sets of constructed covariates:
+
+- `denoise = "cddf1"`:
+  * BLP &rarr; $\hat{\mu}_0 ( X_i )$;
+  * GATES &rarr; $\hat{\mu}_0 ( X_i )$; 
+  
+- `denoise = "cddf2"`:
+  * BLP &rarr; $1, \hat{\mu}_0 ( X_i ), \hat{p} ( X_i ), \hat{p} ( X_i ) \cdot \hat{\tau} ( X_i )$;
+  * GATES &rarr; $\hat{\mu}_0 ( X_i ), \hat{p} ( X_i ) \cdot \mathbb{1} (G_1), \dots, \hat{p} ( X_i ) \cdot \mathbb{1} (G_K)$; 
+  
+- `denoise = "mck1"`:
+  * BLP &rarr; $\hat{\mu} ( X_i )$;
+  * GATES &rarr; $\hat{\mu} ( X_i )$; 
+  
+### Horvitz-Thompson 
+When constructing new outcomes using the Horvitz-Thompson transformation $\hat{H}_i \cdot Y_i$ is the chosen identification strategy (that is, when `strategy = "ht"`), the user can choose one of the following sets of constructed covariates:[^4]
+
+- `denoise = "cddf1"`:
+  * BLP &rarr; $\hat{H}_i \cdot \hat{\mu}_0 ( X_i )$;
+  * GATES &rarr; $\hat{H}_i \cdot \hat{\mu}_0 ( X_i )$; 
+
+- `denoise = "cddf2"`:
+  * BLP &rarr; $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot \hat{p} ( X_i ), \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \hat{\tau} ( X_i )$;
+  * GATES &rarr; $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \mathbb{1} (G_1), \dots, \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \mathbb{1} (G_K)$; 
+  
+- `denoise = "mck1"`:
+  * BLP &rarr; $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - \hat{p} ( X_i ) ] \cdot \hat{\tau} ( X_i )$;
+  * GATES &rarr; $\hat{H}_i \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - \hat{p} ( X_i ) ] \cdot \hat{\tau} ( X_i )$; 
+  
+- `denoise = "mck2"`:
+  * BLP &rarr; $\hat{H}_i \cdot \hat{p} ( X_i ), \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - \hat{p} ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$;
+  * GATES &rarr; $\hat{H}_i \cdot \hat{p} ( X_i ), \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \hat{\mu}_0 ( X_i ), \hat{H}_i \cdot [ 1 - \hat{p} ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$; 
+  
+- `denoise = "mck3"`:
+  * BLP &rarr; $\hat{H}_i \cdot \hat{p} ( X_i ), \{ \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + \hat{H}_i \cdot [ 1 - \hat{p} ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$;
+  * GATES &rarr; $\hat{H}_i \cdot \hat{p} ( X_i ), \{ \hat{H}_i \cdot \hat{p} ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + \hat{H}_i \cdot [ 1 - \hat{p} ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$; 
+  
+[^1]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs.
+[^2]: We can always divide the units in $K$ mutually exclusive and non-overlapping groups. Chernozukov et al. (2017) suggest doing so by cutting the distribution of the estimated CATEs. 
+[^3]: Of course, it is possible not to include any optional constructed covariate in the regressions. This is the default behavior of the `evalue_cates` function.
+[^4]: In randomized experiments, we construct the new outcomes by using $H_i$ rather than $\hat{H}_i$.
