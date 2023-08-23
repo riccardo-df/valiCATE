@@ -13,10 +13,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(evalueCATE)
+library(evaluCATE)
 ```
 
-In this tutorial, we show how to use the `evalueCATE` package to estimate and make inference about key features of heterogeneous treatment effects. The discussion is loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021), and Imai and Li (2022).[^1]
+In this tutorial, we show how to use the `evaluCATE` package to estimate and make inference about key features of heterogeneous treatment effects. The discussion is loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021), and Imai and Li (2022).[^1]
 
 The core idea is that applying machine learning tools to the estimation of heterogeneous treatment effects may produce "low-quality" estimates of the Conditional Average Treatment Effects (CATEs). Thus, we move our target to features of the CATEs that $a)$ are of interest to researchers and policy makers, and $b)$ can be consistently estimated under mild assumptions. These features are:
 
@@ -109,12 +109,12 @@ The `evalue_cates` function estimates the BLP using three different strategies, 
 - **Weighted Residuals**:
 
 $$ Y_i = \beta_1 [ D_i - p ( X_i ) ] + \beta_2 \{ [ D_i - p ( X_i ) ] [ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] ] \} + \epsilon_i $$
-with the model fitted via WLS using weights $w ( X_i)$, and $\mathbb{E}_{n, V}$ denoting the sample average with respect to the validation sample. Results can be accessed by calling `evaluation$BLP$wr_none`. `evaluation$BLP$wr_cddf1`, `evaluation$BLP$wr_cddf2`, and `evaluation$BLP$wr_mck1` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evalueCATE/articles/denoising.html) for details). 
+with the model fitted via WLS using weights $w ( X_i)$, and $\mathbb{E}_{n, V}$ denoting the sample average with respect to the validation sample. Results can be accessed by calling `evaluation$BLP$wr_none`. `evaluation$BLP$wr_cddf1`, `evaluation$BLP$wr_cddf2`, and `evaluation$BLP$wr_mck1` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html) for details). 
 
 - **Horvitz-Thompson**
 
 $$ H_i Y_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
-with the model fitted via OLS. Results can be accessed by calling `evaluation$BLP$ht_none`. `evaluation$BLP$ht_cddf1`, `evaluation$BLP$ht_cddf2`, `evaluation$BLP$ht_mck1`, `evaluation$BLP$ht_mck2`, and `evaluation$BLP$ht_mck3` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evalueCATE/articles/denoising.html) for details). 
+with the model fitted via OLS. Results can be accessed by calling `evaluation$BLP$ht_none`. `evaluation$BLP$ht_cddf1`, `evaluation$BLP$ht_cddf2`, `evaluation$BLP$ht_mck1`, `evaluation$BLP$ht_mck2`, and `evaluation$BLP$ht_mck3` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html) for details). 
 
 - **AIPW**
 
@@ -135,12 +135,12 @@ The `evalue_cates` function estimates the GATES using the same three strategies 
 - **Weighted Residuals**
 
 $$ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p ( X_i ) ] \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
-with the model fitted via WLS using weights $w ( X_i)$. Results can be accessed by calling `evaluation$GATES$wr_none`. `evaluation$GATES$wr_cddf1`, `evaluation$GATES$wr_cddf2`, and `evaluation$GATES$wr_mck1` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evalueCATE/articles/denoising.html) for details). 
+with the model fitted via WLS using weights $w ( X_i)$. Results can be accessed by calling `evaluation$GATES$wr_none`. `evaluation$GATES$wr_cddf1`, `evaluation$GATES$wr_cddf2`, and `evaluation$GATES$wr_mck1` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html) for details). 
 
 - **Horvitz-Thompson**
 
 $$ H_i Y_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
-with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$ht_none`. `evaluation$GATES$ht_cddf1`, `evaluation$GATES$ht_cddf2`, `evaluation$GATES$ht_mck1`, `evaluation$GATES$ht_mck2`, and `evaluation$GATES$ht_mck3` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evalueCATE/articles/denoising.html) for details). 
+with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$ht_none`. `evaluation$GATES$ht_cddf1`, `evaluation$GATES$ht_cddf2`, `evaluation$GATES$ht_mck1`, `evaluation$GATES$ht_mck2`, and `evaluation$GATES$ht_mck3` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html) for details). 
 
 - **AIPW**
 
@@ -155,6 +155,6 @@ SKETCH IMAI AND LI HERE.
 [^2]: If we do not use the `pscore` argument at all, the `evalue_cates` function will estimate the propensity scores internally via a honest regression forest constructed using only the training sample. However, notice that most methodologies implemented here are valid only under randomized experiments, where $p ( \cdot )$ is known.
 [^3]: Failing to reject the hypothesis $\beta_2 = 0$ means that either there is no heterogeneity or $\hat{\tau} ( \cdot )$ is a "bad" predictor of $\tau ( \cdot )$. Without additional evidence, we are not able to disentangle this.
 [^4]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs. This applies also to the identification and estimation of the GATES.
-[^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. For each of the strategies detailed above, the `evalue_cates` function fits a number of linear models, each including a different set of additional covariates. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evalueCATE/articles/denoising.html).
+[^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. For each of the strategies detailed above, the `evalue_cates` function fits a number of linear models, each including a different set of additional covariates. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
 [^6]: The doubly-robust scores $\Gamma_i$ are estimated internally using the the validation sample and 5-fold cross-fitting.
 [^7]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles.
