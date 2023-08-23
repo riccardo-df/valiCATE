@@ -174,7 +174,7 @@ forests (see the <code><a href="https://riccardo-df.github.io/aggTrees/reference
 <span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu">evalue_cates</span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, <span class="va">pscore</span>, <span class="va">n_groups</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions and AIPW scores; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in evalue_cates(y, D, X, cates, train_idx, pscore, n_groups):</span> object 'pscore_val' not found</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in data.frame(y = y, beta1 = D_residual, beta2 = interaction_D_cates):</span> arguments imply differing number of rows: 525, 0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Compare results for a given model.</span></span></span>
 <span class="r-in"><span><span class="va">blp_model</span> <span class="op">&lt;-</span> <span class="va">evaluation</span><span class="op">$</span><span class="va">BLP</span><span class="op">$</span><span class="va">aipw</span></span></span>
