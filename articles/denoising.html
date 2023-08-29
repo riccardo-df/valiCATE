@@ -104,15 +104,16 @@ while others are new. For both the BLP and the GATES results, the
 for each of these sets. Thus, the user can compare the results across
 the different models.</p>
 <p>The optional constructed covariates depend on the nuisance functions
-<span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, <span class="math inline">\(\mu_1 ( \cdot )\)</span>, and <span class="math inline">\(p ( \cdot )\)</span>. The
-<code>evalue_cates</code> function constructs estimates of these
-functions internally using only the training sample and honest
-regression forests. Notice that the propensity score <span class="math inline">\(p ( X_i )\)</span> or its estimates <span class="math inline">\(\hat{p} ( X_i )\)</span> can be provided by the
-user to skip internal computation.</p>
+<span class="math inline">\(p ( \cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span>. The
+<code>evalue_cates</code> function has four optional arguments that we
+can use to supply estimates of these nuisances. Be careful, as these
+estimates must be obtained using only the training sample. If not
+provided by the user, these functions are estimated internally via
+honest regression forests using only the training sample.</p>
 <p>Suppose that we assign the results of the <code>evalue_cates</code>
 function call to a variable called <code>evaluation</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span><span class="op">)</span></span></code></pre></div>
 <p>In the following, we list the covariates that are included in the
 fitted models returned by the <code>evalue_cates</code> function.</p>
 <div class="section level3">

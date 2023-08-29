@@ -141,7 +141,7 @@ Y_i ( 0 ) | X_i ]\)</span> → CATEs.</li>
 <h3 id="calling-the-evalue_cates-function">Calling the <code>evalue_cates</code> Function<a class="anchor" aria-label="anchor" href="#calling-the-evalue_cates-function"></a>
 </h3>
 <p>When calling the <code>evalue_cates</code> function, we need to
-supply the whole sample using the first three arguments: <code>y</code>,
+supply the whole sample using the first three arguments: <code>Y</code>,
 <code>D</code>, and <code>X</code>, corresponding to <span class="math inline">\(Y_i\)</span>, <span class="math inline">\(D_i\)</span>, and <span class="math inline">\(X_i\)</span>. Additionally, the user must provide
 estimates of the CATEs <span class="math inline">\(\hat{\tau} ( X_i
 )\)</span> obtained using only the training sample by using the
@@ -163,13 +163,13 @@ used to post-process the CATEs estimates.</p>
 <span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="va">mu0</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">mu0</span> <span class="op">+</span> <span class="va">D</span> <span class="op">*</span> <span class="op">(</span><span class="va">mu1</span> <span class="op">-</span> <span class="va">mu0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">mu0</span> <span class="op">+</span> <span class="va">D</span> <span class="op">*</span> <span class="op">(</span><span class="va">mu1</span> <span class="op">-</span> <span class="va">mu0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
 <p>Second, we need to split the sample into a training sample and a
 validation sample or arbitrary sizes. Here we perform an approximate
 50/50 split.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Sample split.</span></span>
-<span><span class="va">train_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">train_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">X_tr</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="va">train_idx</span>, <span class="op">]</span></span>
 <span><span class="va">X_val</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span>, <span class="op">]</span></span>
@@ -177,8 +177,8 @@ validation sample or arbitrary sizes. Here we perform an approximate
 <span><span class="va">D_tr</span> <span class="op">&lt;-</span> <span class="va">D</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span></span>
 <span><span class="va">D_val</span> <span class="op">&lt;-</span> <span class="va">D</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">y_tr</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span></span>
-<span><span class="va">y_val</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">Y_tr</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span></span>
+<span><span class="va">Y_val</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span><span class="op">]</span></span></code></pre></div>
 <p>Third, we have to estimate the CATEs using only the training sample.
 Any methodology can be used. Here, we use a honest regression
 forest.</p>
@@ -186,25 +186,34 @@ forest.</p>
 <code class="sourceCode R"><span><span class="co">## CATEs estimation.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X_tr</span>, <span class="va">y_tr</span>, <span class="va">D_tr</span><span class="op">)</span> <span class="co"># We use only the training sample.</span></span>
+<span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X_tr</span>, <span class="va">Y_tr</span>, <span class="va">D_tr</span><span class="op">)</span> <span class="co"># We use only the training sample.</span></span>
 <span><span class="va">cates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co"># We predict on the whole sample.</span></span></code></pre></div>
 <p>We are now able to call the <code>evalue_cates</code> function. As
 mentioned above, we need to supply <span class="math inline">\(Y_i\)</span>, <span class="math inline">\(D_i\)</span>, and <span class="math inline">\(X_i\)</span> using the first three arguments. The
 fourth argument is used to provide estimates <span class="math inline">\(\hat{\tau} ( X_i )\)</span> obtained using only
 the training sample. Finally, the fifth argument must be a logical
-vector denoting which observations belong to the training sample. We
-also have an optional sixth argument that we can use to supply the
-propensity scores <span class="math inline">\(p ( X_i )\)</span>. In
-this vignette, we generated our data by mimicking a Bernoulli
-experiment, thus we have knowledge of the actual propensity score (0.5
-for all units). Otherwise, we could pass estimates <span class="math inline">\(\hat{p} ( X_i )\)</span> obtained using only the
-training sample.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+vector denoting which observations belong to the training sample.</p>
+<p>We also have four optional arguments that we can use to supply
+estimates of the nuisance functions <span class="math inline">\(p (
+\cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>,
+<span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span>. Be careful, as these
+estimates must be obtained using only the training sample. If not
+provided by the user, these functions are estimated internally via
+honest regression forests using only the training sample. In this
+vignette, we generated our data by mimicking a Bernoulli experiment,
+thus we have knowledge of the actual propensity score (0.5 for all
+units). We supply these values in the call below and let the function
+estimate the other nuisances internally.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
+<p>Finally, we have two additional optional arguments. The first of
+these arguments can be used to control the number of groups to be formed
+for the GATES analysis (details below), with the default number equal to
+five. The second of these arguments can be used to prevent the
+<code>evalue_cates</code> function from printing the status of progress
+on the console. We leave these arguments to their default values.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
-<span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y_val</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">n_groups</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
-<span></span>
-<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, <span class="va">pscore</span>, <span class="va">n_groups</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
+<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></code></pre></div>
 <p>After handling the inputs and running some checks, the
 <code>evalue_cates</code> function estimates the BLP and the GATES using
 only the validation sample. In the following, we detail the main results
@@ -275,10 +284,11 @@ vignette</a> for details).</p>
 <p><span class="math display">\[ \hat{\Gamma}_i = \beta_1 + \beta_2 \{
 \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} +
 \epsilon_i \]</span> with the model fitted via OLS, and <span class="math inline">\(\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) -
-\hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{\hat{p} ( X_i
-)} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} ( X_i
-)}\)</span>.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> Results can be accessed by calling
-<code>evaluation$BLP$aipw</code>.</p>
+\hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \hat{\mu}_1 ( X_i ) ]}{\hat{p} (
+X_i )} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} (
+X_i )}\)</span>. The doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated internally using
+the the validation sample and 5-fold cross-fitting. Results can be
+accessed by calling <code>evaluation$BLP$aipw</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="sorted-group-average-treatment-effects">Sorted Group Average Treatment Effects<a class="anchor" aria-label="anchor" href="#sorted-group-average-treatment-effects"></a>
@@ -286,7 +296,7 @@ vignette</a> for details).</p>
 <p>The second object estimated by the <code>evalue_cates</code> function
 are the sorted group average treatment effects, with the groups formed
 by cutting the distribution of <span class="math inline">\(\hat{\tau} (
-\cdot )\)</span> into <span class="math inline">\(K\)</span> bins:<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a></p>
+\cdot )\)</span> into <span class="math inline">\(K\)</span> bins:<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></p>
 <p><span class="math display">\[ \gamma_k := \mathbb{E} [ \tau ( X_i ) |
 \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ], \,\,\, k = 1, \dots,
 K\]</span> with <span class="math inline">\(- \infty = \ell_0 &lt;
@@ -342,8 +352,8 @@ vignette</a> for details).</p>
 <ul>
 <li><strong>AIPW</strong></li>
 </ul>
-<p><span class="math display">\[ \Gamma_i = \sum_{k = 1}^K \gamma_k
-\mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
+<p><span class="math display">\[ \hat{\Gamma}_i = \sum_{k = 1}^K
+\gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
 \epsilon_i \]</span> with the model fitted via OLS. Results can be
 accessed by calling <code>evaluation$GATES$aipw</code>.</p>
 <ul>
@@ -356,11 +366,8 @@ accessed by calling <code>evaluation$GATES$aipw</code>.</p>
 <ol>
 <li id="fn1"><p>Complete references to these papers are listed in the
 home page.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>If we do not use the <code>pscore</code> argument at
-all, the <code>evalue_cates</code> function will estimate the propensity
-scores internally via a honest regression forest constructed using only
-the training sample. However, notice that most methodologies implemented
-here are valid only under randomized experiments, where <span class="math inline">\(p ( \cdot )\)</span> is known.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Notice that most methodologies implemented here are
+valid only under randomized experiments, where <span class="math inline">\(p ( \cdot )\)</span> is known.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
 <li id="fn3"><p>Failing to reject the hypothesis <span class="math inline">\(\beta_2 = 0\)</span> means that either there is no
 heterogeneity or <span class="math inline">\(\hat{\tau} ( \cdot
 )\)</span> is a “bad” predictor of <span class="math inline">\(\tau (
@@ -378,11 +385,11 @@ of the strategies detailed above, the <code>evalue_cates</code> function
 fits a number of linear models, each including a different set of
 additional covariates. Details can be found in the <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising
 vignette</a>.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
-<li id="fn6"><p>The doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated internally using
-the the validation sample and 5-fold cross-fitting.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
-<li id="fn7"><p>The <span class="math inline">\(K\)</span> bins can be
+<li id="fn6"><p>The <span class="math inline">\(K\)</span> bins can be
 defined in various ways. Here we follow the approach of Chernozhukov et
-al. (2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+al. (2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles. The user can set <span class="math inline">\(K\)</span> by using the optional
+<code>n_group</code> argument when calling the <code>evalue_cates</code>
+function. The default behavior is <code>n_group = 5</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>
