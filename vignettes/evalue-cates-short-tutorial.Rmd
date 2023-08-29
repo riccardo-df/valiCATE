@@ -38,7 +38,7 @@ Before diving in the technical details, we need to define notation:
 - $\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATEs.
 
 ### Calling the `evalue_cates` Function
-When calling the `evalue_cates` function, we need to supply the whole sample using the first three arguments: `y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, the user must provide estimates of the CATEs $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, the argument `is_train` must consist of a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs. This allows the `evalue_cates` function to know which observations must be used to post-process the CATEs estimates.
+When calling the `evalue_cates` function, we need to supply the whole sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, the user must provide estimates of the CATEs $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, the argument `is_train` must consist of a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs. This allows the `evalue_cates` function to know which observations must be used to post-process the CATEs estimates.
 
 Let us see an example. First, we generate some data.
 
@@ -54,14 +54,14 @@ colnames(X) <- paste0("x", seq_len(k))
 D <- rbinom(n, size = 1, prob = 0.5)
 mu0 <- 0.5 * X[, 1]
 mu1 <- 0.5 * X[, 1] + X[, 2]
-y <- mu0 + D * (mu1 - mu0) + rnorm(n)
+Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 ```
 
 Second, we need to split the sample into a training sample and a validation sample or arbitrary sizes. Here we perform an approximate 50/50 split.
 
 ```{r sample-split, eval = FALSE}
 ## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(y), replace = TRUE)
+train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 
 X_tr <- X[train_idx, ]
 X_val <- X[!train_idx, ]
@@ -69,8 +69,8 @@ X_val <- X[!train_idx, ]
 D_tr <- D[train_idx]
 D_val <- D[!train_idx]
 
-y_tr <- y[train_idx]
-y_val <- y[!train_idx]
+Y_tr <- Y[train_idx]
+Y_val <- Y[!train_idx]
 ```
 
 Third, we have to estimate the CATEs using only the training sample. Any methodology can be used. Here, we use a honest regression forest.
@@ -79,19 +79,22 @@ Third, we have to estimate the CATEs using only the training sample. Any methodo
 ## CATEs estimation.
 library(grf)
 
-forest <- causal_forest(X_tr, y_tr, D_tr) # We use only the training sample.
+forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
 cates <- predict(forest, X)$predictions # We predict on the whole sample.
 ```
 
-We are now able to call the `evalue_cates` function. As mentioned above, we need to supply $Y_i$, $D_i$, and $X_i$ using the first three arguments. The fourth argument is used to provide estimates $\hat{\tau} ( X_i )$ obtained using only the training sample. Finally, the fifth argument must be a logical vector denoting which observations belong to the training sample. We also have an optional sixth argument that we can use to supply the propensity scores $p ( X_i )$. In this vignette, we generated our data by mimicking a Bernoulli experiment, thus we have knowledge of the actual propensity score (0.5 for all units). Otherwise, we could pass estimates $\hat{p} ( X_i )$ obtained using only the training sample.[^2]
+We are now able to call the `evalue_cates` function. As mentioned above, we need to supply $Y_i$, $D_i$, and $X_i$ using the first three arguments. The fourth argument is used to provide estimates $\hat{\tau} ( X_i )$ obtained using only the training sample. Finally, the fifth argument must be a logical vector denoting which observations belong to the training sample. 
+
+We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In this vignette, we generated our data by mimicking a Bernoulli experiment, thus we have knowledge of the actual propensity score (0.5 for all units). We supply these values in the call below and let the function estimate the other nuisances internally.[^2] 
+
+Finally, we have two additional optional arguments. The first of these arguments can be used to control the number of groups to be formed for the GATES analysis (details below), with the default number equal to five. The second of these arguments can be used to prevent the `evalue_cates` function from printing the status of progress on the console. We leave these arguments to their default values. 
 
 ```{r call-main, eval = FALSE}
 ## Call main function.
-pscore <- rep(0.5, length(y_val))
-n_groups <- 5
-
-evaluation <- evalue_cates(y, D, X, cates, train_idx, pscore, n_groups)
+pscore <- rep(0.5, length(y_val)) # True propensity scores.
+evaluation <- evalue_cates(y, D, X, cates, train_idx, pscore = pscore)
 ```
+
 
 After handling the inputs and running some checks, the `evalue_cates` function estimates the BLP and the GATES using only the validation sample. In the following, we detail the main results returned by the function. 
 
@@ -119,10 +122,10 @@ with the model fitted via OLS. Results can be accessed by calling `evaluation$BL
 - **AIPW**
 
 $$ \hat{\Gamma}_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
-with the model fitted via OLS, and $\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) - \hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{\hat{p} ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} ( X_i )}$.[^6] Results can be accessed by calling `evaluation$BLP$aipw`.
+with the model fitted via OLS, and $\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) - \hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \hat{\mu}_1 ( X_i ) ]}{\hat{p} ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} ( X_i )}$. The doubly-robust scores $\Gamma_i$ are estimated internally using the the validation sample and 5-fold cross-fitting. Results can be accessed by calling `evaluation$BLP$aipw`.
 
 ### Sorted Group Average Treatment Effects
-The second object estimated by the `evalue_cates` function are the sorted group average treatment effects, with the groups formed by cutting the distribution of $\hat{\tau} ( \cdot )$ into $K$ bins:[^7]
+The second object estimated by the `evalue_cates` function are the sorted group average treatment effects, with the groups formed by cutting the distribution of $\hat{\tau} ( \cdot )$ into $K$ bins:[^6]
 
 $$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ], \,\,\, k = 1, \dots, K$$
 with $- \infty = \ell_0 < \ell_1 < \dots < \ell_K < + \infty$. The GATES are of interest for two main reasons:
@@ -144,7 +147,7 @@ with the model fitted via OLS. Results can be accessed by calling `evaluation$GA
 
 - **AIPW**
 
-$$ \Gamma_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+$$ \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
 with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$aipw`.
 
 - **Nonparametric**
@@ -152,9 +155,8 @@ with the model fitted via OLS. Results can be accessed by calling `evaluation$GA
 SKETCH IMAI AND LI HERE.
 
 [^1]: Complete references to these papers are listed in the home page.
-[^2]: If we do not use the `pscore` argument at all, the `evalue_cates` function will estimate the propensity scores internally via a honest regression forest constructed using only the training sample. However, notice that most methodologies implemented here are valid only under randomized experiments, where $p ( \cdot )$ is known.
+[^2]: Notice that most methodologies implemented here are valid only under randomized experiments, where $p ( \cdot )$ is known.
 [^3]: Failing to reject the hypothesis $\beta_2 = 0$ means that either there is no heterogeneity or $\hat{\tau} ( \cdot )$ is a "bad" predictor of $\tau ( \cdot )$. Without additional evidence, we are not able to disentangle this.
 [^4]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs. This applies also to the identification and estimation of the GATES.
 [^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. For each of the strategies detailed above, the `evalue_cates` function fits a number of linear models, each including a different set of additional covariates. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
-[^6]: The doubly-robust scores $\Gamma_i$ are estimated internally using the the validation sample and 5-fold cross-fitting.
-[^7]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles.
+[^6]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles. The user can set $K$ by using the optional `n_group` argument when calling the `evalue_cates` function. The default behavior is `n_group = 5`.

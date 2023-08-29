@@ -1,15 +1,16 @@
 #' GATES Estimation
 #'
-#' Estimates the group average treatment effects, with the groups formed by cutting the distribution of the estimated CATEs into K quantiles.
+#' Estimates the group average treatment effects (GATES), with the groups formed by cutting the distribution of the estimated CATEs into K quantiles.
 #'
-#' @param y Observed outcomes.
+#' @param Y Observed outcomes.
 #' @param D Treatment indicator.
 #' @param cates Estimated CATEs. CATEs must be estimated with different observations than those in \code{y} and \code{D}.
-#' @param pscore Propensity scores. If unknown, they must be estimated using different observations than those in \code{y} and \code{D}. 
-#' @param mu Estimated regression function. It must be estimated with different observations than those in \code{y} and \code{D}. 
-#' @param mu0 Estimated regression function for control units. It must be estimated with different observations than those in \code{y} and \code{D}.
-#' @param mu1 Estimated regression function for treated units. It must be estimated with different observations than those in \code{y} and \code{D}. 
-#' @param scores Estimated doubly-robust scores. They must be estimated via K-fold cross-fitting. 
+#' @param cates Estimated CATEs. Must be estimated with different observations than those in \code{Y} and \code{D}.
+#' @param pscore Propensity scores. If unknown, they must be estimated using different observations than those in \code{Y} and \code{D}. 
+#' @param mu Estimated regression function. Must be estimated with different observations than those in \code{Y} and \code{D}. 
+#' @param mu0 Estimated regression function for control units. Must be estimated with different observations than those in \code{Y} and \code{D}.
+#' @param mu1 Estimated regression function for treated units. Must be estimated with different observations than those in \code{Y} and \code{D}. 
+#' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting with the same observations as in \code{Y} and \code{D}.
 #' @param n_groups Number of groups to be formed.
 #'
 #' @return
@@ -27,10 +28,10 @@
 #' D <- rbinom(n, size = 1, prob = 0.5)
 #' mu0 <- 0.5 * X[, 1]
 #' mu1 <- 0.5 * X[, 1] + X[, 2]
-#' y <- mu0 + D * (mu1 - mu0) + rnorm(n)
+#' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 #' 
 #' ## Sample split.
-#' train_idx <- sample(c(TRUE, FALSE), length(y), replace = TRUE)
+#' train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 #' 
 #' X_tr <- X[train_idx, ]
 #' X_val <- X[!train_idx, ]
@@ -38,34 +39,39 @@
 #' D_tr <- D[train_idx]
 #' D_val <- D[!train_idx]
 #' 
-#' y_tr <- y[train_idx]
-#' y_val <- y[!train_idx]
+#' Y_tr <- Y[train_idx]
+#' Y_val <- Y[!train_idx]
 #' 
 #' ## CATEs and nuisance functions estimation.
+#' ## We use only the training sample for estimation.
+#' ## We predict on the validation sample.
 #' library(grf)
 #' 
-#' cates_forest <- causal_forest(X_tr, y_tr, D_tr) # We use only the training sample.
-#' mu_forest <- regression_forest(X_tr, y_tr)
-#' mu0_forest <- regression_forest(X_tr[D_tr == 0, ], y_tr[D_tr == 0])
-#' mu1_forest <- regression_forest(X_tr[D_tr == 1, ], y_tr[D_tr == 1])
+#' cates_forest <- causal_forest(X_tr, Y_tr, D_tr) 
+#' mu_forest <- regression_forest(X_tr, Y_tr)
+#' mu0_forest <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
+#' mu1_forest <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
 #' 
-#' cates_val <- predict(cates_forest, X_val)$predictions # We predict on the validation sample.
+#' cates_val <- predict(cates_forest, X_val)$predictions #
 #' mu_val <- predict(mu_forest, X_val)$predictions
 #' mu0_val <- predict(mu0_forest, X_val)$predictions
 #' mu1_val <- predict(mu1_forest, X_val)$predictions
 #' 
+#' ## AIPW scores estimation.
+#' ## Cross-fitting on the validation sample.
 #' library(aggTrees)
-#' scores_val <- dr_scores(y_val, D_val, X_val)
+#' scores_val <- dr_scores(Y_val, D_val, X_val)
 #' 
-#' ## GATEs estimation. Here, we know true pscores. Otherwise, estimate them in training sample.
-#' pscore_val <- rep(0.5, length(y_val))
-#' n_groups <- 5
-#' gates_results <- gates_estimation(y_val, D_val, cates_val, 
-#'                                   pscore_val, mu_val, mu0_val, mu1_val, scores_val,
-#'                                   n_groups)
+#' ## GATEs estimation. Use default of five groups.
+#' ## Here, we know true pscores. Otherwise, estimate them in training sample.
+#' pscore_val <- rep(0.5, length(Y_val))
+#' gates_results <- gates_estimation(Y_val, D_val, cates_val, 
+#'                                   pscore_val, mu_val, mu0_val, mu1_val, 
+#'                                   scores_val)
 #' 
 #' ## Compare true GATES with estimated GATES.
 #' model <- gates_results$aipw
+#' n_groups <- length(coef(gates_results$aipw))
 #' cuts <- seq(0, 1, length = n_groups+1)[-c(1, n_groups+1)]
 #' group_indicators <- GenericML::quantile_group(cates_val, cutoffs = cuts)
 #' colnames(group_indicators) <- paste0(1:n_groups)
@@ -87,11 +93,11 @@
 #'   theme(legend.position = c(0.2, 0.85))
 #'
 #' @details
-#' \code{\link{gates_estimation}} estimates the sorted group average treatment effects (GATES). To this end, the user must provide observations on the outcomes and the treatment status of units in 
+#' \code{\link{gates_estimation}} estimates the GATES. To this end, the user must provide observations on the outcomes and the treatment status of units in 
 #' the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).\cr
 #' 
 #' The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the 
-#' \href{https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html}{online vignette} for details.\cr
+#' \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} for details.\cr
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 #' 
@@ -106,7 +112,7 @@
 #' @seealso Other functions
 #'
 #' @export
-gates_estimation <- function(y, D, cates, pscore, mu, mu0, mu1, scores, n_groups = 5) {
+gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups = 5) {
   ## 0.) Handling inputs and checks.
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
 
@@ -131,7 +137,7 @@ gates_estimation <- function(y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   pscore_interaction <- pscore * group_indicators
   colnames(pscore_interaction) <- paste0("pscore", 1:dim(D_residual_interaction)[2])
   H <- D_residual * wr_weights
-  HY <- H * y
+  HY <- H * Y
   Hmu0 <- H * mu0
   Hpscore_interaction <- H * pscore_interaction
   colnames(Hpscore_interaction) <- paste0("H.pscore", 1:dim(group_indicators)[2])
@@ -142,32 +148,32 @@ gates_estimation <- function(y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   Hmu0_pscore_mu1_pscore <- Hmu0_pscore + Hmu1_pscore
   
   ## 3.) Define specifications.
-  wr_none_dta <- data.frame("y" = y, D_residual_interaction)
-  wr_cddf1_dta <- data.frame("y" = y, D_residual_interaction, mu0)
-  wr_cddf2_dta <- data.frame("y" = y, D_residual_interaction, mu0, pscore_interaction)
-  wr_mck1_dta <- data.frame("y" = y, D_residual_interaction, mu)
+  wr_none_dta <- data.frame("Y" = Y, D_residual_interaction)
+  wr_cddf1_dta <- data.frame("Y" = Y, D_residual_interaction, mu0)
+  wr_cddf2_dta <- data.frame("Y" = Y, D_residual_interaction, mu0, pscore_interaction)
+  wr_mck1_dta <- data.frame("Y" = Y, D_residual_interaction, mu)
   
-  ht_none_dta <- data.frame("Hy" = HY, group_indicators)
-  ht_cddf1_dta <- data.frame("Hy" = HY, group_indicators, "H.mu0" = Hmu0)
-  ht_cddf2_dta <- data.frame("Hy" = HY, group_indicators, "H.mu0" = Hmu0, Hpscore_interaction)
-  ht_mck1_dta <- data.frame("Hy" = HY, group_indicators, "H.mu0" = Hmu0, "H.1-pscore.tauhat" = new_mck_covariate)
-  ht_mck2_dta <- data.frame("Hy" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "h.mu1.1_pscore" = Hmu1_pscore)
-  ht_mck3_dta <- data.frame("Hy" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
+  ht_none_dta <- data.frame("HY" = HY, group_indicators)
+  ht_cddf1_dta <- data.frame("HY" = HY, group_indicators, "H.mu0" = Hmu0)
+  ht_cddf2_dta <- data.frame("HY" = HY, group_indicators, "H.mu0" = Hmu0, Hpscore_interaction)
+  ht_mck1_dta <- data.frame("HY" = HY, group_indicators, "H.mu0" = Hmu0, "H.1-pscore.tauhat" = new_mck_covariate)
+  ht_mck2_dta <- data.frame("HY" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "h.mu1.1_pscore" = Hmu1_pscore)
+  ht_mck3_dta <- data.frame("HY" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
   
   aipw_dta <- data.frame("aipw" = scores, group_indicators)
   
   ## 4.) Fit linear models.
-  wr_none_model <- estimatr::lm_robust(y ~ 0 + ., wr_none_dta, weights = wr_weights, se_type = "HC1") 
-  wr_cddf1_model <- estimatr::lm_robust(y ~ 0 + ., wr_cddf1_dta, weights = wr_weights, se_type = "HC1") 
-  wr_cddf2_model <- estimatr::lm_robust(y ~ 0 + ., wr_cddf2_dta, weights = wr_weights, se_type = "HC1") 
-  wr_mck1_model <- estimatr::lm_robust(y ~ 0 + ., wr_mck1_dta, weights = wr_weights, se_type = "HC1") 
+  wr_none_model <- estimatr::lm_robust(Y ~ 0 + ., wr_none_dta, weights = wr_weights, se_type = "HC1") 
+  wr_cddf1_model <- estimatr::lm_robust(Y ~ 0 + ., wr_cddf1_dta, weights = wr_weights, se_type = "HC1") 
+  wr_cddf2_model <- estimatr::lm_robust(Y ~ 0 + ., wr_cddf2_dta, weights = wr_weights, se_type = "HC1") 
+  wr_mck1_model <- estimatr::lm_robust(Y ~ 0 + ., wr_mck1_dta, weights = wr_weights, se_type = "HC1") 
   
-  ht_none_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_none_dta, se_type = "HC1") 
-  ht_cddf1_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_cddf1_dta, se_type = "HC1") 
-  ht_cddf2_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_cddf2_dta, se_type = "HC1") 
-  ht_mck1_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_mck1_dta, se_type = "HC1") 
-  ht_mck2_model <- estimatr::lm_robust(Hy ~0 + ., ht_mck2_dta, se_type = "HC1") 
-  ht_mck3_model <- estimatr::lm_robust(Hy ~ 0 + ., ht_mck3_dta, se_type = "HC1") 
+  ht_none_model <- estimatr::lm_robust(HY ~ 0 + ., ht_none_dta, se_type = "HC1") 
+  ht_cddf1_model <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf1_dta, se_type = "HC1") 
+  ht_cddf2_model <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf2_dta, se_type = "HC1") 
+  ht_mck1_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck1_dta, se_type = "HC1") 
+  ht_mck2_model <- estimatr::lm_robust(HY ~0 + ., ht_mck2_dta, se_type = "HC1") 
+  ht_mck3_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck3_dta, se_type = "HC1") 
   
   aipw_model <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
   

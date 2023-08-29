@@ -2,13 +2,16 @@
 #'
 #' Evaluates the quality of CATEs estimates by implementing several Generic Machine Learning methodologies.
 #'
-#' @param y Observed outcomes.
+#' @param Y Observed outcomes.
 #' @param D Treatment indicator.
 #' @param X Covariate matrix (no intercept).
-#' @param cates Estimated CATEs. CATEs must be estimated using only the training sample.
+#' @param cates Estimated CATEs. Must be estimated using only the training sample.
 #' @param is_train Logical vector denoting which observations belong to the training sample.
-#' @param pscore Propensity scores. If unknown, they must be estimated using only the training sample. If not provided by the user, they are estimated internally via an honest \code{\link[grf]{regression_forest}}.
-#' @param n_groups Number of groups to be formed.
+#' @param pscore Propensity scores. If unknown, they must be estimated using only the training sample. 
+#' @param mu Estimated regression function. Must be estimated using only the training sample.
+#' @param mu0 Estimated regression function for control units. Must be estimated using only the training sample.
+#' @param mu1 Estimated regression function for treated units. Must be estimated using only the training sample.
+#' @param n_groups Number of groups to be formed for the GATES analysis.
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
@@ -26,10 +29,10 @@
 #' D <- rbinom(n, size = 1, prob = 0.5)
 #' mu0 <- 0.5 * X[, 1]
 #' mu1 <- 0.5 * X[, 1] + X[, 2]
-#' y <- mu0 + D * (mu1 - mu0) + rnorm(n)
+#' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 #' 
 #' ## Sample split.
-#' train_idx <- sample(c(TRUE, FALSE), length(y), replace = TRUE)
+#' train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 #' 
 #' X_tr <- X[train_idx, ]
 #' X_val <- X[!train_idx, ]
@@ -37,20 +40,18 @@
 #' D_tr <- D[train_idx]
 #' D_val <- D[!train_idx]
 #' 
-#' y_tr <- y[train_idx]
-#' y_val <- y[!train_idx]
+#' Y_tr <- Y[train_idx]
+#' Y_val <- Y[!train_idx]
 #' 
 #' ## CATEs estimation.
 #' library(grf)
 #' 
-#' forest <- causal_forest(X_tr, y_tr, D_tr) # We use only the training sample.
+#' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
 #' cates <- predict(forest, X)$predictions # We predict on the whole sample.
 #' 
-#' ## CATEs evaluation.  
-#' pscore <- rep(0.5, length(y_val))
-#' n_groups <- 5
-#' 
-#' evaluation <- evalue_cates(y, D, X, cates, train_idx, pscore, n_groups)
+#' ## CATEs evaluation. Estimate all nuisances internally. 
+#' pscore <- rep(0.5, length(Y))
+#' evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 #' 
 #' ## Compare results for a given model.
 #' blp_model <- evaluation$BLP$aipw
@@ -66,6 +67,7 @@
 #' Estimated quality : ", round(blp_model$coefficients["beta2"], 3), " [", round(blp_model$conf.low["beta2"], 3), ", ", round(blp_model$conf.high["beta2"], 3), "]", sep = "") 
 #' 
 #' # True GATES with estimated GATES.
+#' n_groups <- length(coef(evaluation$GATES$aipw))
 #' cuts <- seq(0, 1, length = n_groups+1)[-c(1, n_groups+1)]
 #' group_indicators <- GenericML::quantile_group(cates[!train_idx], cutoffs = cuts)
 #' colnames(group_indicators) <- paste0(1:n_groups)
@@ -96,11 +98,12 @@
 #' training sample. This way, \code{\link{evalue_cates}} knows which observations to use to post-process the CATEs estimates.\cr
 #' 
 #' \code{\link{evalue_cates}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
-#' different strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalue_cates}}
-#' fits and returns all these possible models. Check the online \href{https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr 
+#' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalue_cates}}
+#' fits and returns all these possible models. Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr 
 #' 
-#' Some of these models involve covariates that depend on particular nuisance functions. These functions are estimated internally via honest \code{\link[grf]{regression_forest}}s.
-#' Check the online \href{https://riccardo-df.github.io/evalueCATE/articles/denoising.html}{denoising vignette} for details about these covariates.\cr
+#' Some of these models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome (check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} 
+#' for details about these covariates.). The user can supply estimates of these functions by using the optional arguments \code{pscore}, \code{mu}, \code{mu0}, and \code{mu1}. Be careful, as these must be obtained using 
+#' only the training sample. If not provided by the user, these functions are estimated internally via honest \code{\link[grf]{regression_forest}}s. \cr
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 #' 
@@ -116,7 +119,9 @@
 #' @seealso Other functions
 #'
 #' @export
-evalue_cates <- function(y, D, X, cates, is_train, pscore = NULL, n_groups = 5, verbose = TRUE) {
+evalue_cates <- function(Y, D, X, cates, is_train,
+                         pscore = NULL, mu = NULL, mu0 = NULL, mu1 = NULL,
+                         n_groups = 5, verbose = TRUE) {
   ## 0.) Handling inputs and checks.
   if (is.logical(D)) D <- as.numeric(D)
   if (any(!(D %in% c(0, 1)))) stop("Invalid 'D'. Only binary treatments are allowed.", call. = FALSE)
@@ -124,46 +129,63 @@ evalue_cates <- function(y, D, X, cates, is_train, pscore = NULL, n_groups = 5, 
   if (!is.logical(is_train)) stop("Invalid 'is_train'. This must be a logical vector.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
 
-  ## 1.) Split the sample as indicated by the user. If necessary, estimate cates and propensity score using the training sample and doubly-robust scores using the validation sample.
+  ## 1.) Split the sample as indicated by the user.  and doubly-robust scores using the validation sample.
   train_idx <- which(is_train)
   val_idx <- which(!is_train)
 
-  y_tr <- y[train_idx]
+  Y_tr <- Y[train_idx]
   D_tr <- D[train_idx]
   X_tr <- X[train_idx, ]
   cates_tr <- cates[train_idx]
 
-  y_val <- y[val_idx]
+  Y_val <- Y[val_idx]
   D_val <- D[val_idx]
   X_val <- X[val_idx, ]
   cates_val <- cates[val_idx]
-
+  
+  ## 2.) If necessary, estimate nuisance functions using the training sample. Then,estimated AIPW scores in validation sample via cross-fitting.
+  if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
+  
   if (is.null(pscore)) {
     pscore_forest <- grf::regression_forest(X_tr, D_tr)
     pscore <- stats::predict(pscore_forest, X)$predictions
   }
   
+  if (is.null(mu)) {
+    mu_forest <- grf::regression_forest(X_tr, Y_tr)
+    mu <- stats::predict(mu_forest, X)$predictions
+  }
+  
+  if (is.null(mu0)) {
+    mu0_forest <- grf::regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
+    mu0 <- stats::predict(mu0_forest, X)$predictions
+  }
+  
+  if (is.null(mu1)) {
+    mu1_forest <- grf::regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
+    mu1 <- stats::predict(mu1_forest, X)$predictions
+  }
+  
   pscore_tr <- pscore[train_idx]
-  pscore_val <- pscore[!train_idx]
+  pscore_val <- pscore[val_idx]
 
-  ## 2.) Estimate nuisance functions using the training sample and doubly-robust scores using the validation sample and cross-fitting.
-  if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
-  mu_forest <- grf::regression_forest(X_tr, y_tr)
-  mu0_forest <- grf::regression_forest(X_tr[D_tr == 0, ], y_tr[D_tr == 0])
-  mu1_forest <- grf::regression_forest(X_tr[D_tr == 1, ], y_tr[D_tr == 1])
+  mu_tr <- mu[train_idx]
+  mu_val <- mu[val_idx]
   
-  mu_val <- stats::predict(mu_forest, X_val)$predictions
-  mu0_val <- stats::predict(mu0_forest, X_val)$predictions
-  mu1_val <- stats::predict(mu1_forest, X_val)$predictions
+  mu0_tr <- mu0[train_idx]
+  mu0_val <- mu0[val_idx]
   
-  scores <- aggTrees::dr_scores(y_val, D_val, X_val)
+  mu1_tr <- mu1[train_idx]
+  mu1_val <- mu1[val_idx]
+  
+  scores <- aggTrees::dr_scores(Y_val, D_val, X_val)
     
   ## 3.) Estimate BLP and GATES in validation sample.
   if (verbose) cat("BLP estimation; \n")
-  blp_results <- blp_estimation(y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores)
+  blp_results <- blp_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores)
   
   if (verbose) cat("GATES estimation; \n")
-  gates_results <- gates_estimation(y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores, n_groups)
+  gates_results <- gates_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores, n_groups)
 
   ## Output.
   if (verbose) cat("Output. \n\n")

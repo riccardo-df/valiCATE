@@ -20,12 +20,12 @@ The notation is the same as in the [short tutorial](https://riccardo-df.github.i
 
 There are several possible sets of constructed covariates that one can include in the regressions to reduce the variance of the estimation. Some of these sets have been proposed by Chernozukov et al. (2017), while others are new. For both the BLP and the GATES results, the `evalue_cates` function returns a bunch of fitted models, one for each of these sets. Thus, the user can compare the results across the different models.
 
-The optional constructed covariates depend on the nuisance functions $\mu ( \cdot )$, $\mu_0 ( \cdot )$, $\mu_1 ( \cdot )$, and $p ( \cdot )$. The `evalue_cates` function constructs estimates of these functions internally using only the training sample and honest regression forests. Notice that the propensity score $p ( X_i )$ or its estimates $\hat{p} ( X_i )$ can be provided by the user to skip internal computation.
+The optional constructed covariates depend on the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. The `evalue_cates` function has four optional arguments that we can use to supply estimates of these nuisances. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample.
 
 Suppose that we assign the results of the `evalue_cates` function call to a variable called `evaluation`.
 
 ```{r call-main, eval = FALSE}
-evaluation <- evalue_cates(y, D, X, cates, is_train = train_idx, pscore = pscore)
+evaluation <- evalue_cates(Y, D, X, cates, is_train = train_idx)
 ```
 
 In the following, we list the covariates that are included in the fitted models returned by the `evalue_cates` function. 

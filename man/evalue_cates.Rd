@@ -5,30 +5,39 @@
 \title{CATEs Evaluation}
 \usage{
 evalue_cates(
-  y,
+  Y,
   D,
   X,
   cates,
   is_train,
   pscore = NULL,
+  mu = NULL,
+  mu0 = NULL,
+  mu1 = NULL,
   n_groups = 5,
   verbose = TRUE
 )
 }
 \arguments{
-\item{y}{Observed outcomes.}
+\item{Y}{Observed outcomes.}
 
 \item{D}{Treatment indicator.}
 
 \item{X}{Covariate matrix (no intercept).}
 
-\item{cates}{Estimated CATEs. CATEs must be estimated using only the training sample.}
+\item{cates}{Estimated CATEs. Must be estimated using only the training sample.}
 
 \item{is_train}{Logical vector denoting which observations belong to the training sample.}
 
-\item{pscore}{Propensity scores. If unknown, they must be estimated using only the training sample. If not provided by the user, they are estimated internally via an honest \code{\link[grf]{regression_forest}}.}
+\item{pscore}{Propensity scores. If unknown, they must be estimated using only the training sample.}
 
-\item{n_groups}{Number of groups to be formed.}
+\item{mu}{Estimated regression function. Must be estimated using only the training sample.}
+
+\item{mu0}{Estimated regression function for control units. Must be estimated using only the training sample.}
+
+\item{mu1}{Estimated regression function for treated units. Must be estimated using only the training sample.}
+
+\item{n_groups}{Number of groups to be formed for the GATES analysis.}
 
 \item{verbose}{Logical, set to FALSE to prevent the function from printing the progresses.}
 }
@@ -47,11 +56,12 @@ To let the function know which observations were used for the CATEs estimation, 
 training sample. This way, \code{\link{evalue_cates}} knows which observations to use to post-process the CATEs estimates.\cr
 
 \code{\link{evalue_cates}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
-different strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalue_cates}}
-fits and returns all these possible models. Check the online \href{https://riccardo-df.github.io/evalueCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr
+different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalue_cates}}
+fits and returns all these possible models. Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr
 
-Some of these models involve covariates that depend on particular nuisance functions. These functions are estimated internally via honest \code{\link[grf]{regression_forest}}s.
-Check the online \href{https://riccardo-df.github.io/evalueCATE/articles/denoising.html}{denoising vignette} for details about these covariates.\cr
+Some of these models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome (check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette}
+for details about these covariates.). The user can supply estimates of these functions by using the optional arguments \code{pscore}, \code{mu}, \code{mu0}, and \code{mu1}. Be careful, as these must be obtained using
+only the training sample. If not provided by the user, these functions are estimated internally via honest \code{\link[grf]{regression_forest}}s. \cr
 
 For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 
@@ -72,10 +82,10 @@ colnames(X) <- paste0("x", seq_len(k))
 D <- rbinom(n, size = 1, prob = 0.5)
 mu0 <- 0.5 * X[, 1]
 mu1 <- 0.5 * X[, 1] + X[, 2]
-y <- mu0 + D * (mu1 - mu0) + rnorm(n)
+Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 
 ## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(y), replace = TRUE)
+train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 
 X_tr <- X[train_idx, ]
 X_val <- X[!train_idx, ]
@@ -83,20 +93,18 @@ X_val <- X[!train_idx, ]
 D_tr <- D[train_idx]
 D_val <- D[!train_idx]
 
-y_tr <- y[train_idx]
-y_val <- y[!train_idx]
+Y_tr <- Y[train_idx]
+Y_val <- Y[!train_idx]
 
 ## CATEs estimation.
 library(grf)
 
-forest <- causal_forest(X_tr, y_tr, D_tr) # We use only the training sample.
+forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
 cates <- predict(forest, X)$predictions # We predict on the whole sample.
 
-## CATEs evaluation.  
-pscore <- rep(0.5, length(y_val))
-n_groups <- 5
-
-evaluation <- evalue_cates(y, D, X, cates, train_idx, pscore, n_groups)
+## CATEs evaluation. Estimate all nuisances internally. 
+pscore <- rep(0.5, length(Y))
+evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Compare results for a given model.
 blp_model <- evaluation$BLP$aipw
@@ -112,6 +120,7 @@ cat("True quality      : ", cor(mu1[!train_idx] - mu0[!train_idx], cates[!train_
 Estimated quality : ", round(blp_model$coefficients["beta2"], 3), " [", round(blp_model$conf.low["beta2"], 3), ", ", round(blp_model$conf.high["beta2"], 3), "]", sep = "") 
 
 # True GATES with estimated GATES.
+n_groups <- length(coef(evaluation$GATES$aipw))
 cuts <- seq(0, 1, length = n_groups+1)[-c(1, n_groups+1)]
 group_indicators <- GenericML::quantile_group(cates[!train_idx], cutoffs = cuts)
 colnames(group_indicators) <- paste0(1:n_groups)
