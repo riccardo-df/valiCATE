@@ -97,29 +97,6 @@ gates_results <- gates_estimation(Y_val, D_val, cates_val,
                                   pscore_val, mu_val, mu0_val, mu1_val, 
                                   scores_val)
 
-## Compare true GATES with estimated GATES.
-model <- gates_results$aipw
-n_groups <- length(coef(gates_results$aipw))
-cuts <- seq(0, 1, length = n_groups+1)[-c(1, n_groups+1)]
-group_indicators <- GenericML::quantile_group(cates_val, cutoffs = cuts)
-colnames(group_indicators) <- paste0(1:n_groups)
-true_gates <- apply(group_indicators, 2, function(x) {mean(cates_val[x])})
-
-library(ggplot2)
-
-plot_dta <- data.frame("group" = 1:n_groups, "true_gate" = true_gates, 
-                       "estimated_gate" = model$coefficients[1:n_groups], 
-                       "se" = model$std.error[1:n_groups])
-
-ggplot(plot_dta, aes(x = group, y = true_gate)) +
-  geom_point(aes(color = "True")) +
-  geom_point(aes(y = estimated_gate, color = "Estimated")) +
-  geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se), color = "black") +
-  xlab("Group") + ylab("GATES") + 
-  scale_color_manual(name = "", breaks = c("True", "Estimated"), values = c("True" = "tomato", "Estimated" = "dodgerblue")) +
-  theme_bw() + 
-  theme(legend.position = c(0.2, 0.85))
-
 }
 \seealso{
 Other functions

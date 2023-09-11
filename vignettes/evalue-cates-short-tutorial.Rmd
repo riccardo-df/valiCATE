@@ -37,12 +37,14 @@ Before diving in the technical details, we need to define notation:
 - $w ( X_i ) = \frac{1}{\hat{p} ( X_i ) [ 1 - \hat{p} ( X_i )]}$ &rarr; Propensity score weights;
 - $\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATEs.
 
+Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
+
 ### Calling the `evalue_cates` Function
 When calling the `evalue_cates` function, we need to supply the whole sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, the user must provide estimates of the CATEs $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, the argument `is_train` must consist of a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs. This allows the `evalue_cates` function to know which observations must be used to post-process the CATEs estimates.
 
 Let us see an example. First, we generate some data.
 
-```{r generate-data, eval = FALSE}
+```{r generate-data, eval = TRUE}
 ## Generate data.
 set.seed(1986)
 
@@ -59,7 +61,7 @@ Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 
 Second, we need to split the sample into a training sample and a validation sample or arbitrary sizes. Here we perform an approximate 50/50 split.
 
-```{r sample-split, eval = FALSE}
+```{r sample-split, eval = TRUE}
 ## Sample split.
 train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 
@@ -73,11 +75,11 @@ Y_tr <- Y[train_idx]
 Y_val <- Y[!train_idx]
 ```
 
-Third, we have to estimate the CATEs using only the training sample. Any methodology can be used. Here, we use a honest regression forest.
+Third, we have to estimate the CATEs using only the training sample. Any methodology can be used. Here, we use a honest causal forest.
 
-```{r cates-estimation, eval = FALSE}
+```{r cates-estimation, eval = TRUE}
 ## CATEs estimation.
-library(grf)
+suppressWarnings(library(grf))
 
 forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
 cates <- predict(forest, X)$predictions # We predict on the whole sample.
@@ -87,12 +89,12 @@ We are now able to call the `evalue_cates` function. As mentioned above, we need
 
 We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In this vignette, we generated our data by mimicking a Bernoulli experiment, thus we have knowledge of the actual propensity score (0.5 for all units). We supply these values in the call below and let the function estimate the other nuisances internally.[^2] 
 
-Finally, we have two additional optional arguments. The first of these arguments can be used to control the number of groups to be formed for the GATES analysis (details below), with the default number equal to five. The second of these arguments can be used to prevent the `evalue_cates` function from printing the status of progress on the console. We leave these arguments to their default values. 
+Finally, we have two additional optional arguments. The first of these arguments can be used to control the number of groups to be formed for the GATES analysis (details below), with the default number equal to five. The second of these arguments can be used to prevent the `evalue_cates` function from printing the status of progress on the console. We use the default of five groups and prevent the function from printing the progresses.  
 
-```{r call-main, eval = FALSE}
+```{r call-main, eval = TRUE}
 ## Call main function.
-pscore <- rep(0.5, length(y_val)) # True propensity scores.
-evaluation <- evalue_cates(y, D, X, cates, train_idx, pscore = pscore)
+pscore <- rep(0.5, length(Y_val)) # True propensity scores.
+evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore, verbose = FALSE)
 ```
 
 
@@ -127,36 +129,62 @@ with the model fitted via OLS, and $\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) - \hat
 ### Sorted Group Average Treatment Effects
 The second object estimated by the `evalue_cates` function are the sorted group average treatment effects, with the groups formed by cutting the distribution of $\hat{\tau} ( \cdot )$ into $K$ bins:[^6]
 
-$$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ], \,\,\, k = 1, \dots, K$$
+$$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | \ell_{k - 1} \leq \hat{\tau} ( X_i ) < \ell_k ], \,\,\, k = 1, \dots, K$$
 with $- \infty = \ell_0 < \ell_1 < \dots < \ell_K < + \infty$. The GATES are of interest for two main reasons:
 
-- First, they provided a nonlinear predictor of $\tau ( \cdot )$, as they provide the BLP of $\tau ( \cdot )$ using the group indicators $\mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k )$ (Chernozhukov et al., 2017);
+- First, they provide a nonlinear predictor of $\tau ( \cdot )$, as they provide the BLP of $\tau ( \cdot )$ using the group indicators $\mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k )$ (Chernozhukov et al., 2017);
 - Second, they allow us to assess whether there is systematic heterogeneity. For example, one could test the hypothesis that all the GATES are the same $\gamma_1 = \dots = \gamma_K$, or that the difference between the largest and the smallest GATES is zero $\gamma_1 = \gamma_K$. If we reject these hypotheses, the GATES also provide a way to quantify how different groups show differential reactions to the treatment.
 
-The `evalue_cates` function estimates the GATES using the same three strategies used for the BLP estimation. As before, all linear models are fitted using only observations in the validation sample. Additionally, `evalue_cates` also implements a nonparametric estimator of the GATES.
+The `evalue_cates` function estimates the GATES using the same three strategies used for the BLP estimation. As before, all linear models are fitted using only observations in the validation sample. Additionally, `evalue_cates` also implements a nonparametric estimator of the GATES following the approach of Imai and Li (2022).
 
 - **Weighted Residuals**
 
-$$ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p ( X_i ) ] \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+$$ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p ( X_i ) ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 with the model fitted via WLS using weights $w ( X_i)$. Results can be accessed by calling `evaluation$GATES$wr_none`. `evaluation$GATES$wr_cddf1`, `evaluation$GATES$wr_cddf2`, and `evaluation$GATES$wr_mck1` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html) for details). 
 
 - **Horvitz-Thompson**
 
-$$ H_i Y_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+$$ H_i Y_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$ht_none`. `evaluation$GATES$ht_cddf1`, `evaluation$GATES$ht_cddf2`, `evaluation$GATES$ht_mck1`, `evaluation$GATES$ht_mck2`, and `evaluation$GATES$ht_mck3` allow the user to access the results of the models that build on the one displayed here by adding different sets of optional covariates (check the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html) for details). 
 
 - **AIPW**
 
-$$ \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k ) + \epsilon_i $$
+$$ \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 with the model fitted via OLS. Results can be accessed by calling `evaluation$GATES$aipw`.
 
 - **Nonparametric**
 
-SKETCH IMAI AND LI HERE.
+$$ \hat{\gamma}_k = \frac{K}{\sum_{i = 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 - D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) $$
+Imai and Li (2022) derive the exact variance of this estimator and its asymptotic normality. Results can be accessed by calling `evaluation$GATES$imai_li`.
+
+### Compare Results
+Our package is compatible with the generic S3 methods `print`, `summary`, and `plot` that allow the user to investigate the results.[^7] This section shows an example of how these methods can be used to analyze the output of a single call of the `evalue_cates` function. 
+
+- **BLP**
+The `summary` method allows the user to visualize the results of BLP estimation. The method displays the estimated average treatment effect ($\beta_1$) and heterogeneity parameter ($\beta_2$) for all the methodologies detailed above. An optional argument controls whether the raw results or LATEX code for a table will be displayed in the console.
+
+```{r compare-blp, eval = TRUE}
+## BLP summary.
+summary(evaluation)
+summary(evaluation, latex = "BLP")
+```
+
+By simulation, we can compute the true average treatment effect as `mean(mu1 - mu0)`. We can then compare this quantity to the estimated $\beta_1$ by any given model to check the accuracy of the results. Additionally, we can compare the estimated $\beta_2$ to the true "quality" of the estimated CATEs, given by `cor(mu1[!train_idx] - mu0[!train_idx], cates[!train_idx])`. This can be done only in simulations with heterogeneous effects. With this condition met, rejecting the hypothesis $\beta_2 = 0$ means that $\hat{\tau} ( \cdot )$ is a "good" predictor of $\tau ( \cdot )$. 
+
+- **GATES**
+The `plot` method allows the user to visualize the results of GATES estimation. The method plots the estimated average treatment effect of each group ($\{ \hat{\gamma}_k \}_{k = 1}^K$) for all the methodologies detailed above. Error bars displaying 95% confidence intervals are also displayed.
+
+```{r true-gates, eval = TRUE}
+## GATES results.
+plot(evaluation)
+```
+
+By simulation, we can compute the true GATES in the $k$-th group as `mean(mu1[!train_idx][x] - mu0[!train_idx][x])`, with `x` a logical vector denoting those units belonging to the $k$-th group. We can then compare these quantities with those displayed in the plot to check the accuracy of the results. 
 
 [^1]: Complete references to these papers are listed in the home page.
 [^2]: Notice that most methodologies implemented here are valid only under randomized experiments, where $p ( \cdot )$ is known.
 [^3]: Failing to reject the hypothesis $\beta_2 = 0$ means that either there is no heterogeneity or $\hat{\tau} ( \cdot )$ is a "bad" predictor of $\tau ( \cdot )$. Without additional evidence, we are not able to disentangle this.
 [^4]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs. This applies also to the identification and estimation of the GATES.
 [^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. For each of the strategies detailed above, the `evalue_cates` function fits a number of linear models, each including a different set of additional covariates. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
-[^6]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles. The user can set $K$ by using the optional `n_group` argument when calling the `evalue_cates` function. The default behavior is `n_group = 5`.
+[^6]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles $\{ \hat{\ell}_k \}_{k = 1}^K$, with $\hat{\ell}_k = inf \{ c \in \mathcal{R} : \sum_{i = 1}^n \mathbb{1} ( \tau ( X_i ) > c ) \leq nk / K \}$ the empirical $k$-th quantile of $\hat{\tau} ( \cdot )$. The user can set $K$ by using the optional `n_group` argument when calling the `evalue_cates` function. The default behavior is `n_group = 5`.
+[^7]: The `print` and `summary` methods return the same output in our package.

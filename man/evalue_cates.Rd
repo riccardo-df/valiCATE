@@ -106,40 +106,12 @@ cates <- predict(forest, X)$predictions # We predict on the whole sample.
 pscore <- rep(0.5, length(Y))
 evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
-## Compare results for a given model.
-blp_model <- evaluation$BLP$aipw
-gates_model <- evaluation$GATES$aipw
+## Generic S3 methods.
+summary(evaluation)
+summary(evaluation, latex = "BLP")
 
-# True ATE vs estimated ATE.
-cat("True ATE      : ", round(mean(mu1 - mu0), 3), " 
-Estimated ATE : ", round(blp_model$coefficients["beta1"], 3), " [", round(blp_model$conf.low["beta1"], 3), ", ", round(blp_model$conf.high["beta1"], 3), "]", sep = "")
-
-# True "quality" of estimated CATEs vs estimated quality.
-# (We can do this because we know that, by DGP, we have heterogeneous effects.)
-cat("True quality      : ", cor(mu1[!train_idx] - mu0[!train_idx], cates[!train_idx]), " 
-Estimated quality : ", round(blp_model$coefficients["beta2"], 3), " [", round(blp_model$conf.low["beta2"], 3), ", ", round(blp_model$conf.high["beta2"], 3), "]", sep = "") 
-
-# True GATES with estimated GATES.
-n_groups <- length(coef(evaluation$GATES$aipw))
-cuts <- seq(0, 1, length = n_groups+1)[-c(1, n_groups+1)]
-group_indicators <- GenericML::quantile_group(cates[!train_idx], cutoffs = cuts)
-colnames(group_indicators) <- paste0(1:n_groups)
-true_gates <- apply(group_indicators, 2, function(x) {mean(cates[!train_idx][x])})
-
-library(ggplot2)
-
-plot_dta <- data.frame("group" = 1:n_groups, "true_gate" = true_gates, 
-                       "estimated_gate" = gates_model$coefficients[1:n_groups], 
-                       "se" = gates_model$std.error[1:n_groups])
-
-ggplot(plot_dta, aes(x = group, y = true_gate)) +
-  geom_point(aes(color = "True")) +
-  geom_point(aes(y = estimated_gate, color = "Estimated")) +
-  geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se), color = "black") +
-  xlab("Group") + ylab("GATES") + 
-  scale_color_manual(name = "", breaks = c("True", "Estimated"), values = c("True" = "tomato", "Estimated" = "dodgerblue")) +
-  theme_bw() + 
-  theme(legend.position = c(0.2, 0.85))
+print(evaluation)
+plot(evaluation)
 
 }
 \seealso{

@@ -67,37 +67,6 @@
 #'                               pscore_val, mu_val, mu0_val, mu1_val, 
 #'                               scores_val)
 #'
-#' ## Compare true ATE vs estimated ATE.
-#' cat("True ATE      : ", round(mean(mu1 - mu0), 3), " 
-#' Estimated ATE 
-#'     - wr_none :  ", round(blp_results$wr_none$coefficients["beta1"], 3), "
-#'     - wr_cddf1: ", round(blp_results$wr_cddf1$coefficients["beta1"], 3), "
-#'     - wr_cddf2: ", round(blp_results$wr_cddf2$coefficients["beta1"], 3), " 
-#'     - wr_mck1 : ", round(blp_results$wr_mck1$coefficients["beta1"], 3), " 
-#'     - ht_none : ", round(blp_results$ht_none$coefficients["beta1"], 3), " 
-#'     - ht_cddf1: ", round(blp_results$ht_cddf1$coefficients["beta1"], 3), " 
-#'     - ht_cddf2: ", round(blp_results$ht_cddf2$coefficients["beta1"], 3), " 
-#'     - ht_mck1 : ", round(blp_results$ht_mck1$coefficients["beta1"], 3), " 
-#'     - ht_mck2 : ", round(blp_results$ht_mck2$coefficients["beta1"], 3), " 
-#'     - ht_mck3 : ", round(blp_results$ht_mck3$coefficients["beta1"], 3), " 
-#'     - aipw    : ", round(blp_results$aipw$coefficients["beta1"], 3), sep = "")
-#' 
-#' ## Compare true "quality" of estimated CATEs vs estimated quality.
-#' ## (We can do this because we know that, by DGP, we have heterogeneous effects.)
-#' cat("True quality      : ", cor(mu1[!train_idx] - mu0[!train_idx], cates_val), " 
-#' Estimated quality 
-#'     - wr_none     : ", round(blp_results$wr_none$coefficients["beta2"], 3), "
-#'     - wr_cddf1    : ", round(blp_results$wr_cddf1$coefficients["beta2"], 3), "
-#'     - wr_cddf2    : ", round(blp_results$wr_cddf2$coefficients["beta2"], 3), " 
-#'     - wr_mck1     : ", round(blp_results$wr_mck1$coefficients["beta2"], 3), " 
-#'     - ht_none     : ", round(blp_results$ht_none$coefficients["beta2"], 3), " 
-#'     - ht_cddf1    : ", round(blp_results$ht_cddf1$coefficients["beta2"], 3), " 
-#'     - ht_cddf2    : ", round(blp_results$ht_cddf2$coefficients["beta2"], 3), " 
-#'     - ht_mck1     : ", round(blp_results$ht_mck1$coefficients["beta2"], 3), " 
-#'     - ht_mck2     : ", round(blp_results$ht_mck2$coefficients["beta2"], 3), " 
-#'     - ht_mck3     : ", round(blp_results$ht_mck3$coefficients["beta2"], 3), " 
-#'     - aipw        : ", round(blp_results$aipw$coefficients["beta2"], 3), sep = "")
-#'
 #' @details
 #' \code{\link{blp_estimation}} estimates the BLP of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in 
 #' the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).\cr

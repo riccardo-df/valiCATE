@@ -68,29 +68,6 @@
 #' gates_results <- gates_estimation(Y_val, D_val, cates_val, 
 #'                                   pscore_val, mu_val, mu0_val, mu1_val, 
 #'                                   scores_val)
-#' 
-#' ## Compare true GATES with estimated GATES.
-#' model <- gates_results$aipw
-#' n_groups <- length(coef(gates_results$aipw))
-#' cuts <- seq(0, 1, length = n_groups+1)[-c(1, n_groups+1)]
-#' group_indicators <- GenericML::quantile_group(cates_val, cutoffs = cuts)
-#' colnames(group_indicators) <- paste0(1:n_groups)
-#' true_gates <- apply(group_indicators, 2, function(x) {mean(cates_val[x])})
-#' 
-#' library(ggplot2)
-#' 
-#' plot_dta <- data.frame("group" = 1:n_groups, "true_gate" = true_gates, 
-#'                        "estimated_gate" = model$coefficients[1:n_groups], 
-#'                        "se" = model$std.error[1:n_groups])
-#' 
-#' ggplot(plot_dta, aes(x = group, y = true_gate)) +
-#'   geom_point(aes(color = "True")) +
-#'   geom_point(aes(y = estimated_gate, color = "Estimated")) +
-#'   geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se), color = "black") +
-#'   xlab("Group") + ylab("GATES") + 
-#'   scale_color_manual(name = "", breaks = c("True", "Estimated"), values = c("True" = "tomato", "Estimated" = "dodgerblue")) +
-#'   theme_bw() + 
-#'   theme(legend.position = c(0.2, 0.85))
 #'
 #' @details
 #' \code{\link{gates_estimation}} estimates the GATES. To this end, the user must provide observations on the outcomes and the treatment status of units in 
@@ -105,7 +82,7 @@
 #' 
 #' The estimated GATES are rearranged to obey the monotonicity property (i.e., we sort them in increasing order).\cr
 #'
-#' @import estimatr GenericML
+#' @import estimatr GenericML evalITR
 #'
 #' @author Riccardo Di Francesco
 #'
@@ -129,7 +106,7 @@ gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   
   if (out_condition) stop("We have one or more homogeneous groups. Please try a different 'k' or a different sample split.", call. = FALSE)
   
-  ## 2.) Construct covariates .
+  ## 2.) Construct covariates.
   wr_weights <- (pscore * (1 - pscore))^(-1) 
   D_residual <- D - pscore
   D_residual_interaction <- D_residual * group_indicators
@@ -193,9 +170,15 @@ gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
     counter <- counter + 1
   }
   
-  ## 6.) Output.
+  ## 6.) Nonparametric estimator.
+  imai_li <- evalITR::GATE(D, cates, Y, n_groups)
+  imai_li_results <- data.frame("group" = 1:n_groups, "GATE" = imai_li$gate, "SE" = imai_li$sd)
+  
+  ## 7.) Output.
+  out[[counter]] <- imai_li_results
   names(out) <- c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1",
                   "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3",
-                  "aipw")
+                  "aipw",
+                  "imai_li")
   return(out)
 }

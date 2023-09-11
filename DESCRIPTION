@@ -16,7 +16,11 @@ VignetteBuilder: knitr
 RoxygenNote: 7.2.3
 Imports: 
     aggTrees,
+    dplyr,
     estimatr,
+    evalITR,
     GenericML,
+    ggplot2,
+    ggsci,
     grf
 URL: https://riccardo-df.github.io/evalueCATE/
