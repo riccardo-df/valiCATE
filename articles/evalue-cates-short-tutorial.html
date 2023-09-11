@@ -137,6 +137,8 @@ p (X_i) )}\)</span> → Horvitz-Thompson operator;</li>
 <span class="math inline">\(\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) -
 Y_i ( 0 ) | X_i ]\)</span> → CATEs.</li>
 </ul>
+<p>Throughout the rest of the tutorial, we assume SUTVA and
+unconfoundedness (e.g., Imbens and Rubin, 2015).</p>
 <div class="section level3">
 <h3 id="calling-the-evalue_cates-function">Calling the <code>evalue_cates</code> Function<a class="anchor" aria-label="anchor" href="#calling-the-evalue_cates-function"></a>
 </h3>
@@ -180,11 +182,10 @@ validation sample or arbitrary sizes. Here we perform an approximate
 <span><span class="va">Y_tr</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span></span>
 <span><span class="va">Y_val</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span><span class="op">]</span></span></code></pre></div>
 <p>Third, we have to estimate the CATEs using only the training sample.
-Any methodology can be used. Here, we use a honest regression
-forest.</p>
+Any methodology can be used. Here, we use a honest causal forest.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## CATEs estimation.</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X_tr</span>, <span class="va">Y_tr</span>, <span class="va">D_tr</span><span class="op">)</span> <span class="co"># We use only the training sample.</span></span>
 <span><span class="va">cates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co"># We predict on the whole sample.</span></span></code></pre></div>
@@ -209,11 +210,12 @@ these arguments can be used to control the number of groups to be formed
 for the GATES analysis (details below), with the default number equal to
 five. The second of these arguments can be used to prevent the
 <code>evalue_cates</code> function from printing the status of progress
-on the console. We leave these arguments to their default values.</p>
+on the console. We use the default of five groups and prevent the
+function from printing the progresses.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
-<span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
-<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
+<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>After handling the inputs and running some checks, the
 <code>evalue_cates</code> function estimates the BLP and the GATES using
 only the validation sample. In the following, we detail the main results
@@ -298,12 +300,12 @@ are the sorted group average treatment effects, with the groups formed
 by cutting the distribution of <span class="math inline">\(\hat{\tau} (
 \cdot )\)</span> into <span class="math inline">\(K\)</span> bins:<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a></p>
 <p><span class="math display">\[ \gamma_k := \mathbb{E} [ \tau ( X_i ) |
-\ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ], \,\,\, k = 1, \dots,
+\ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; \ell_k ], \,\,\, k = 1, \dots,
 K\]</span> with <span class="math inline">\(- \infty = \ell_0 &lt;
 \ell_1 &lt; \dots &lt; \ell_K &lt; + \infty\)</span>. The GATES are of
 interest for two main reasons:</p>
 <ul>
-<li>First, they provided a nonlinear predictor of <span class="math inline">\(\tau ( \cdot )\)</span>, as they provide the BLP
+<li>First, they provide a nonlinear predictor of <span class="math inline">\(\tau ( \cdot )\)</span>, as they provide the BLP
 of <span class="math inline">\(\tau ( \cdot )\)</span> using the group
 indicators <span class="math inline">\(\mathbb{1} ( \ell_{k - 1} \leq
 \hat{\tau} ( X_i ) &lt; l_k )\)</span> (Chernozhukov et al., 2017);</li>
@@ -320,14 +322,15 @@ the treatment.</li>
 same three strategies used for the BLP estimation. As before, all linear
 models are fitted using only observations in the validation sample.
 Additionally, <code>evalue_cates</code> also implements a nonparametric
-estimator of the GATES.</p>
+estimator of the GATES following the approach of Imai and Li (2022).</p>
 <ul>
 <li><strong>Weighted Residuals</strong></li>
 </ul>
 <p><span class="math display">\[ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p
-( X_i ) ] \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
-\epsilon_i \]</span> with the model fitted via WLS using weights <span class="math inline">\(w ( X_i)\)</span>. Results can be accessed by
-calling <code>evaluation$GATES$wr_none</code>.
+( X_i ) ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
+\hat{\ell}_k ) + \epsilon_i \]</span> with the model fitted via WLS
+using weights <span class="math inline">\(w ( X_i)\)</span>. Results can
+be accessed by calling <code>evaluation$GATES$wr_none</code>.
 <code>evaluation$GATES$wr_cddf1</code>,
 <code>evaluation$GATES$wr_cddf2</code>, and
 <code>evaluation$GATES$wr_mck1</code> allow the user to access the
@@ -338,9 +341,10 @@ vignette</a> for details).</p>
 <li><strong>Horvitz-Thompson</strong></li>
 </ul>
 <p><span class="math display">\[ H_i Y_i = \sum_{k = 1}^K \gamma_k
-\mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
-\epsilon_i \]</span> with the model fitted via OLS. Results can be
-accessed by calling <code>evaluation$GATES$ht_none</code>.
+\mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
+\hat{\ell}_k ) + \epsilon_i \]</span> with the model fitted via OLS.
+Results can be accessed by calling
+<code>evaluation$GATES$ht_none</code>.
 <code>evaluation$GATES$ht_cddf1</code>,
 <code>evaluation$GATES$ht_cddf2</code>,
 <code>evaluation$GATES$ht_mck1</code>,
@@ -353,13 +357,125 @@ vignette</a> for details).</p>
 <li><strong>AIPW</strong></li>
 </ul>
 <p><span class="math display">\[ \hat{\Gamma}_i = \sum_{k = 1}^K
-\gamma_k \mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) &lt; l_k ) +
-\epsilon_i \]</span> with the model fitted via OLS. Results can be
-accessed by calling <code>evaluation$GATES$aipw</code>.</p>
+\gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
+\hat{\ell}_k ) + \epsilon_i \]</span> with the model fitted via OLS.
+Results can be accessed by calling
+<code>evaluation$GATES$aipw</code>.</p>
 <ul>
 <li><strong>Nonparametric</strong></li>
 </ul>
-<p>SKETCH IMAI AND LI HERE.</p>
+<p><span class="math display">\[ \hat{\gamma}_k = \frac{K}{\sum_{i =
+1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq
+\hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 -
+D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1}
+\leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) \]</span> Imai and Li (2022)
+derive the exact variance of this estimator and its asymptotic
+normality. Results can be accessed by calling
+<code>evaluation$GATES$imai_li</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="compare-results">Compare Results<a class="anchor" aria-label="anchor" href="#compare-results"></a>
+</h3>
+<p>Our package is compatible with the generic S3 methods
+<code>print</code>, <code>summary</code>, and <code>plot</code> that
+allow the user to investigate the results.<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> This section shows an
+example of how these methods can be used to analyze the output of a
+single call of the <code>evalue_cates</code> function.</p>
+<ul>
+<li>
+<strong>BLP</strong> The <code>summary</code> method allows the user
+to visualize the results of BLP estimation. The method displays the
+estimated average treatment effect (<span class="math inline">\(\beta_1\)</span>) and heterogeneity parameter
+(<span class="math inline">\(\beta_2\)</span>) for all the methodologies
+detailed above. An optional argument controls whether the raw results or
+LATEX code for a table will be displayed in the console.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## BLP summary.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span><span class="op">)</span></span>
+<span><span class="co">#&gt; CATEs evaluation results </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimated ATE + 95% confidence intervals: </span></span>
+<span><span class="co">#&gt; wr_none : -0.06 [-0.356, 0.237] </span></span>
+<span><span class="co">#&gt; wr_cddf1: -0.12 [-0.395, 0.152] </span></span>
+<span><span class="co">#&gt; wr_cddf2: -0.1 [-0.349, 0.141] </span></span>
+<span><span class="co">#&gt; wr_mck1 : -0.11 [-0.356, 0.13] </span></span>
+<span><span class="co">#&gt; ht_none : -0.06 [-0.356, 0.237] </span></span>
+<span><span class="co">#&gt; ht_cddf1: -0.12 [-0.395, 0.152] </span></span>
+<span><span class="co">#&gt; ht_cddf2: -0.11 [-0.355, 0.132] </span></span>
+<span><span class="co">#&gt; ht_mck1 : -0.12 [-0.365, 0.125] </span></span>
+<span><span class="co">#&gt; ht_mck2 : -0.11 [-0.355, 0.129] </span></span>
+<span><span class="co">#&gt; ht_mck3 : -0.1 [-0.342, 0.143] </span></span>
+<span><span class="co">#&gt; aipw    : -0.04 [-0.231, 0.143] </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimated HET + 95% confidence intervals: </span></span>
+<span><span class="co">#&gt; wr_none : 1.16 [0.793, 1.527] </span></span>
+<span><span class="co">#&gt; wr_cddf1: 1.17 [0.825, 1.51] </span></span>
+<span><span class="co">#&gt; wr_cddf2: 1.11 [0.846, 1.38] </span></span>
+<span><span class="co">#&gt; wr_mck1 : 1.12 [0.85, 1.385] </span></span>
+<span><span class="co">#&gt; ht_none : 1.16 [0.793, 1.527] </span></span>
+<span><span class="co">#&gt; ht_cddf1: 1.17 [0.825, 1.51] </span></span>
+<span><span class="co">#&gt; ht_cddf2: 1.12 [0.85, 1.38] </span></span>
+<span><span class="co">#&gt; ht_mck1 : 1.12 [0.845, 1.386] </span></span>
+<span><span class="co">#&gt; ht_mck2 : 1.11 [0.842, 1.371] </span></span>
+<span><span class="co">#&gt; ht_mck3 : 1.1 [0.831, 1.361] </span></span>
+<span><span class="co">#&gt; aipw    : 1.06 [0.859, 1.265]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, latex <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; \begingroup</span></span>
+<span><span class="co">#&gt;     \setlength{\tabcolsep}{8pt}</span></span>
+<span><span class="co">#&gt;     \renewcommand{\arraystretch}{1.1}</span></span>
+<span><span class="co">#&gt;     \begin{table}[H]</span></span>
+<span><span class="co">#&gt;         \centering</span></span>
+<span><span class="co">#&gt;         \begin{adjustbox}{width = 1\textwidth}</span></span>
+<span><span class="co">#&gt;         \begin{tabular}{@{\extracolsep{5pt}}l c c c c c c c c c c c}</span></span>
+<span><span class="co">#&gt;         \\[-1.8ex]\hline</span></span>
+<span><span class="co">#&gt;         \hline \\[-1.8ex]</span></span>
+<span><span class="co">#&gt;         &amp; wr\_none &amp; wr\_cddf1 &amp; wr\_cddf2 &amp; wr\_mck1 &amp; ht\_none &amp; ht\_cddf1 &amp; ht\_cddf2 &amp; ht\_mck1 &amp; ht\_mck2 &amp; ht\_mck3 &amp; aipw \\</span></span>
+<span><span class="co">#&gt;         \addlinespace[2pt]</span></span>
+<span><span class="co">#&gt;         \hline \\[-1.8ex] </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         ATE ($\beta_1$) &amp; -0.06 &amp; -0.12 &amp; -0.1 &amp; -0.11 &amp; -0.06 &amp; -0.12 &amp; -0.11 &amp; -0.12 &amp; -0.11 &amp; -0.1 &amp; -0.04 \\ </span></span>
+<span><span class="co">#&gt;                          &amp;  [-0.356, 0.237] &amp; [-0.395, 0.152] &amp; [-0.349, 0.141] &amp; [-0.356, 0.13] &amp; [-0.356, 0.237] &amp; [-0.395, 0.152] &amp; [-0.355, 0.132] &amp; [-0.365, 0.125] &amp; [-0.355, 0.129] &amp; [-0.342, 0.143] &amp; [-0.231, 0.143] \\ </span></span>
+<span><span class="co">#&gt;         HET ($\beta_2$) &amp; 1.16 &amp; 1.17 &amp; 1.11 &amp; 1.12 &amp; 1.16 &amp; 1.17 &amp; 1.12 &amp; 1.12 &amp; 1.11 &amp; 1.1 &amp; 1.06 \\ </span></span>
+<span><span class="co">#&gt;                          &amp;  [0.793, 1.527] &amp; [0.825, 1.51] &amp; [0.846, 1.38] &amp; [0.85, 1.385] &amp; [0.793, 1.527] &amp; [0.825, 1.51] &amp; [0.85, 1.38] &amp; [0.845, 1.386] &amp; [0.842, 1.371] &amp; [0.831, 1.361] &amp; [0.859, 1.265] \\ </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         \addlinespace[3pt]</span></span>
+<span><span class="co">#&gt;         \\[-1.8ex]\hline</span></span>
+<span><span class="co">#&gt;         \hline \\[-1.8ex]</span></span>
+<span><span class="co">#&gt;         \end{tabular}</span></span>
+<span><span class="co">#&gt;         \end{adjustbox}</span></span>
+<span><span class="co">#&gt;         \caption{BLP results. $95\%$ confidence intervals are displayed in brackets under each point estimate.}</span></span>
+<span><span class="co">#&gt;         \label{table_blp_results}</span></span>
+<span><span class="co">#&gt;     \end{table}</span></span>
+<span><span class="co">#&gt; \endgroup</span></span></code></pre></div>
+<p>By simulation, we can compute the true average treatment effect as
+<code>mean(mu1 - mu0)</code>. We can then compare this quantity to the
+estimated <span class="math inline">\(\beta_1\)</span> by any given
+model to check the accuracy of the results. Additionally, we can compare
+the estimated <span class="math inline">\(\beta_2\)</span> to the true
+“quality” of the estimated CATEs, given by
+<code>cor(mu1[!train_idx] - mu0[!train_idx], cates[!train_idx])</code>.
+This can be done only in simulations with heterogeneous effects. With
+this condition met, rejecting the hypothesis <span class="math inline">\(\beta_2 = 0\)</span> means that <span class="math inline">\(\hat{\tau} ( \cdot )\)</span> is a “good”
+predictor of <span class="math inline">\(\tau ( \cdot )\)</span>.</p>
+<ul>
+<li>
+<strong>GATES</strong> The <code>plot</code> method allows the user
+to visualize the results of GATES estimation. The method plots the
+estimated average treatment effect of each group (<span class="math inline">\(\{ \hat{\gamma}_k \}_{k = 1}^K\)</span>) for all
+the methodologies detailed above. Error bars displaying 95% confidence
+intervals are also displayed.</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## GATES results.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span><span class="op">)</span></span></code></pre></div>
+<p><img src="evalue-cates-short-tutorial_files/figure-html/true-gates-1.png" width="700"></p>
+<p>By simulation, we can compute the true GATES in the <span class="math inline">\(k\)</span>-th group as
+<code>mean(mu1[!train_idx][x] - mu0[!train_idx][x])</code>, with
+<code>x</code> a logical vector denoting those units belonging to the
+<span class="math inline">\(k\)</span>-th group. We can then compare
+these quantities with those displayed in the plot to check the accuracy
+of the results.</p>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr>
@@ -387,9 +503,14 @@ additional covariates. Details can be found in the <a href="https://riccardo-df.
 vignette</a>.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
 <li id="fn6"><p>The <span class="math inline">\(K\)</span> bins can be
 defined in various ways. Here we follow the approach of Chernozhukov et
-al. (2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles. The user can set <span class="math inline">\(K\)</span> by using the optional
+al. (2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles <span class="math inline">\(\{ \hat{\ell}_k \}_{k = 1}^K\)</span>, with <span class="math inline">\(\hat{\ell}_k = inf \{ c \in \mathcal{R} : \sum_{i
+= 1}^n \mathbb{1} ( \tau ( X_i ) &gt; c ) \leq nk / K \}\)</span> the
+empirical <span class="math inline">\(k\)</span>-th quantile of <span class="math inline">\(\hat{\tau} ( \cdot )\)</span>. The user can set
+<span class="math inline">\(K\)</span> by using the optional
 <code>n_group</code> argument when calling the <code>evalue_cates</code>
 function. The default behavior is <code>n_group = 5</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>The <code>print</code> and <code>summary</code> methods
+return the same output in our package.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>
