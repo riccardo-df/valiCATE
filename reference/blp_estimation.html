@@ -102,14 +102,15 @@
     <div id="details">
     <h2>Details</h2>
     <p><code>blp_estimation</code> estimates the BLP of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in 
-the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).<br></p>
+the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).
+Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.<br></p>
 <p>The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">online vignette</a> 
 for details.<br></p>
 <p>Standard errors are estimated using the Eicker-Huber-White estimator.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p>Other functions</p></div>
+    <div class="dont-index"><p><code><a href="gates_estimation.html">gates_estimation</a></code>, <code><a href="rate_estimation.html">rate_estimation</a></code></p></div>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -153,7 +154,7 @@ for details.<br></p>
 <span class="r-in"><span><span class="va">mu0_forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" class="external-link">regression_forest</a></span><span class="op">(</span><span class="va">X_tr</span><span class="op">[</span><span class="va">D_tr</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span>, <span class="va">Y_tr</span><span class="op">[</span><span class="va">D_tr</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mu1_forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" class="external-link">regression_forest</a></span><span class="op">(</span><span class="va">X_tr</span><span class="op">[</span><span class="va">D_tr</span> <span class="op">==</span> <span class="fl">1</span>, <span class="op">]</span>, <span class="va">Y_tr</span><span class="op">[</span><span class="va">D_tr</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">cates_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cates_forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co">#</span></span></span>
+<span class="r-in"><span><span class="va">cates_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cates_forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> </span></span>
 <span class="r-in"><span><span class="va">mu_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">mu_forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
 <span class="r-in"><span><span class="va">mu0_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">mu0_forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
 <span class="r-in"><span><span class="va">mu1_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">mu1_forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
@@ -164,8 +165,7 @@ for details.<br></p>
 <span class="r-in"><span><span class="va">scores_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://riccardo-df.github.io/aggTrees/reference/dr_scores.html" class="external-link">dr_scores</a></span><span class="op">(</span><span class="va">Y_val</span>, <span class="va">D_val</span>, <span class="va">X_val</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## BLP estimation. </span></span></span>
-<span class="r-in"><span><span class="co">## Here, we know true pscores. Otherwise, estimate them in training sample.</span></span></span>
-<span class="r-in"><span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> </span></span>
+<span class="r-in"><span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># We know true pscores.</span></span></span>
 <span class="r-in"><span><span class="va">blp_results</span> <span class="op">&lt;-</span> <span class="fu">blp_estimation</span><span class="op">(</span><span class="va">Y_val</span>, <span class="va">D_val</span>, <span class="va">cates_val</span>, </span></span>
 <span class="r-in"><span>                              <span class="va">pscore_val</span>, <span class="va">mu_val</span>, <span class="va">mu0_val</span>, <span class="va">mu1_val</span>, </span></span>
 <span class="r-in"><span>                              <span class="va">scores_val</span><span class="op">)</span></span></span>

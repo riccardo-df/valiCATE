@@ -67,6 +67,8 @@
 <span>  mu0 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mu1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_groups <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  beneficial <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_boot <span class="op">=</span> <span class="fl">200</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -113,6 +115,14 @@
 <dd><p>Number of groups to be formed for the GATES analysis.</p></dd>
 
 
+<dt>beneficial</dt>
+<dd><p>Logical, whether the treatment is beneficial to units. If <code>TRUE</code>, units are ranked according to decreasing values of <code>cates</code> to estimate the RATE, otherwise they are ranked according to increasing values of <code>cates</code>.</p></dd>
+
+
+<dt>n_boot</dt>
+<dd><p>Number of bootstrap replications to estimate the standard error of the RATE estimate.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Logical, set to FALSE to prevent the function from printing the progresses.</p></dd>
 
@@ -125,21 +135,24 @@
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p><code>evalue_cates</code> targets the estimation of the best linear predictor (BLP) of the actual CATEs using the estimated CATEs and of the sorted group average treatment effects (GATES).
-To this end, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well as their estimated CATEs. Be careful,
-as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).<br></p>
+    <p><code>evalue_cates</code> targets the estimation of the best linear predictor (BLP) of the actual CATEs using the estimated CATEs, of the sorted group average treatment effects (GATES), and of
+the rank-weighted average treatment effect (RATE). To this end, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well
+as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).<br></p>
 <p>To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the <code>TRUE</code>s denoting observations in the
 training sample. This way, <code>evalue_cates</code> knows which observations to use to post-process the CATEs estimates.<br></p>
 <p><code>evalue_cates</code> implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
 different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. <code>evalue_cates</code>
-fits and returns all these possible models. Check the online <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short tutorial</a> for details.<br></p>
-<p>Some of these models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome (check the online <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising vignette</a>
-for details about these covariates.). The user can supply estimates of these functions by using the optional arguments <code>pscore</code>, <code>mu</code>, <code>mu0</code>, and <code>mu1</code>. Be careful, as these must be obtained using
-only the training sample. If not provided by the user, these functions are estimated internally via honest <code><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" class="external-link">regression_forest</a></code>s. <br></p>
+fits and returns all these possible models. GATES are also estimated using a nonparametric approach. Check the online
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short tutorial</a> for details.<br></p>
+<p>Some of the linear models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome
+(check the online <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising vignette</a> for details about these covariates.). The user can supply estimates of these functions by using the
+optional arguments <code>pscore</code>, <code>mu</code>, <code>mu0</code>, and <code>mu1</code>. Be careful, as these must be obtained using only the training sample. If not provided by the user, these functions are estimated internally
+via honest <code><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" class="external-link">regression_forest</a></code>s. <br></p>
 <p>For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.<br></p>
-<p>To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression
-forests (see the <code><a href="https://riccardo-df.github.io/aggTrees/reference/dr_scores.html" class="external-link">dr_scores</a></code> function).<br></p>
-<p>The estimated GATES are sorted to enforce monotonicity.</p>
+<p>To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the
+<code><a href="https://riccardo-df.github.io/aggTrees/reference/dr_scores.html" class="external-link">dr_scores</a></code> function for details).<br></p>
+<p>The estimated GATES are sorted to enforce monotonicity.<br></p>
+<p>RATEs are estimated via sample-averaging estimators. The standard error of the RATE estimate is estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -189,6 +202,7 @@ forests (see the <code><a href="https://riccardo-df.github.io/aggTrees/reference
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions and AIPW scores; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATES estimation; </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RATE estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Output. </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
@@ -221,6 +235,10 @@ forests (see the <code><a href="https://riccardo-df.github.io/aggTrees/reference
 <span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : 1.06 [0.87, 1.251] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : 1.06 [0.867, 1.248] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : 1.06 [0.859, 1.265] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RATEs results + 95% confidence intervals: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUTOC: 0.8 [0.641, 0.963]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> QINI:  0.51 [0.406, 0.606] </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, latex <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     \setlength{\tabcolsep}{8pt}</span>
@@ -250,36 +268,10 @@ forests (see the <code><a href="https://riccardo-df.github.io/aggTrees/reference
 <span class="r-out co"><span class="r-pr">#&gt;</span>     \end{table}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \endgroup</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CATEs evaluation results </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimated ATE + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : -0.06 [-0.274, 0.147] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: -0.11 [-0.31, 0.093] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: -0.07 [-0.248, 0.109] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : -0.09 [-0.263, 0.093] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : -0.06 [-0.274, 0.147] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: -0.11 [-0.31, 0.093] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: -0.07 [-0.248, 0.109] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : -0.07 [-0.253, 0.106] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : -0.07 [-0.247, 0.109] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : -0.07 [-0.242, 0.112] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : -0.04 [-0.231, 0.143] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimated HET + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : 1.03 [0.784, 1.283] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: 1.07 [0.826, 1.304] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: 1.07 [0.876, 1.259] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : 1.05 [0.861, 1.24] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : 1.03 [0.784, 1.283] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: 1.07 [0.826, 1.304] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: 1.07 [0.876, 1.259] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : 1.06 [0.865, 1.249] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : 1.06 [0.87, 1.251] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : 1.06 [0.867, 1.248] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : 1.06 [0.859, 1.265] </span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="evalue_cates-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="evalue_cates-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

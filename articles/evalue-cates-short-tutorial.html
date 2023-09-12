@@ -101,6 +101,7 @@ consistently estimated under mild assumptions. These features are:</p>
 <li>Best Linear Predictor (BLP) of the actual CATEs using the estimated
 CATEs;</li>
 <li>Sorted Group Average Treatment Effects (GATES).</li>
+<li>Rank-Weighted Average Treatment Effects (RATEs).</li>
 </ul>
 <p>To estimate these objects, we first construct estimates of the CATEs
 using an observed training sample, and we then post-process them using
@@ -131,8 +132,13 @@ D_i = d ]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</sp
 <span class="math inline">\(H_i = \frac{D_i - p (X_i)}{p (X_i) ( 1 -
 p (X_i) )}\)</span> → Horvitz-Thompson operator;</li>
 <li>
-<span class="math inline">\(w ( X_i ) = \frac{1}{\hat{p} ( X_i ) [ 1
-- \hat{p} ( X_i )]}\)</span> → Propensity score weights;</li>
+<span class="math inline">\(w ( X_i ) = \frac{1}{p ( X_i ) [ 1 - p (
+X_i )]}\)</span> → Propensity score weights;</li>
+<li>
+<span class="math inline">\(\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i
+) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [
+Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}\)</span> → Doubly-robust
+scores;</li>
 <li>
 <span class="math inline">\(\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) -
 Y_i ( 0 ) | X_i ]\)</span> → CATEs.</li>
@@ -205,21 +211,25 @@ vignette, we generated our data by mimicking a Bernoulli experiment,
 thus we have knowledge of the actual propensity score (0.5 for all
 units). We supply these values in the call below and let the function
 estimate the other nuisances internally.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p>
-<p>Finally, we have two additional optional arguments. The first of
-these arguments can be used to control the number of groups to be formed
-for the GATES analysis (details below), with the default number equal to
-five. The second of these arguments can be used to prevent the
-<code>evalue_cates</code> function from printing the status of progress
-on the console. We use the default of five groups and prevent the
-function from printing the progresses.</p>
+<p>Finally, we have four additional optional arguments. The first of
+these arguments controls the number of groups to be formed for the GATES
+analysis (details below), with the default number equal to five. The
+second of these arguments controls the number of bootstrap replications
+used to estimate the standard error of the RATE. The third of these
+arguments controls how to rank units for the RATE estimation (either
+increasing or decreasing values of the estimated CATEs). The fourth of
+these arguments controls whether the <code>evalue_cates</code> function
+should print the status of progress on the console. We use the default
+of 5 groups, 200 bootstrap replications, the treatment considered to be
+beneficial, and prevent the function from printing the progresses.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
 <span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
 <span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>After handling the inputs and running some checks, the
-<code>evalue_cates</code> function estimates the BLP and the GATES using
-only the validation sample. In the following, we detail the main results
-returned by the function.</p>
+<code>evalue_cates</code> function estimates the BLP, the GATES, and the
+RATEs using only the validation sample. In the following, we detail the
+main results returned by the function.</p>
 </div>
 <div class="section level3">
 <h3 id="best-linear-predictor">Best Linear Predictor<a class="anchor" aria-label="anchor" href="#best-linear-predictor"></a>
@@ -285,12 +295,10 @@ vignette</a> for details).</p>
 </ul>
 <p><span class="math display">\[ \hat{\Gamma}_i = \beta_1 + \beta_2 \{
 \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} +
-\epsilon_i \]</span> with the model fitted via OLS, and <span class="math inline">\(\hat{\Gamma}_i := \hat{\mu}_1 ( X_i ) -
-\hat{\mu}_0 ( X_i ) + \frac{D_i [ Y_i - \hat{\mu}_1 ( X_i ) ]}{\hat{p} (
-X_i )} - \frac{[ 1 - D_i ] [ Y_i - \hat{\mu}_0 ( X_i ) ]}{1 - \hat{p} (
-X_i )}\)</span>. The doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated internally using
-the the validation sample and 5-fold cross-fitting. Results can be
-accessed by calling <code>evaluation$BLP$aipw</code>.</p>
+\epsilon_i \]</span> with the model fitted via OLS and the doubly-robust
+scores <span class="math inline">\(\Gamma_i\)</span> estimated
+internally using the the validation sample and 5-fold cross-fitting.
+Results can be accessed by calling <code>evaluation$BLP$aipw</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="sorted-group-average-treatment-effects">Sorted Group Average Treatment Effects<a class="anchor" aria-label="anchor" href="#sorted-group-average-treatment-effects"></a>
@@ -358,9 +366,9 @@ vignette</a> for details).</p>
 </ul>
 <p><span class="math display">\[ \hat{\Gamma}_i = \sum_{k = 1}^K
 \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
-\hat{\ell}_k ) + \epsilon_i \]</span> with the model fitted via OLS.
-Results can be accessed by calling
-<code>evaluation$GATES$aipw</code>.</p>
+\hat{\ell}_k ) + \epsilon_i \]</span> with the model fitted via OLS and
+using the same estimated doubly-robust scores <span class="math inline">\(\hat{\Gamma}_i\)</span> as before. Results can be
+accessed by calling <code>evaluation$GATES$aipw</code>.</p>
 <ul>
 <li><strong>Nonparametric</strong></li>
 </ul>
@@ -374,12 +382,86 @@ normality. Results can be accessed by calling
 <code>evaluation$GATES$imai_li</code>.</p>
 </div>
 <div class="section level3">
+<h3 id="rank-weighted-average-treatment-effects">Rank-Weighted Average Treatment Effects<a class="anchor" aria-label="anchor" href="#rank-weighted-average-treatment-effects"></a>
+</h3>
+<p>The third object estimated by the <code>evalue_cates</code> function
+is the rank-weighted average treatment effect. The RATE allows us to
+compare different “prioritization rules” that output a score that ranks
+units in terms of intervention benefit, with larger RATEs assigned to
+better rules.</p>
+<p>Formally, we define a prioritization rule <span class="math inline">\(S : \mathcal{X} \rightarrow \mathcal{R}\)</span>
+as any rule that sorts units <span class="math inline">\(i = 1, ...,
+n\)</span> in order <span class="math inline">\(j = 1, ..., n\)</span>
+in decreasing order of <span class="math inline">\(S ( X_i )\)</span>.
+Here we focus on CATE-based rules and set <span class="math inline">\(S
+( \cdot ) = \hat{\tau} ( \cdot )\)</span>, that is, we prioritize units
+with the largest estimated CATEs.<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> <a href="#fn8" class="footnote-ref" id="fnref8"><sup>8</sup></a></p>
+<p>For any given rule <span class="math inline">\(\hat{\tau} ( \cdot
+)\)</span>, we define the targeting operator characteristic (TOC)
+as:</p>
+<p><span class="math display">\[ TOC (u; \hat{\tau}) := \mathbb{E} [ Y_i
+( 1 ) - Y_i ( 0 ) | F_S ( \hat{\tau} ( X_i ) \geq 1 - u) ] - \mathbb{E}
+[ Y_i ( 1 ) - Y_i ( 0 ) ] \]</span> with <span class="math inline">\(F_\hat{\tau} ( \cdot )\)</span> the cumulative
+distribution function of <span class="math inline">\(\hat{\tau} ( \cdot
+)\)</span>, and <span class="math inline">\(0 &lt; u \leq 1\)</span>.
+<span class="math inline">\(TOC( u; \hat{\tau} )\)</span> measures the
+difference between the average treatment effect for units highly ranked
+by our estimates <span class="math inline">\(\hat{\tau} ( \cdot
+)\)</span> (that is, those units such as <span class="math inline">\(F_S
+( \hat{\tau} ( X_i ) \geq 1 - u)\)</span>) and the average treatment
+effect for the whole population. Intuitively, if the “quality” of <span class="math inline">\(\hat{\tau} ( \cdot )\)</span> is “good,” then the
+average treatment effect for highly-ranked units should be bigger than
+the average treatment effect for the whole population.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a></p>
+<p>We can evaluate the “quality” of different estimates of <span class="math inline">\(\tau ( \cdot )\)</span> in terms of weighted
+averages of the TOC. These weighted averages are the RATEs, which we
+define as:</p>
+<p><span class="math display">\[ \theta_{\alpha} ( \hat{\tau} ) :=
+\int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  \]</span> with <span class="math inline">\(\alpha : ( 0, 1 ] \rightarrow \mathcal{R}\)</span>
+a generic weight function.</p>
+<p>To estimate the TOC of <span class="math inline">\(\hat{\tau} ( \cdot
+)\)</span> evaluated at <span class="math inline">\(u\)</span>, we use
+the following sample-averaging estimator:</p>
+<p><span class="math display">\[ \widehat{TOC} ( u; \hat{\tau} ) =
+\frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor}
+\hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i
+\]</span> where we let <span class="math inline">\(i ( j )\)</span> be
+the mapping from rank <span class="math inline">\(j\)</span> to unit
+<span class="math inline">\(i\)</span> (e.g., <span class="math inline">\(i ( 1 )\)</span> returns the most-prioritized
+unit, and <span class="math inline">\(i ( n )\)</span> returns the
+least-prioritized unit) and use the same estimated doubly-robust scores
+<span class="math inline">\(\hat{\Gamma}_i\)</span> as before. Notice
+that the first sum involves only the most-prioritized units according to
+the threshold <span class="math inline">\(u\)</span>.</p>
+<p>Given the TOC estimator, we can estimate the RATE as:</p>
+<p><span class="math display">\[ \hat{\theta}_{\alpha} ( \hat{\tau} ) =
+\frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} (
+\frac{j}{n}; \hat{\tau} ) \]</span> We rely on the half-sample bootstrap
+procedure to make inference about the RATE. In particular, the standard
+deviation of the bootstrap estimates can be used as an estimator of the
+standard error of <span class="math inline">\(\hat{\theta}_{\alpha} (
+\cdot )\)</span>. We can then test the null hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau}) \leq 0\)</span>,
+which behaves as the null hypothesis <span class="math inline">\(\beta_2
+= 0\)</span> detailed in the Best Linear Predictor section.</p>
+<p>The <code>evalue_cates</code> function first estimates the TOCs for
+values <span class="math inline">\(u = 0.1, 0.2, \dots, 1\)</span>, and
+then estimates the RATE as weighted averages of the estimated TOCs using
+two different weight function <span class="math inline">\(\alpha ( \cdot
+)\)</span>, thus targeting two different metrics:</p>
+<ul>
+<li>Area under the TOC curve (AUTOC): it uses a naive weighting scheme
+<span class="math inline">\(\alpha ( u ) = 1\)</span> for all <span class="math inline">\(u\)</span>;</li>
+<li>Qini coefficient (QINI): it uses a linear weight function <span class="math inline">\(\alpha ( u ) = u\)</span>.</li>
+</ul>
+<p>Results can be accessed by calling
+<code>evaluation$RATE$rate_results</code>.</p>
+</div>
+<div class="section level3">
 <h3 id="compare-results">Compare Results<a class="anchor" aria-label="anchor" href="#compare-results"></a>
 </h3>
 <p>Our package is compatible with the generic S3 methods
 <code>print</code>, <code>summary</code>, and <code>plot</code> that
-allow the user to investigate the results.<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a> This section shows an
-example of how these methods can be used to analyze the output of a
+allow the user to investigate the results.<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a> This section shows
+an example of how these methods can be used to analyze the output of a
 single call of the <code>evalue_cates</code> function.</p>
 <ul>
 <li>
@@ -419,7 +501,11 @@ LATEX code for a table will be displayed in the console.</li>
 <span><span class="co">#&gt; ht_mck1 : 1.12 [0.845, 1.386] </span></span>
 <span><span class="co">#&gt; ht_mck2 : 1.11 [0.842, 1.371] </span></span>
 <span><span class="co">#&gt; ht_mck3 : 1.1 [0.831, 1.361] </span></span>
-<span><span class="co">#&gt; aipw    : 1.06 [0.859, 1.265]</span></span>
+<span><span class="co">#&gt; aipw    : 1.06 [0.859, 1.265] </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; RATEs results + 95% confidence intervals: </span></span>
+<span><span class="co">#&gt; AUTOC: 0.8 [0.641, 0.963]</span></span>
+<span><span class="co">#&gt; QINI:  0.51 [0.406, 0.606]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, latex <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; \begingroup</span></span>
 <span><span class="co">#&gt;     \setlength{\tabcolsep}{8pt}</span></span>
@@ -461,21 +547,35 @@ predictor of <span class="math inline">\(\tau ( \cdot )\)</span>.</p>
 <ul>
 <li>
 <strong>GATES</strong> The <code>plot</code> method allows the user
-to visualize the results of GATES estimation. The method plots the
-estimated average treatment effect of each group (<span class="math inline">\(\{ \hat{\gamma}_k \}_{k = 1}^K\)</span>) for all
+to visualize the results of GATES estimation. If the optional argument
+<code>target</code> argument is set to <code>"GATES"</code>, the method
+plots the estimated average treatment effect of each group (<span class="math inline">\(\{ \hat{\gamma}_k \}_{k = 1}^K\)</span>) for all
 the methodologies detailed above. Error bars displaying 95% confidence
 intervals are also displayed.</li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES results.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span><span class="op">)</span></span></code></pre></div>
-<p><img src="evalue-cates-short-tutorial_files/figure-html/true-gates-1.png" width="700"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="evalue-cates-short-tutorial_files/figure-html/compare-gates-1.png" width="700"></p>
 <p>By simulation, we can compute the true GATES in the <span class="math inline">\(k\)</span>-th group as
 <code>mean(mu1[!train_idx][x] - mu0[!train_idx][x])</code>, with
 <code>x</code> a logical vector denoting those units belonging to the
 <span class="math inline">\(k\)</span>-th group. We can then compare
 these quantities with those displayed in the plot to check the accuracy
 of the results.</p>
+<ul>
+<li>
+<strong>RATE</strong> When displaying the raw results, the
+<code>summary</code> method also displays the estimated RATEs and their
+confidence intervals. Further investigation of the RATEs results is
+provided by the <code>plot</code> method. If the optional argument
+<code>target</code> argument is set to <code>"RATE"</code>, the method
+plots the estimated TOCs for the each considered threshold values <span class="math inline">\(u\)</span>.</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## GATES results.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="evalue-cates-short-tutorial_files/figure-html/compare-rate-1.png" width="700"></p>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr>
@@ -509,8 +609,20 @@ empirical <span class="math inline">\(k\)</span>-th quantile of <span class="mat
 <span class="math inline">\(K\)</span> by using the optional
 <code>n_group</code> argument when calling the <code>evalue_cates</code>
 function. The default behavior is <code>n_group = 5</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
-<li id="fn7"><p>The <code>print</code> and <code>summary</code> methods
-return the same output in our package.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>If the treatment is harmful, we prioritize units with
+the lowest estimated CATEs.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+<li id="fn8"><p>Prioritization rules can be derived from other
+approaches, e.g., risk-based rules. Here we focus on CATE-based rules as
+we aim to use the RATEs to evaluate the “quality” of the estimated
+CATEs.<a href="#fnref8" class="footnote-back">↩︎</a></p></li>
+<li id="fn9"><p>When evaluating active labor market policies, it is
+common to check whether the average treatment effect for the treated is
+larger than the average treatment effect for the whole population, as
+this would denote that the treatment is allocated better than randomly.
+<span class="math inline">\(TOC ( \cdot, \cdot )\)</span> uses a similar
+idea.<a href="#fnref9" class="footnote-back">↩︎</a></p></li>
+<li id="fn10"><p>The <code>print</code> and <code>summary</code> methods
+return the same output in our package.<a href="#fnref10" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>
