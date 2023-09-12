@@ -215,13 +215,14 @@ estimate the other nuisances internally.<a href="#fn2" class="footnote-ref" id="
 these arguments controls the number of groups to be formed for the GATES
 analysis (details below), with the default number equal to five. The
 second of these arguments controls the number of bootstrap replications
-used to estimate the standard error of the RATE. The third of these
-arguments controls how to rank units for the RATE estimation (either
-increasing or decreasing values of the estimated CATEs). The fourth of
-these arguments controls whether the <code>evalue_cates</code> function
-should print the status of progress on the console. We use the default
-of 5 groups, 200 bootstrap replications, the treatment considered to be
-beneficial, and prevent the function from printing the progresses.</p>
+used to estimate the standard error of the estimated RATEs (details
+below). The third of these arguments controls how to rank units for the
+RATE estimation (according to either increasing or decreasing values of
+the estimated CATEs). The fourth of these arguments controls whether the
+<code>evalue_cates</code> function should print the status of progress
+on the console. We use the default of 5 groups, 200 bootstrap
+replications, the treatment considered to be beneficial, and prevent the
+function from printing the progresses.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
 <span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
@@ -327,10 +328,11 @@ a way to quantify how different groups show differential reactions to
 the treatment.</li>
 </ul>
 <p>The <code>evalue_cates</code> function estimates the GATES using the
-same three strategies used for the BLP estimation. As before, all linear
-models are fitted using only observations in the validation sample.
-Additionally, <code>evalue_cates</code> also implements a nonparametric
-estimator of the GATES following the approach of Imai and Li (2022).</p>
+same three strategies used for the BLP estimation. Additionally,
+<code>evalue_cates</code> also implements a nonparametric estimator of
+the GATES following the approach of Imai and Li (2022). As before,
+estimation is performed using only observations in the validation
+sample.</p>
 <ul>
 <li><strong>Weighted Residuals</strong></li>
 </ul>
@@ -376,16 +378,15 @@ accessed by calling <code>evaluation$GATES$aipw</code>.</p>
 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq
 \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 -
 D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1}
-\leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) \]</span> Imai and Li (2022)
-derive the exact variance of this estimator and its asymptotic
-normality. Results can be accessed by calling
-<code>evaluation$GATES$imai_li</code>.</p>
+\leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) \]</span> We also compute
+standard errors using the results of Imai and Li (2022). Results can be
+accessed by calling <code>evaluation$GATES$imai_li</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="rank-weighted-average-treatment-effects">Rank-Weighted Average Treatment Effects<a class="anchor" aria-label="anchor" href="#rank-weighted-average-treatment-effects"></a>
 </h3>
 <p>The third object estimated by the <code>evalue_cates</code> function
-is the rank-weighted average treatment effect. The RATE allows us to
+is the RATE induced by the estimated CATEs. The RATE allows us to
 compare different “prioritization rules” that output a score that ranks
 units in terms of intervention benefit, with larger RATEs assigned to
 better rules.</p>
@@ -432,14 +433,15 @@ least-prioritized unit) and use the same estimated doubly-robust scores
 <span class="math inline">\(\hat{\Gamma}_i\)</span> as before. Notice
 that the first sum involves only the most-prioritized units according to
 the threshold <span class="math inline">\(u\)</span>.</p>
-<p>Given the TOC estimator, we can estimate the RATE as:</p>
+<p>Given the TOC estimator, we can estimate the RATE as a weighted
+average of the estimated TOCs:</p>
 <p><span class="math display">\[ \hat{\theta}_{\alpha} ( \hat{\tau} ) =
 \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} (
 \frac{j}{n}; \hat{\tau} ) \]</span> We rely on the half-sample bootstrap
-procedure to make inference about the RATE. In particular, the standard
-deviation of the bootstrap estimates can be used as an estimator of the
-standard error of <span class="math inline">\(\hat{\theta}_{\alpha} (
-\cdot )\)</span>. We can then test the null hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau}) \leq 0\)</span>,
+procedure to estimate the standard error of <span class="math inline">\(\hat{\theta}_{\alpha} ( \cdot )\)</span>. In
+particular, the standard deviation of the bootstrap estimates can be
+used as an estimator of the standard error of <span class="math inline">\(\hat{\theta}_{\alpha} ( \cdot )\)</span>. We can
+then test the null hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau}) \leq 0\)</span>,
 which behaves as the null hypothesis <span class="math inline">\(\beta_2
 = 0\)</span> detailed in the Best Linear Predictor section.</p>
 <p>The <code>evalue_cates</code> function first estimates the TOCs for
@@ -548,8 +550,8 @@ predictor of <span class="math inline">\(\tau ( \cdot )\)</span>.</p>
 <li>
 <strong>GATES</strong> The <code>plot</code> method allows the user
 to visualize the results of GATES estimation. If the optional argument
-<code>target</code> argument is set to <code>"GATES"</code>, the method
-plots the estimated average treatment effect of each group (<span class="math inline">\(\{ \hat{\gamma}_k \}_{k = 1}^K\)</span>) for all
+<code>target</code> is set to <code>"GATES"</code>, the method plots the
+estimated average treatment effect of each group (<span class="math inline">\(\{ \hat{\gamma}_k \}_{k = 1}^K\)</span>) for all
 the methodologies detailed above. Error bars displaying 95% confidence
 intervals are also displayed.</li>
 </ul>
@@ -569,11 +571,11 @@ of the results.</p>
 <code>summary</code> method also displays the estimated RATEs and their
 confidence intervals. Further investigation of the RATEs results is
 provided by the <code>plot</code> method. If the optional argument
-<code>target</code> argument is set to <code>"RATE"</code>, the method
-plots the estimated TOCs for the each considered threshold values <span class="math inline">\(u\)</span>.</li>
+<code>target</code> is set to <code>"RATE"</code>, the method plots the
+estimated TOCs for the each considered threshold value <span class="math inline">\(u\)</span>.</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## GATES results.</span></span>
+<code class="sourceCode R"><span><span class="co">## RATE results.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evalue-cates-short-tutorial_files/figure-html/compare-rate-1.png" width="700"></p>
 </div>
@@ -604,11 +606,13 @@ vignette</a>.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
 <li id="fn6"><p>The <span class="math inline">\(K\)</span> bins can be
 defined in various ways. Here we follow the approach of Chernozhukov et
 al. (2017) and form the groups by cutting the distribution of <span class="math inline">\(\hat{\tau} ( X_i )\)</span> into <span class="math inline">\(K\)</span> quantiles <span class="math inline">\(\{ \hat{\ell}_k \}_{k = 1}^K\)</span>, with <span class="math inline">\(\hat{\ell}_k = inf \{ c \in \mathcal{R} : \sum_{i
-= 1}^n \mathbb{1} ( \tau ( X_i ) &gt; c ) \leq nk / K \}\)</span> the
-empirical <span class="math inline">\(k\)</span>-th quantile of <span class="math inline">\(\hat{\tau} ( \cdot )\)</span>. The user can set
-<span class="math inline">\(K\)</span> by using the optional
-<code>n_group</code> argument when calling the <code>evalue_cates</code>
-function. The default behavior is <code>n_group = 5</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+= 1}^n \mathbb{1} ( \hat{\tau} ( X_i ) &gt; c ) \leq nk / K \}\)</span>
+the empirical <span class="math inline">\(k\)</span>-th quantile of
+<span class="math inline">\(\hat{\tau} ( \cdot )\)</span>. The user can
+set <span class="math inline">\(K\)</span> by using the optional
+<code>n_groups</code> argument when calling the
+<code>evalue_cates</code> function. The default is
+<code>n_groups = 5</code>.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
 <li id="fn7"><p>If the treatment is harmful, we prioritize units with
 the lowest estimated CATEs.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
 <li id="fn8"><p>Prioritization rules can be derived from other

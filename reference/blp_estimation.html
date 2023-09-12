@@ -74,7 +74,7 @@
 
 
 <dt>pscore</dt>
-<dd><p>Propensity scores. If unknown, they must be estimated using different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>Propensity scores. If unknown, must be estimated using different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
 
 
 <dt>mu</dt>
@@ -101,16 +101,17 @@
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p><code>blp_estimation</code> estimates the BLP of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in 
-the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).
+    <p>To estimate the BLP of the actual CATEs using the estimated CATEs, the user must provide observations on the outcomes and the treatment status of units in 
+the validation sample, as well as their estimated cates and nuisance functions. Be careful, as these estimates must be obtained using only observations from the training sample (see the example section below).
 Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.<br></p>
-<p>The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">online vignette</a> 
-for details.<br></p>
+<p>The BLP is estimated using three different strategies, all involving fitting suitable linear models. For each of these strategis, different model specifications are considered that differ in additional and
+optional covariates that can be included in the regressions to reduce the estimation variance. Check the online <a href="https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html">short tutorial</a>
+and <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising vignette</a> for details.<br></p>
 <p>Standard errors are estimated using the Eicker-Huber-White estimator.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="gates_estimation.html">gates_estimation</a></code>, <code><a href="rate_estimation.html">rate_estimation</a></code></p></div>
+    <div class="dont-index"><p><code><a href="gates_estimation.html">gates_estimation</a></code>, <code><a href="toc_estimation.html">toc_estimation</a></code>, <code><a href="rate_estimation.html">rate_estimation</a></code></p></div>
     </div>
     <div id="author">
     <h2>Author</h2>
