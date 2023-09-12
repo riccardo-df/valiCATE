@@ -9,21 +9,21 @@ toc_estimation(cates, scores, beneficial = TRUE)
 \arguments{
 \item{cates}{Estimated CATEs. Must be out-of-sample predictions on the validation sample.}
 
-\item{scores}{Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using a validation sample.}
+\item{scores}{Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the validation sample.}
 
 \item{beneficial}{Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates}, otherwise they are ranked according to increasing values of \code{cates}.}
 }
 \value{
-A data frame with the estimated TOCs for a set of threshold values of u.
+A data frame with the estimated TOCs for a set of threshold values of u = 0.1, 0.2, ..., 1.
 }
 \description{
-Estimates the targeting operator characteristic (TOC) of the estimated CATEs for a set of threshold values u.
+Estimates the targeting operator characteristic (TOC) induced by the estimated CATEs for a set of threshold values u.
 }
 \details{
-\code{\link{toc_estimation}} estimates the TOC of the estimated CATEs. To this end, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
+To estimate the TOC induced by the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
 using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 
-The TOC is estimated using sample-averaging estimators. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+The TOC is estimated using a sample-averaging estimator. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
 for details.
 }
 \examples{

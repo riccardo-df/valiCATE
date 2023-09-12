@@ -1,13 +1,13 @@
 #' TOC Estimation
 #'
-#' Estimates the targeting operator characteristic (TOC) of the estimated CATEs for a set of threshold values u.
+#' Estimates the targeting operator characteristic (TOC) induced by the estimated CATEs for a set of threshold values u.
 #'
 #' @param cates Estimated CATEs. Must be out-of-sample predictions on the validation sample.
-#' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using a validation sample. 
+#' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the validation sample. 
 #' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates}, otherwise they are ranked according to increasing values of \code{cates}.
 #'
 #' @return
-#' A data frame with the estimated TOCs for a set of threshold values of u.
+#' A data frame with the estimated TOCs for a set of threshold values of u = 0.1, 0.2, ..., 1.
 #'
 #' @examples
 #' ## Generate data.
@@ -52,10 +52,10 @@
 #' toc_results <- toc_estimation(cates_val, scores_val)
 #'
 #' @details
-#' \code{\link{toc_estimation}} estimates the TOC of the estimated CATEs. To this end, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
+#' To estimate the TOC induced by the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
 #' using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 #' 
-#' The TOC is estimated using sample-averaging estimators. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+#' The TOC is estimated using a sample-averaging estimator. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
 #' for details.
 #'
 #' @author Riccardo Di Francesco
@@ -89,7 +89,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 
 #' RATE Estimation
 #'
-#' Estimates the rank-weighted average treatment effect (RATE) of the estimated CATEs.
+#' Estimates the rank-weighted average treatment effect (RATE) induced by the estimated CATEs.
 #'
 #' @param cates Estimated CATEs. Must be out-of-sample predictions on the validation sample.
 #' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using a validation sample. 
@@ -97,7 +97,8 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates}, otherwise they are ranked according to increasing values of \code{cates}.
 #' 
 #' @return
-#' A data frame with the results.
+#' A list storing a data frame for the TOC results, a list with two data frames for the AUTOC and QINI results, and a
+#' data frame for the bootstrap results.
 #'
 #' @examples
 #' ## Generate data.
@@ -142,10 +143,11 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #' rate_results <- rate_estimation(cates_val, scores_val)
 #'
 #' @details
-#' \code{\link{rate_estimation}} estimates the RATE of the estimated CATEs. To this end, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
+#' To estimate the RATE induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
 #' using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 #' 
-#' Two RATEs, the AUTOC and the QINI coefficient, are estimated using sample-averaging estimators. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+#' \code{\link{rate_estimation}} first calls the \code{\link{toc_estimation}} function to estimate the TOCs, and then computes two RATEs, the AUTOC and the QINI coefficient, 
+#' as weighted averages of the TOCs. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
 #' for details.\cr
 #' 
 #' Standard errors are estimated using the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.

@@ -1,13 +1,15 @@
 #' CATEs Evaluation
 #'
-#' Evaluates the quality of CATEs estimates by implementing several Generic Machine Learning methodologies.
+#' Evaluates the quality of CATEs estimates by estimating the best linear predictor (BLP) of the actual CATEs using the estimated
+#' CATEs, the sorted group average treatment effects (GATES), and the rank-weighted average treatment effect (RATE) induced by
+#' the estimated CATEs.
 #'
 #' @param Y Observed outcomes.
 #' @param D Treatment indicator.
 #' @param X Covariate matrix (no intercept).
 #' @param cates Estimated CATEs. Must be estimated using only the training sample.
 #' @param is_train Logical vector denoting which observations belong to the training sample.
-#' @param pscore Propensity scores. If unknown, they must be estimated using only the training sample. 
+#' @param pscore Propensity scores. If unknown, must be estimated using only the training sample. 
 #' @param mu Estimated regression function. Must be estimated using only the training sample.
 #' @param mu0 Estimated regression function for control units. Must be estimated using only the training sample.
 #' @param mu1 Estimated regression function for treated units. Must be estimated using only the training sample.
@@ -17,7 +19,7 @@
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
-#' Return.
+#' An \code{evaluCATE} object.
 #'
 #' @examples
 #' ## Generate data.
@@ -64,8 +66,7 @@
 #'
 #' @md
 #' @details
-#' \code{\link{evalue_cates}} targets the estimation of the best linear predictor (BLP) of the actual CATEs using the estimated CATEs, of the sorted group average treatment effects (GATES), and of
-#' the rank-weighted average treatment effect (RATE). To this end, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
+#' To estimate BLP, GATES, and RATE, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
 #' as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
 #' 
 #' To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the 
@@ -77,9 +78,9 @@
 #' \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr 
 #' 
 #' Some of the linear models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome 
-#' (check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details about these covariates.). The user can supply estimates of these functions by using the 
+#' (check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details about these covariates). The user can supply estimates of these functions by using the 
 #' optional arguments \code{pscore}, \code{mu}, \code{mu0}, and \code{mu1}. Be careful, as these must be obtained using only the training sample. If not provided by the user, these functions are estimated internally 
-#' via honest \code{\link[grf]{regression_forest}}s. \cr
+#' via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 #' 
@@ -88,7 +89,7 @@
 #' 
 #' The estimated GATES are sorted to enforce monotonicity.\cr
 #' 
-#' RATEs are estimated via sample-averaging estimators. The standard error of the RATE estimate is estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap. 
+#' Two different RATEs are estimated: AUTOC and QINI coefficient. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap. 
 #'
 #' @import grf
 #'

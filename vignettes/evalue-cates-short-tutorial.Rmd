@@ -91,7 +91,7 @@ We are now able to call the `evalue_cates` function. As mentioned above, we need
 
 We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In this vignette, we generated our data by mimicking a Bernoulli experiment, thus we have knowledge of the actual propensity score (0.5 for all units). We supply these values in the call below and let the function estimate the other nuisances internally.[^2] 
 
-Finally, we have four additional optional arguments. The first of these arguments controls the number of groups to be formed for the GATES analysis (details below), with the default number equal to five. The second of these arguments controls the number of bootstrap replications used to estimate the standard error of the RATE. The third of these arguments controls how to rank units for the RATE estimation (either increasing or decreasing values of the estimated CATEs). The fourth of these arguments controls whether the `evalue_cates` function should print the status of progress on the console. We use the default of 5 groups, 200 bootstrap replications, the treatment considered to be beneficial, and prevent the function from printing the progresses.  
+Finally, we have four additional optional arguments. The first of these arguments controls the number of groups to be formed for the GATES analysis (details below), with the default number equal to five. The second of these arguments controls the number of bootstrap replications used to estimate the standard error of the estimated RATEs (details below). The third of these arguments controls how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). The fourth of these arguments controls whether the `evalue_cates` function should print the status of progress on the console. We use the default of 5 groups, 200 bootstrap replications, the treatment considered to be beneficial, and prevent the function from printing the progresses.  
 
 ```{r call-main, eval = TRUE}
 ## Call main function.
@@ -137,7 +137,7 @@ with $- \infty = \ell_0 < \ell_1 < \dots < \ell_K < + \infty$. The GATES are of 
 - First, they provide a nonlinear predictor of $\tau ( \cdot )$, as they provide the BLP of $\tau ( \cdot )$ using the group indicators $\mathbb{1} ( \ell_{k - 1} \leq \hat{\tau} ( X_i ) < l_k )$ (Chernozhukov et al., 2017);
 - Second, they allow us to assess whether there is systematic heterogeneity. For example, one could test the hypothesis that all the GATES are the same $\gamma_1 = \dots = \gamma_K$, or that the difference between the largest and the smallest GATES is zero $\gamma_1 = \gamma_K$. If we reject these hypotheses, the GATES also provide a way to quantify how different groups show differential reactions to the treatment.
 
-The `evalue_cates` function estimates the GATES using the same three strategies used for the BLP estimation. As before, all linear models are fitted using only observations in the validation sample. Additionally, `evalue_cates` also implements a nonparametric estimator of the GATES following the approach of Imai and Li (2022).
+The `evalue_cates` function estimates the GATES using the same three strategies used for the BLP estimation. Additionally, `evalue_cates` also implements a nonparametric estimator of the GATES following the approach of Imai and Li (2022). As before, estimation is performed using only observations in the validation sample. 
 
 - **Weighted Residuals**
 
@@ -157,10 +157,10 @@ with the model fitted via OLS and using the same estimated doubly-robust scores 
 - **Nonparametric**
 
 $$ \hat{\gamma}_k = \frac{K}{\sum_{i = 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 - D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) $$
-Imai and Li (2022) derive the exact variance of this estimator and its asymptotic normality. Results can be accessed by calling `evaluation$GATES$imai_li`.
+We also compute standard errors using the results of Imai and Li (2022). Results can be accessed by calling `evaluation$GATES$imai_li`.
 
 ### Rank-Weighted Average Treatment Effects
-The third object estimated by the `evalue_cates` function is the rank-weighted average treatment effect. The RATE allows us to compare different "prioritization rules" that output a score that ranks units in terms of intervention benefit, with larger RATEs assigned to better rules. 
+The third object estimated by the `evalue_cates` function is the RATE induced by the estimated CATEs. The RATE allows us to compare different "prioritization rules" that output a score that ranks units in terms of intervention benefit, with larger RATEs assigned to better rules. 
 
 Formally, we define a prioritization rule $S : \mathcal{X} \rightarrow \mathcal{R}$ as any rule that sorts units $i = 1, ..., n$ in order $j = 1, ..., n$ in decreasing order of $S ( X_i )$. Here we focus on CATE-based rules and set $S ( \cdot ) = \hat{\tau} ( \cdot )$, that is, we prioritize units with the largest estimated CATEs.[^7] [^8]
 
@@ -179,10 +179,10 @@ To estimate the TOC of $\hat{\tau} ( \cdot )$ evaluated at $u$, we use the follo
 $$ \widehat{TOC} ( u; \hat{\tau} ) = \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor} \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i $$
 where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and use the same estimated doubly-robust scores $\hat{\Gamma}_i$ as before. Notice that the first sum involves only the most-prioritized units according to the threshold $u$.
 
-Given the TOC estimator, we can estimate the RATE as:
+Given the TOC estimator, we can estimate the RATE as a weighted average of the estimated TOCs:
 
 $$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) $$
-We rely on the half-sample bootstrap procedure to make inference about the RATE. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. We can then test the null hypothesis $\theta_{\alpha} ( \hat{\tau}) \leq 0$, which behaves as the null hypothesis $\beta_2 = 0$ detailed in the Best Linear Predictor section.
+We rely on the half-sample bootstrap procedure to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. We can then test the null hypothesis $\theta_{\alpha} ( \hat{\tau}) \leq 0$, which behaves as the null hypothesis $\beta_2 = 0$ detailed in the Best Linear Predictor section.
 
 The `evalue_cates` function first estimates the TOCs for values $u = 0.1, 0.2, \dots, 1$, and then estimates the RATE as weighted averages of the estimated TOCs using two different weight function $\alpha ( \cdot )$, thus targeting two different metrics:
 
@@ -206,7 +206,7 @@ summary(evaluation, latex = "BLP")
 By simulation, we can compute the true average treatment effect as `mean(mu1 - mu0)`. We can then compare this quantity to the estimated $\beta_1$ by any given model to check the accuracy of the results. Additionally, we can compare the estimated $\beta_2$ to the true "quality" of the estimated CATEs, given by `cor(mu1[!train_idx] - mu0[!train_idx], cates[!train_idx])`. This can be done only in simulations with heterogeneous effects. With this condition met, rejecting the hypothesis $\beta_2 = 0$ means that $\hat{\tau} ( \cdot )$ is a "good" predictor of $\tau ( \cdot )$. 
 
 - **GATES**
-The `plot` method allows the user to visualize the results of GATES estimation. If the optional argument `target` argument is set to `"GATES"`, the method plots the estimated average treatment effect of each group ($\{ \hat{\gamma}_k \}_{k = 1}^K$) for all the methodologies detailed above. Error bars displaying 95% confidence intervals are also displayed.
+The `plot` method allows the user to visualize the results of GATES estimation. If the optional argument `target` is set to `"GATES"`, the method plots the estimated average treatment effect of each group ($\{ \hat{\gamma}_k \}_{k = 1}^K$) for all the methodologies detailed above. Error bars displaying 95% confidence intervals are also displayed.
 
 ```{r compare-gates, eval = TRUE}
 ## GATES results.
@@ -216,10 +216,10 @@ plot(evaluation, target = "GATES")
 By simulation, we can compute the true GATES in the $k$-th group as `mean(mu1[!train_idx][x] - mu0[!train_idx][x])`, with `x` a logical vector denoting those units belonging to the $k$-th group. We can then compare these quantities with those displayed in the plot to check the accuracy of the results. 
 
 - **RATE**
-When displaying the raw results, the `summary` method also displays the estimated RATEs and their confidence intervals. Further investigation of the RATEs results is provided by the `plot` method. If the optional argument `target` argument is set to `"RATE"`, the method plots the estimated TOCs for the each considered threshold values $u$. 
+When displaying the raw results, the `summary` method also displays the estimated RATEs and their confidence intervals. Further investigation of the RATEs results is provided by the `plot` method. If the optional argument `target` is set to `"RATE"`, the method plots the estimated TOCs for the each considered threshold value $u$. 
 
 ```{r compare-rate, eval = TRUE}
-## GATES results.
+## RATE results.
 plot(evaluation, target = "RATE")
 ```
 
@@ -228,7 +228,7 @@ plot(evaluation, target = "RATE")
 [^3]: Failing to reject the hypothesis $\beta_2 = 0$ means that either there is no heterogeneity or $\hat{\tau} ( \cdot )$ is a "bad" predictor of $\tau ( \cdot )$. Without additional evidence, we are not able to disentangle this.
 [^4]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs. This applies also to the identification and estimation of the GATES.
 [^5]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. For each of the strategies detailed above, the `evalue_cates` function fits a number of linear models, each including a different set of additional covariates. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
-[^6]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles $\{ \hat{\ell}_k \}_{k = 1}^K$, with $\hat{\ell}_k = inf \{ c \in \mathcal{R} : \sum_{i = 1}^n \mathbb{1} ( \tau ( X_i ) > c ) \leq nk / K \}$ the empirical $k$-th quantile of $\hat{\tau} ( \cdot )$. The user can set $K$ by using the optional `n_group` argument when calling the `evalue_cates` function. The default behavior is `n_group = 5`.
+[^6]: The $K$ bins can be defined in various ways. Here we follow the approach of Chernozhukov et al. (2017) and form the groups by cutting the distribution of $\hat{\tau} ( X_i )$ into $K$ quantiles $\{ \hat{\ell}_k \}_{k = 1}^K$, with $\hat{\ell}_k = inf \{ c \in \mathcal{R} : \sum_{i = 1}^n \mathbb{1} ( \hat{\tau} ( X_i ) > c ) \leq nk / K \}$ the empirical $k$-th quantile of $\hat{\tau} ( \cdot )$. The user can set $K$ by using the optional `n_groups` argument when calling the `evalue_cates` function. The default is `n_groups = 5`.
 [^7]: If the treatment is harmful, we prioritize units with the lowest estimated CATEs.
 [^8]: Prioritization rules can be derived from other approaches, e.g., risk-based rules. Here we focus on CATE-based rules as we aim to use the RATEs to evaluate the "quality" of the estimated CATEs.
 [^9]: When evaluating active labor market policies, it is common to check whether the average treatment effect for the treated is larger than the average treatment effect for the whole population, as this would denote that the treatment is allocated better than randomly. $TOC ( \cdot, \cdot )$ uses a similar idea.

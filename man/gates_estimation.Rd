@@ -13,7 +13,7 @@ gates_estimation(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups = 5)
 
 \item{cates}{Estimated CATEs. Must be estimated with different observations than those in \code{Y} and \code{D}.}
 
-\item{pscore}{Propensity scores. If unknown, they must be estimated using different observations than those in \code{Y} and \code{D}.}
+\item{pscore}{Propensity scores. If unknown, must be estimated using different observations than those in \code{Y} and \code{D}.}
 
 \item{mu}{Estimated regression function. Must be estimated with different observations than those in \code{Y} and \code{D}.}
 
@@ -29,21 +29,25 @@ gates_estimation(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups = 5)
 A list of fitted models as \code{\link[estimatr]{lm_robust}} objects and a data frame with point estimates and standard errors for the nonparametric estimator.
 }
 \description{
-Estimates the group average treatment effects (GATES), with the groups formed by cutting the distribution of the estimated CATEs into K quantiles.
+Estimates the sorted group average treatment effects (GATES), with the groups formed by cutting the distribution of the estimated CATEs into K quantiles.
 }
 \details{
-\code{\link{gates_estimation}} estimates the GATES. To this end, the user must provide observations on the outcomes and the treatment status of units in 
-the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).
-Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.\cr
+To estimate the GATES, the user must provide observations on the outcomes and the treatment status of units in 
+the validation sample, as well as their estimated cates and nuisance functions. Be careful, as these estimates must be obtained using only observations from the training sample 
+(see the example section below). Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.\cr
 
-The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the 
-\href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} for details.\cr
+The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach.  Check the online 
+\href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr
+
+Each strategy based on linear models supports different model specifications 
+that differ in additional and optional covariates that can be included in the regressions to reduce the estimation variance.
+Check \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details.\cr
 
 For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 
 Groups are constructed by cutting the distribution of \code{cates} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, the function raises an error.\cr
 
-The estimated GATES are rearranged to obey the monotonicity property (i.e., we sort them in increasing order).\cr
+The GATES estimated by the linear models are rearranged to obey the monotonicity property (i.e., we sort them in increasing order).\cr
 }
 \examples{
 ## Generate data.
@@ -99,7 +103,7 @@ gates_results <- gates_estimation(Y_val, D_val, cates_val,
 
 }
 \seealso{
-\code{\link{blp_estimation}}, \code{\link{rate_estimation}}
+\code{\link{blp_estimation}}, \code{\link{toc_estimation}}, \code{\link{rate_estimation}}
 }
 \author{
 Riccardo Di Francesco

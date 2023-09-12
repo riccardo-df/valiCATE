@@ -16,16 +16,18 @@ rate_estimation(cates, scores, beneficial = TRUE, n_boot = 200)
 \item{n_boot}{Number of bootstrap replications to estimate standard errors.}
 }
 \value{
-A data frame with the results.
+A list storing a data frame for the TOC results, a list with two data frames for the AUTOC and QINI results, and a
+data frame for the bootstrap results.
 }
 \description{
-Estimates the rank-weighted average treatment effect (RATE) of the estimated CATEs.
+Estimates the rank-weighted average treatment effect (RATE) induced by the estimated CATEs.
 }
 \details{
-\code{\link{rate_estimation}} estimates the RATE of the estimated CATEs. To this end, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
+To estimate the RATE induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
 using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 
-Two RATEs, the AUTOC and the QINI coefficient, are estimated using sample-averaging estimators. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+\code{\link{rate_estimation}} first calls the \code{\link{toc_estimation}} function to estimate the TOCs, and then computes two RATEs, the AUTOC and the QINI coefficient, 
+as weighted averages of the TOCs. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
 for details.\cr
 
 Standard errors are estimated using the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.

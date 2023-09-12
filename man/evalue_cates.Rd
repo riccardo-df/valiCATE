@@ -31,7 +31,7 @@ evalue_cates(
 
 \item{is_train}{Logical vector denoting which observations belong to the training sample.}
 
-\item{pscore}{Propensity scores. If unknown, they must be estimated using only the training sample.}
+\item{pscore}{Propensity scores. If unknown, must be estimated using only the training sample.}
 
 \item{mu}{Estimated regression function. Must be estimated using only the training sample.}
 
@@ -48,14 +48,15 @@ evalue_cates(
 \item{verbose}{Logical, set to FALSE to prevent the function from printing the progresses.}
 }
 \value{
-Return.
+An \code{evaluCATE} object.
 }
 \description{
-Evaluates the quality of CATEs estimates by implementing several Generic Machine Learning methodologies.
+Evaluates the quality of CATEs estimates by estimating the best linear predictor (BLP) of the actual CATEs using the estimated
+CATEs, the sorted group average treatment effects (GATES), and the rank-weighted average treatment effect (RATE) induced by
+the estimated CATEs.
 }
 \details{
-\code{\link{evalue_cates}} targets the estimation of the best linear predictor (BLP) of the actual CATEs using the estimated CATEs, of the sorted group average treatment effects (GATES), and of
-the rank-weighted average treatment effect (RATE). To this end, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well
+To estimate BLP, GATES, and RATE, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well
 as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
 
 To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the
@@ -67,9 +68,9 @@ fits and returns all these possible models. GATES are also estimated using a non
 \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr
 
 Some of the linear models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome
-(check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details about these covariates.). The user can supply estimates of these functions by using the
+(check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details about these covariates). The user can supply estimates of these functions by using the
 optional arguments \code{pscore}, \code{mu}, \code{mu0}, and \code{mu1}. Be careful, as these must be obtained using only the training sample. If not provided by the user, these functions are estimated internally
-via honest \code{\link[grf]{regression_forest}}s. \cr
+via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
 
 For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 
@@ -78,7 +79,7 @@ To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are 
 
 The estimated GATES are sorted to enforce monotonicity.\cr
 
-RATEs are estimated via sample-averaging estimators. The standard error of the RATE estimate is estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.
+Two different RATEs are estimated: AUTOC and QINI coefficient. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.
 }
 \examples{
 ## Generate data.

@@ -5,7 +5,7 @@
 #' @param Y Observed outcomes.
 #' @param D Treatment indicator.
 #' @param cates Estimated CATEs. Must be estimated with different observations than those in \code{Y} and \code{D}.
-#' @param pscore Propensity scores. If unknown, they must be estimated using different observations than those in \code{Y} and \code{D}. 
+#' @param pscore Propensity scores. If unknown, must be estimated using different observations than those in \code{Y} and \code{D}. 
 #' @param mu Estimated regression function. Must be estimated with different observations than those in \code{Y} and \code{D}. 
 #' @param mu0 Estimated regression function for control units. Must be estimated with different observations than those in \code{Y} and \code{D}.
 #' @param mu1 Estimated regression function for treated units. Must be estimated with different observations than those in \code{Y} and \code{D}. 
@@ -67,12 +67,13 @@
 #'                               scores_val)
 #'
 #' @details
-#' \code{\link{blp_estimation}} estimates the BLP of the actual CATEs using the estimated CATEs. To this end, the user must provide observations on the outcomes and the treatment status of units in 
-#' the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).
+#' To estimate the BLP of the actual CATEs using the estimated CATEs, the user must provide observations on the outcomes and the treatment status of units in 
+#' the validation sample, as well as their estimated cates and nuisance functions. Be careful, as these estimates must be obtained using only observations from the training sample (see the example section below).
 #' Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.\cr
 #' 
-#' The BLP is estimated using three different strategies, all involving fitting suitable linear models. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
-#' for details.\cr
+#' The BLP is estimated using three different strategies, all involving fitting suitable linear models. For each of these strategis, different model specifications are considered that differ in additional and
+#' optional covariates that can be included in the regressions to reduce the estimation variance. Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial}
+#' and \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details.\cr
 #' 
 #' Standard errors are estimated using the Eicker-Huber-White estimator.
 #'
@@ -80,7 +81,7 @@
 #'
 #' @author Riccardo Di Francesco
 #'
-#' @seealso \code{\link{gates_estimation}}, \code{\link{rate_estimation}}
+#' @seealso \code{\link{gates_estimation}}, \code{\link{toc_estimation}}, \code{\link{rate_estimation}}
 #'
 #' @export
 blp_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores) {
