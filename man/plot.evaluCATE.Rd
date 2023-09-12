@@ -4,10 +4,12 @@
 \alias{plot.evaluCATE}
 \title{Plot Method for evaluCATE Objects}
 \usage{
-\method{plot}{evaluCATE}(x, ...)
+\method{plot}{evaluCATE}(x, target = "GATES", ...)
 }
 \arguments{
 \item{x}{An \code{evaluCATE} object.}
+
+\item{target}{String controlling which plot to display. Must be either \code{"GATES"} or \code{"RATE"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -18,7 +20,9 @@ Plots an \code{evaluCATE} object.
 Plots an \code{evaluCATE} object.
 }
 \details{
-Estimated GATES and 95% confidence intervals are displayed.
+If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals are displayed.\cr
+
+If \code{target == "RATE"}, the estimated TOCs for the considered threshold values are displayed.\cr
 }
 \examples{
 ## Generate data.
@@ -57,7 +61,8 @@ pscore <- rep(0.5, length(Y))
 evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Plot.
-plot(evaluation)
+plot(evaluation, target = "GATES")
+plot(evaluation, target = "RATE")
 
 }
 \author{

@@ -20,8 +20,7 @@ Summarizes an \code{evaluCATE} object.
 Summarizes an \code{evaluCATE} object.
 }
 \details{
-Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}. If
-standard errors have been estimated, they are printed in parenthesis below each point estimate.
+Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
 }
 \examples{
 ## Generate data.

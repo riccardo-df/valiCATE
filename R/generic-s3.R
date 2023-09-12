@@ -50,8 +50,7 @@
 #' summary(evaluation, latex = "BLP")
 #' 
 #' @details 
-#' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}. If
-#' standard errors have been estimated, they are printed in parenthesis below each point estimate.
+#' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
 #' 
 #' @seealso \code{\link{evalue_cates}}
 #' 
@@ -95,6 +94,23 @@ summary.evaluCATE <- function(object, latex = "none", ...) {
       upper_ci <- round(model$conf.high["beta2"], 3)
       cat(model_name_space, ": ", estimated_ate, " [", lower_ci, ", ", upper_ci, "] \n", sep = "")
     }
+    
+    cat("\n")
+    
+    cat("RATEs results + 95% confidence intervals: \n")
+    
+    autoc <- round(object$RATE$rate_results$AUTOC$rate, 2)
+    autoc_lower_ci <- round(object$RATE$rate_results$AUTOC$rate - 1.96 * object$RATE$rate_results$AUTOC$se, 3)
+    autoc_upper_ci <- round(object$RATE$rate_results$AUTOC$rate + 1.96 * object$RATE$rate_results$AUTOC$se, 3)
+    
+    qini <- round(object$RATE$rate_results$QINI$rate, 2)
+    qini_lower_ci <- round(object$RATE$rate_results$QINI$rate - 1.96 * object$RATE$rate_results$QINI$se, 3)
+    qini_upper_ci <- round(object$RATE$rate_results$QINI$rate + 1.96 * object$RATE$rate_results$QINI$se, 3)
+    
+    
+    cat("AUTOC: ", autoc, " [", autoc_lower_ci, ", ", autoc_upper_ci, "]
+QINI:  ", qini, " [", qini_lower_ci, ", ", qini_upper_ci, "] \n", sep = "")
+    
   } else if (latex == "BLP") {
     estimated_ates <- sapply(object$BLP, function(x) { round(stats::coef(x)[names(stats::coef(x)) == "beta1"], 2) })
     estimated_ates_lower_ci <- sapply(object$BLP, function(x) { round(x$conf.low["beta1"], 3) })
@@ -203,6 +219,7 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' Plots an \code{evaluCATE} object.
 #'
 #' @param x An \code{evaluCATE} object.
+#' @param target String controlling which plot to display. Must be either \code{"GATES"} or \code{"RATE"}.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return
@@ -245,37 +262,60 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 #' 
 #' ## Plot.
-#' plot(evaluation)
+#' plot(evaluation, target = "GATES")
+#' plot(evaluation, target = "RATE")
 #'
 #' @details
-#' Estimated GATES and 95% confidence intervals are displayed.
+#' If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals are displayed.\cr
+#' 
+#' If \code{target == "RATE"}, the estimated TOCs for the considered threshold values are displayed.\cr
 #'
 #' @import dplyr ggplot2 ggsci stats
 #'
 #' @author Riccardo Di Francesco
 #'
 #' @export
-plot.evaluCATE <- function(x, ...) {
-  ## Extract estimated GATES and standard errors.
-  gates_list <- lapply(x$GATES[1:length(x$GATES)-1], function(y) {y$coefficients[grep("gamma", names(y$coefficients))]}) %>%
-    append(list(c(x$GATES$imai_li$GATE)))
-  names(gates_list)[length(gates_list)] <- "imai_li"
+plot.evaluCATE <- function(x, target = "GATES", ...) {
+  ## Checks.
+  if (!(target %in% c("GATES", "RATE"))) stop("Invalid 'target'. This must be either 'GATES' or 'RATE'", call. = FALSE)
   
-  gates_se_list <- lapply(x$GATES[1:length(x$GATES)-1], function(y) {summary(y)$coefficients[grep("gamma", names(y$coefficients)), 2]}) %>%
-    append(list(c(x$GATES$imai_li$SE)))
-  names(gates_list)[length(gates_list)] <- "imai_li"
+  group <- NULL
+  estimator <- NULL
+  estimated_gate <- NULL
+  se <- NULL
   
-  ## Arrange plot data and call ggplot.
-  n_groups <- length(stats::coef(x$GATES$wr_none))
-  plot_dta <- data.frame("group" = rep(1:n_groups, length(gates_list)), 
-                         "estimator" = factor(rep(names(gates_list), each = n_groups)),
-                         "estimated_gate" = unlist(gates_list), 
-                         "se" = unlist(gates_se_list))
+  u <- NULL
+  TOC <- NULL
   
-  ggplot2::ggplot(plot_dta, ggplot2::aes(x = group, y = estimated_gate, colour = estimator)) +
-    ggplot2::geom_point() + 
-    ggplot2::geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se)) +
-    # ggsci::scale_fill_rickandmorty() + 
-    ggplot2::xlab("Group") +ggplot2:: ylab("GATES") + ggplot2::labs(colour = "Estimator") +
-    ggplot2::theme_bw() 
+  ## Plot.
+  if (target == "GATES") {
+    ## Extract estimated GATES and standard errors.
+    gates_list <- lapply(x$GATES[1:length(x$GATES)-1], function(y) {y$coefficients[grep("gamma", names(y$coefficients))]}) %>%
+      append(list(c(x$GATES$imai_li$GATE)))
+    names(gates_list)[length(gates_list)] <- "imai_li"
+    
+    gates_se_list <- lapply(x$GATES[1:length(x$GATES)-1], function(y) {summary(y)$coefficients[grep("gamma", names(y$coefficients)), 2]}) %>%
+      append(list(c(x$GATES$imai_li$SE)))
+    names(gates_list)[length(gates_list)] <- "imai_li"
+    
+    ## Arrange plot data and call ggplot.
+    n_groups <- length(stats::coef(x$GATES$wr_none))
+    plot_dta <- data.frame("group" = rep(1:n_groups, length(gates_list)), 
+                           "estimator" = factor(rep(names(gates_list), each = n_groups)),
+                           "estimated_gate" = unlist(gates_list), 
+                           "se" = unlist(gates_se_list))
+    
+    ggplot2::ggplot(plot_dta, ggplot2::aes(x = group, y = estimated_gate, colour = estimator)) +
+      ggplot2::geom_point() + 
+      ggplot2::geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se)) +
+      # ggsci::scale_fill_rickandmorty() + 
+      ggplot2::xlab("Group") +ggplot2:: ylab("GATES") + ggplot2::labs(colour = "Estimator") +
+      ggplot2::theme_bw() 
+  } else if (target == "RATE") {
+    ggplot2::ggplot(x$RATE$toc_results, ggplot2::aes(x = u, y = TOC)) +
+      ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
+      ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
+      ggplot2::theme_bw() 
+  }
 }

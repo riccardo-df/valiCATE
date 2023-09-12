@@ -7,6 +7,8 @@
 #' @return
 #' The renamed string vector. Strings where "_" is not found are not modified by \code{rename_latex}.
 #' 
+#' @import stringr
+#' 
 #' @keywords internal
 rename_latex <- function(names) {
   ## Locating variables that need renaming.

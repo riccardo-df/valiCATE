@@ -12,6 +12,8 @@
 #' @param mu0 Estimated regression function for control units. Must be estimated using only the training sample.
 #' @param mu1 Estimated regression function for treated units. Must be estimated using only the training sample.
 #' @param n_groups Number of groups to be formed for the GATES analysis.
+#' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates} to estimate the RATE, otherwise they are ranked according to increasing values of \code{cates}.
+#' @param n_boot Number of bootstrap replications to estimate the standard error of the RATE estimate.
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
@@ -57,32 +59,36 @@
 #' summary(evaluation)
 #' summary(evaluation, latex = "BLP")
 #'
-#' print(evaluation)
-#' plot(evaluation)
+#' plot(evaluation, target = "GATES")
+#' plot(evaluation, target = "RATE")
 #'
 #' @md
 #' @details
-#' \code{\link{evalue_cates}} targets the estimation of the best linear predictor (BLP) of the actual CATEs using the estimated CATEs and of the sorted group average treatment effects (GATES).
-#' To this end, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well as their estimated CATEs. Be careful,
-#' as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
+#' \code{\link{evalue_cates}} targets the estimation of the best linear predictor (BLP) of the actual CATEs using the estimated CATEs, of the sorted group average treatment effects (GATES), and of
+#' the rank-weighted average treatment effect (RATE). To this end, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
+#' as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
 #' 
 #' To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the 
 #' training sample. This way, \code{\link{evalue_cates}} knows which observations to use to post-process the CATEs estimates.\cr
 #' 
 #' \code{\link{evalue_cates}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
 #' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalue_cates}}
-#' fits and returns all these possible models. Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr 
+#' fits and returns all these possible models. GATES are also estimated using a nonparametric approach. Check the online 
+#' \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr 
 #' 
-#' Some of these models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome (check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} 
-#' for details about these covariates.). The user can supply estimates of these functions by using the optional arguments \code{pscore}, \code{mu}, \code{mu0}, and \code{mu1}. Be careful, as these must be obtained using 
-#' only the training sample. If not provided by the user, these functions are estimated internally via honest \code{\link[grf]{regression_forest}}s. \cr
+#' Some of the linear models involve covariates that depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome 
+#' (check the online \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details about these covariates.). The user can supply estimates of these functions by using the 
+#' optional arguments \code{pscore}, \code{mu}, \code{mu0}, and \code{mu1}. Be careful, as these must be obtained using only the training sample. If not provided by the user, these functions are estimated internally 
+#' via honest \code{\link[grf]{regression_forest}}s. \cr
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 #' 
-#' To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression 
-#' forests (see the \code{\link[aggTrees]{dr_scores}} function).\cr
+#' To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the 
+#' \code{\link[aggTrees]{dr_scores}} function for details).\cr
 #' 
-#' The estimated GATES are sorted to enforce monotonicity.
+#' The estimated GATES are sorted to enforce monotonicity.\cr
+#' 
+#' RATEs are estimated via sample-averaging estimators. The standard error of the RATE estimate is estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap. 
 #'
 #' @import grf
 #'
@@ -93,14 +99,17 @@
 #' @export
 evalue_cates <- function(Y, D, X, cates, is_train,
                          pscore = NULL, mu = NULL, mu0 = NULL, mu1 = NULL,
-                         n_groups = 5, verbose = TRUE) {
+                         n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
   ## 0.) Handling inputs and checks.
   if (is.logical(D)) D <- as.numeric(D)
   if (any(!(D %in% c(0, 1)))) stop("Invalid 'D'. Only binary treatments are allowed.", call. = FALSE)
   if (!is.matrix(X) & !is.data.frame(X)) stop("Invalid 'X'. This must be either a matrix or a data frame.", call. = FALSE)
   if (!is.logical(is_train)) stop("Invalid 'is_train'. This must be a logical vector.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
-
+  if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
+  if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)
+  if (!is.logical((verbose))) stop("Invalid 'verbose'. This must be either TRUE or FALSE.", call. = FALSE)
+  
   ## 1.) Split the sample as indicated by the user.  and doubly-robust scores using the validation sample.
   train_idx <- which(is_train)
   val_idx <- which(!is_train)
@@ -150,18 +159,21 @@ evalue_cates <- function(Y, D, X, cates, is_train,
   mu1_tr <- mu1[train_idx]
   mu1_val <- mu1[val_idx]
   
-  scores <- aggTrees::dr_scores(Y_val, D_val, X_val)
+  scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
     
-  ## 3.) Estimate BLP and GATES in validation sample.
+  ## 3.) Estimate BLP, GATES, and RATE in validation sample.
   if (verbose) cat("BLP estimation; \n")
-  blp_results <- blp_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores)
+  blp_results <- blp_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val)
   
   if (verbose) cat("GATES estimation; \n")
-  gates_results <- gates_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores, n_groups)
+  gates_results <- gates_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val, n_groups)
+  
+  if (verbose) cat("RATE estimation; \n")
+  rate_results <- rate_estimation(cates_val, scores_val, beneficial, n_boot)
 
   ## Output.
   if (verbose) cat("Output. \n\n")
-  out <- list("BLP" = blp_results, "GATES" = gates_results)
+  out <- list("BLP" = blp_results, "GATES" = gates_results, "RATE" = rate_results)
   class(out) <- "evaluCATE"
   return(out)
 }

@@ -26,14 +26,15 @@ gates_estimation(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups = 5)
 \item{n_groups}{Number of groups to be formed.}
 }
 \value{
-A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.
+A list of fitted models as \code{\link[estimatr]{lm_robust}} objects and a data frame with point estimates and standard errors for the nonparametric estimator.
 }
 \description{
 Estimates the group average treatment effects (GATES), with the groups formed by cutting the distribution of the estimated CATEs into K quantiles.
 }
 \details{
 \code{\link{gates_estimation}} estimates the GATES. To this end, the user must provide observations on the outcomes and the treatment status of units in 
-the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).\cr
+the validation sample, as well as their estimated cates and nuisance functions. These estimates must be obtained by using only observations from the training sample (see the example section below).
+Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.\cr
 
 The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the 
 \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} for details.\cr
@@ -80,7 +81,7 @@ mu_forest <- regression_forest(X_tr, Y_tr)
 mu0_forest <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
 mu1_forest <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
 
-cates_val <- predict(cates_forest, X_val)$predictions #
+cates_val <- predict(cates_forest, X_val)$predictions 
 mu_val <- predict(mu_forest, X_val)$predictions
 mu0_val <- predict(mu0_forest, X_val)$predictions
 mu1_val <- predict(mu1_forest, X_val)$predictions
@@ -91,15 +92,14 @@ library(aggTrees)
 scores_val <- dr_scores(Y_val, D_val, X_val)
 
 ## GATEs estimation. Use default of five groups.
-## Here, we know true pscores. Otherwise, estimate them in training sample.
-pscore_val <- rep(0.5, length(Y_val))
+pscore_val <- rep(0.5, length(Y_val)) # We know true pscores.
 gates_results <- gates_estimation(Y_val, D_val, cates_val, 
                                   pscore_val, mu_val, mu0_val, mu1_val, 
                                   scores_val)
 
 }
 \seealso{
-Other functions
+\code{\link{blp_estimation}}, \code{\link{rate_estimation}}
 }
 \author{
 Riccardo Di Francesco
