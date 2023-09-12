@@ -220,7 +220,7 @@ When displaying the raw results, the `summary` method also displays the estimate
 
 ```{r compare-rate, eval = TRUE}
 ## GATES results.
-plot(evaluation, target = "GATES")
+plot(evaluation, target = "RATE")
 ```
 
 [^1]: Complete references to these papers are listed in the home page.
