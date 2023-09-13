@@ -1,13 +1,13 @@
 #' TOC Estimation
 #'
-#' Estimates the targeting operator characteristic (TOC) induced by the estimated CATEs for a set of threshold values u.
+#' Estimates the targeting operator characteristic (TOC) induced by the estimated CATEs.
 #'
 #' @param cates Estimated CATEs. Must be out-of-sample predictions on the validation sample.
 #' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the validation sample. 
 #' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates}, otherwise they are ranked according to increasing values of \code{cates}.
 #'
 #' @return
-#' A data frame with the estimated TOCs for a set of threshold values of u = 0.1, 0.2, ..., 1.
+#' A vector of estimated TOCs sorted according to the increasing or decreasing values of \code{cates}.
 #'
 #' @examples
 #' ## Generate data.
@@ -59,31 +59,13 @@
 #' for details.
 #'
 #' @author Riccardo Di Francesco
-#' 
-#' @import dplyr
 #'
 #' @seealso \code{\link{blp_estimation}}, \code{\link{gates_estimation}}, \code{\link{rate_estimation}}
 #'
 #' @export
 toc_estimation <- function(cates, scores, beneficial = TRUE) {
-  TOC <- NULL
-  u <- NULL
-  
-  u_values <- seq(0, 1, length = 11)[-1]
-  n <- length(scores)
-  
   sorted_scores <- scores[order(cates, decreasing = beneficial)]
-  
-  toc_results <- list()
-  counter <- 1
-  
-  for (u in u_values) {
-    high_ranked <- floor(u * n)
-    toc_results[[counter]] <- data.frame("u" = u, "TOC" = mean(sorted_scores[1:high_ranked]) - mean(sorted_scores))
-    counter <- counter + 1
-  }
-  
-  return(dplyr::bind_rows(toc_results))
+  return(cumsum(sorted_scores) / cumsum(rep(1, length(scores))) - mean(sorted_scores))
 }
 
 
@@ -154,7 +136,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #'
 #' @author Riccardo Di Francesco
 #' 
-#' @import dplyr
+#' @importFrom dplyr bind_rows
 #'
 #' @seealso \code{\link{blp_estimation}}, \code{\link{gates_estimation}}, \code{\link{toc_estimation}}
 #'
@@ -164,24 +146,24 @@ rate_estimation <- function(cates, scores, beneficial = TRUE, n_boot = 200) {
   toc_results <- toc_estimation(cates, scores)
   
   ## 2.) Estimate the AUTOC and the QINI coefficient.
-  autoc <- mean(toc_results$TOC)
-  qini <- weighted.mean(toc_results$TOC, toc_results$u)
+  n <- length(cates)
+  
+  autoc <- mean(toc_results)
+  qini <- 1 / n * sum(cumsum(rep(1, n)) / sum(rep(1, n)) * toc_results)
   
   ## 3.) Half-sample bootstrap to obtain standard errors.
-  n <- length(scores)
-  
   boot_results <- list()
 
   for (b in seq_len(n_boot)) {
-    boot_idx <- sample(1:n, n/2, replace = FALSE) 
+    boot_idx <- sample(1:n, floor(n/2), replace = FALSE) 
     
     boot_cates <- cates[boot_idx]
     boot_scores <- scores[boot_idx]
     
     boot_toc_results <- toc_estimation(boot_cates, boot_scores)
     
-    boot_autoc <- mean(boot_toc_results$TOC)
-    boot_qini <- weighted.mean(boot_toc_results$TOC, toc_results$u)
+    boot_autoc <- mean(boot_toc_results)
+    boot_qini <- 1 / floor(n/2) * sum(cumsum(rep(1, floor(n/2))) / sum(rep(1, floor(n/2))) * boot_toc_results)
     
     boot_results[[b]] <- data.frame("AUTOC" = boot_autoc, "QINI" = boot_qini)
   }

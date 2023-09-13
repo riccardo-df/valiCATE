@@ -14,10 +14,10 @@ toc_estimation(cates, scores, beneficial = TRUE)
 \item{beneficial}{Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates}, otherwise they are ranked according to increasing values of \code{cates}.}
 }
 \value{
-A data frame with the estimated TOCs for a set of threshold values of u = 0.1, 0.2, ..., 1.
+A vector of estimated TOCs sorted according to the increasing or decreasing values of \code{cates}.
 }
 \description{
-Estimates the targeting operator characteristic (TOC) induced by the estimated CATEs for a set of threshold values u.
+Estimates the targeting operator characteristic (TOC) induced by the estimated CATEs.
 }
 \details{
 To estimate the TOC induced by the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 

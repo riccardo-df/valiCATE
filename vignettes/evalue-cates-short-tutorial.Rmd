@@ -22,7 +22,7 @@ The core idea is that applying machine learning tools to the estimation of heter
 
 - Best Linear Predictor (BLP) of the actual CATEs using the estimated CATEs;
 - Sorted Group Average Treatment Effects (GATES).
-- Rank-Weighted Average Treatment Effects (RATEs).
+- Rank-Weighted Average Treatment Effects (RATEs) induced by the estimated CATEs.
 
 To estimate these objects, we first construct estimates of the CATEs using an observed training sample, and we then post-process them using an external validation sample. All of this is performed by calling the `evalue_cates` function. Results allow us to evaluate the quality of our CATEs estimates and to assess whether we detect systematic heterogeneous effects. 
 
@@ -177,14 +177,14 @@ with $\alpha : ( 0, 1 ] \rightarrow \mathcal{R}$ a generic weight function.
 To estimate the TOC of $\hat{\tau} ( \cdot )$ evaluated at $u$, we use the following sample-averaging estimator:
 
 $$ \widehat{TOC} ( u; \hat{\tau} ) = \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor} \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i $$
-where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and use the same estimated doubly-robust scores $\hat{\Gamma}_i$ as before. Notice that the first sum involves only the most-prioritized units according to the threshold $u$.
+where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and use the same estimated doubly-robust scores $\hat{\Gamma}_i$ as before. Notice that the first sum involves only the most-prioritized units according to the threshold $u$.[^10]
 
 Given the TOC estimator, we can estimate the RATE as a weighted average of the estimated TOCs:
 
 $$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) $$
 We rely on the half-sample bootstrap procedure to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. We can then test the null hypothesis $\theta_{\alpha} ( \hat{\tau}) \leq 0$, which behaves as the null hypothesis $\beta_2 = 0$ detailed in the Best Linear Predictor section.
 
-The `evalue_cates` function first estimates the TOCs for values $u = 0.1, 0.2, \dots, 1$, and then estimates the RATE as weighted averages of the estimated TOCs using two different weight function $\alpha ( \cdot )$, thus targeting two different metrics:
+The `evalue_cates` function first estimates the TOCs, and then estimates the RATE as weighted averages of the estimated TOCs using two different weight function $\alpha ( \cdot )$, thus targeting two different metrics:
 
 - Area under the TOC curve (AUTOC): it uses a naive weighting scheme $\alpha ( u ) = 1$ for all $u$;
 - Qini coefficient (QINI): it uses a linear weight function $\alpha ( u ) = u$.
@@ -192,7 +192,7 @@ The `evalue_cates` function first estimates the TOCs for values $u = 0.1, 0.2, \
 Results can be accessed by calling `evaluation$RATE$rate_results`.
 
 ### Compare Results
-Our package is compatible with the generic S3 methods `print`, `summary`, and `plot` that allow the user to investigate the results.[^10] This section shows an example of how these methods can be used to analyze the output of a single call of the `evalue_cates` function. 
+Our package is compatible with the generic S3 methods `print`, `summary`, and `plot` that allow the user to investigate the results.[^11] This section shows an example of how these methods can be used to analyze the output of a single call of the `evalue_cates` function. 
 
 - **BLP**
 The `summary` method allows the user to visualize the results of BLP estimation. The method displays the estimated average treatment effect ($\beta_1$) and heterogeneity parameter ($\beta_2$) for all the methodologies detailed above. An optional argument controls whether the raw results or LATEX code for a table will be displayed in the console.
@@ -216,7 +216,7 @@ plot(evaluation, target = "GATES")
 By simulation, we can compute the true GATES in the $k$-th group as `mean(mu1[!train_idx][x] - mu0[!train_idx][x])`, with `x` a logical vector denoting those units belonging to the $k$-th group. We can then compare these quantities with those displayed in the plot to check the accuracy of the results. 
 
 - **RATE**
-When displaying the raw results, the `summary` method also displays the estimated RATEs and their confidence intervals. Further investigation of the RATEs results is provided by the `plot` method. If the optional argument `target` is set to `"RATE"`, the method plots the estimated TOCs for the each considered threshold value $u$. 
+When displaying the raw results, the `summary` method also displays the estimated RATEs and their confidence intervals. Further investigation of the RATEs results is provided by the `plot` method. If the optional argument `target` is set to `"RATE"`, the method plots the estimated TOC curve. 
 
 ```{r compare-rate, eval = TRUE}
 ## RATE results.
@@ -232,4 +232,5 @@ plot(evaluation, target = "RATE")
 [^7]: If the treatment is harmful, we prioritize units with the lowest estimated CATEs.
 [^8]: Prioritization rules can be derived from other approaches, e.g., risk-based rules. Here we focus on CATE-based rules as we aim to use the RATEs to evaluate the "quality" of the estimated CATEs.
 [^9]: When evaluating active labor market policies, it is common to check whether the average treatment effect for the treated is larger than the average treatment effect for the whole population, as this would denote that the treatment is allocated better than randomly. $TOC ( \cdot, \cdot )$ uses a similar idea.
-[^10]: The `print` and `summary` methods return the same output in our package.
+[^10]: In practice, we use cumulative sums to estimate $\widehat{TOC} ( \frac{j}{n}; \hat{\tau} )$ for all units in our validation sample.
+[^11]: The `print` and `summary` methods return the same output in our package.

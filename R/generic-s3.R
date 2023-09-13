@@ -270,7 +270,7 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' 
 #' If \code{target == "RATE"}, the estimated TOCs for the considered threshold values are displayed.\cr
 #'
-#' @import dplyr ggplot2 ggsci stats
+#' @import magrittr ggplot2 ggsci stats
 #'
 #' @author Riccardo Di Francesco
 #'
@@ -312,7 +312,8 @@ plot.evaluCATE <- function(x, target = "GATES", ...) {
       ggplot2::xlab("Group") +ggplot2:: ylab("GATES") + ggplot2::labs(colour = "Estimator") +
       ggplot2::theme_bw() 
   } else if (target == "RATE") {
-    ggplot2::ggplot(x$RATE$toc_results, ggplot2::aes(x = u, y = TOC)) +
+    plot_dta <- data.frame("unit" = 1:length(x$RATE$toc_results), "TOC" = x$RATE$toc_results)
+    ggplot2::ggplot(plot_dta, ggplot2::aes(x = unit, y = TOC)) +
       ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
       ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +

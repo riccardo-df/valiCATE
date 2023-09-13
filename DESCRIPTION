@@ -23,5 +23,6 @@ Imports:
     ggplot2,
     ggsci,
     grf,
+    magrittr,
     stringr
 URL: https://riccardo-df.github.io/evalueCATE/
