@@ -14,8 +14,8 @@
 #' @param mu0 Estimated regression function for control units. Must be estimated using only the training sample.
 #' @param mu1 Estimated regression function for treated units. Must be estimated using only the training sample.
 #' @param n_groups Number of groups to be formed for the GATES analysis.
-#' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates} to estimate the RATE, otherwise they are ranked according to increasing values of \code{cates}.
-#' @param n_boot Number of bootstrap replications to estimate the standard error of the RATE estimate.
+#' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates}.
+#' @param n_boot Number of bootstrap replications to estimate the standard error of the RATE estimates.
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
@@ -62,11 +62,11 @@
 #' summary(evaluation, latex = "BLP")
 #'
 #' plot(evaluation, target = "GATES")
-#' plot(evaluation, target = "RATE")
+#' plot(evaluation, target = "TOC")
 #'
 #' @md
 #' @details
-#' To estimate BLP, GATES, and RATE, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
+#' To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
 #' as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
 #' 
 #' To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the 
@@ -85,7 +85,7 @@
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
 #' 
 #' To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the 
-#' \code{\link[aggTrees]{dr_scores}} function for details).\cr
+#' \code{\link[aggTrees]{dr_scores}} function for details). The same doubly-robust scores are also used to estimate the RATEs.\cr
 #' 
 #' The estimated GATES are sorted to enforce monotonicity.\cr
 #' 

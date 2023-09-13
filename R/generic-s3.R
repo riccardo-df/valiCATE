@@ -219,7 +219,7 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' Plots an \code{evaluCATE} object.
 #'
 #' @param x An \code{evaluCATE} object.
-#' @param target String controlling which plot to display. Must be either \code{"GATES"} or \code{"RATE"}.
+#' @param target String controlling which plot to display. Must be either \code{"GATES"} or \code{"TOC"}.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return
@@ -263,12 +263,12 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' 
 #' ## Plot.
 #' plot(evaluation, target = "GATES")
-#' plot(evaluation, target = "RATE")
+#' plot(evaluation, target = "TOC")
 #'
 #' @details
 #' If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals are displayed.\cr
 #' 
-#' If \code{target == "RATE"}, the estimated TOCs for the considered threshold values are displayed.\cr
+#' If \code{target == "TOC"}, the estimated TOCs for the considered threshold values are displayed.\cr
 #'
 #' @import magrittr ggplot2 ggsci stats
 #'
@@ -277,7 +277,7 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' @export
 plot.evaluCATE <- function(x, target = "GATES", ...) {
   ## Checks.
-  if (!(target %in% c("GATES", "RATE"))) stop("Invalid 'target'. This must be either 'GATES' or 'RATE'", call. = FALSE)
+  if (!(target %in% c("GATES", "TOC"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
   
   group <- NULL
   estimator <- NULL
@@ -311,7 +311,7 @@ plot.evaluCATE <- function(x, target = "GATES", ...) {
       # ggsci::scale_fill_rickandmorty() + 
       ggplot2::xlab("Group") +ggplot2:: ylab("GATES") + ggplot2::labs(colour = "Estimator") +
       ggplot2::theme_bw() 
-  } else if (target == "RATE") {
+  } else if (target == "TOC") {
     plot_dta <- data.frame("unit" = 1:length(x$RATE$toc_results), "TOC" = x$RATE$toc_results)
     ggplot2::ggplot(plot_dta, ggplot2::aes(x = unit, y = TOC)) +
       ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 

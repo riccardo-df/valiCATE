@@ -216,11 +216,11 @@ plot(evaluation, target = "GATES")
 By simulation, we can compute the true GATES in the $k$-th group as `mean(mu1[!train_idx][x] - mu0[!train_idx][x])`, with `x` a logical vector denoting those units belonging to the $k$-th group. We can then compare these quantities with those displayed in the plot to check the accuracy of the results. 
 
 - **RATE**
-When displaying the raw results, the `summary` method also displays the estimated RATEs and their confidence intervals. Further investigation of the RATEs results is provided by the `plot` method. If the optional argument `target` is set to `"RATE"`, the method plots the estimated TOC curve. 
+When displaying the raw results, the `summary` method also displays the estimated RATEs and their confidence intervals. Further investigation of the RATEs results is provided by the `plot` method. If the optional argument `target` is set to `"TOC"`, the method plots the estimated TOC curve. 
 
 ```{r compare-rate, eval = TRUE}
-## RATE results.
-plot(evaluation, target = "RATE")
+## TOC curve.
+plot(evaluation, target = "TOC")
 ```
 
 [^1]: Complete references to these papers are listed in the home page.

@@ -71,7 +71,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 
 #' RATE Estimation
 #'
-#' Estimates the rank-weighted average treatment effect (RATE) induced by the estimated CATEs.
+#' Estimates the rank-weighted average treatment effects (RATEs) induced by the estimated CATEs.
 #'
 #' @param cates Estimated CATEs. Must be out-of-sample predictions on the validation sample.
 #' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using a validation sample. 
@@ -125,7 +125,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #' rate_results <- rate_estimation(cates_val, scores_val)
 #'
 #' @details
-#' To estimate the RATE induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
+#' To estimate the RATEs induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
 #' using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 #' 
 #' \code{\link{rate_estimation}} first calls the \code{\link{toc_estimation}} function to estimate the TOCs, and then computes two RATEs, the AUTOC and the QINI coefficient, 
