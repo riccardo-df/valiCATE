@@ -101,7 +101,8 @@ consistently estimated under mild assumptions. These features are:</p>
 <li>Best Linear Predictor (BLP) of the actual CATEs using the estimated
 CATEs;</li>
 <li>Sorted Group Average Treatment Effects (GATES).</li>
-<li>Rank-Weighted Average Treatment Effects (RATEs).</li>
+<li>Rank-Weighted Average Treatment Effects (RATEs) induced by the
+estimated CATEs.</li>
 </ul>
 <p>To estimate these objects, we first construct estimates of the CATEs
 using an observed training sample, and we then post-process them using
@@ -432,7 +433,7 @@ unit, and <span class="math inline">\(i ( n )\)</span> returns the
 least-prioritized unit) and use the same estimated doubly-robust scores
 <span class="math inline">\(\hat{\Gamma}_i\)</span> as before. Notice
 that the first sum involves only the most-prioritized units according to
-the threshold <span class="math inline">\(u\)</span>.</p>
+the threshold <span class="math inline">\(u\)</span>.<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a></p>
 <p>Given the TOC estimator, we can estimate the RATE as a weighted
 average of the estimated TOCs:</p>
 <p><span class="math display">\[ \hat{\theta}_{\alpha} ( \hat{\tau} ) =
@@ -444,8 +445,7 @@ used as an estimator of the standard error of <span class="math inline">\(\hat{\
 then test the null hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau}) \leq 0\)</span>,
 which behaves as the null hypothesis <span class="math inline">\(\beta_2
 = 0\)</span> detailed in the Best Linear Predictor section.</p>
-<p>The <code>evalue_cates</code> function first estimates the TOCs for
-values <span class="math inline">\(u = 0.1, 0.2, \dots, 1\)</span>, and
+<p>The <code>evalue_cates</code> function first estimates the TOCs, and
 then estimates the RATE as weighted averages of the estimated TOCs using
 two different weight function <span class="math inline">\(\alpha ( \cdot
 )\)</span>, thus targeting two different metrics:</p>
@@ -462,7 +462,7 @@ two different weight function <span class="math inline">\(\alpha ( \cdot
 </h3>
 <p>Our package is compatible with the generic S3 methods
 <code>print</code>, <code>summary</code>, and <code>plot</code> that
-allow the user to investigate the results.<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a> This section shows
+allow the user to investigate the results.<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a> This section shows
 an example of how these methods can be used to analyze the output of a
 single call of the <code>evalue_cates</code> function.</p>
 <ul>
@@ -506,8 +506,8 @@ LATEX code for a table will be displayed in the console.</li>
 <span><span class="co">#&gt; aipw    : 1.06 [0.859, 1.265] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; RATEs results + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; AUTOC: 0.8 [0.641, 0.963]</span></span>
-<span><span class="co">#&gt; QINI:  0.51 [0.406, 0.606]</span></span>
+<span><span class="co">#&gt; AUTOC: 0.88 [0.697, 1.061]</span></span>
+<span><span class="co">#&gt; QINI:  0.28 [0.221, 0.332]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, latex <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; \begingroup</span></span>
 <span><span class="co">#&gt;     \setlength{\tabcolsep}{8pt}</span></span>
@@ -572,7 +572,7 @@ of the results.</p>
 confidence intervals. Further investigation of the RATEs results is
 provided by the <code>plot</code> method. If the optional argument
 <code>target</code> is set to <code>"RATE"</code>, the method plots the
-estimated TOCs for the each considered threshold value <span class="math inline">\(u\)</span>.</li>
+estimated TOC curve.</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## RATE results.</span></span>
@@ -625,8 +625,10 @@ larger than the average treatment effect for the whole population, as
 this would denote that the treatment is allocated better than randomly.
 <span class="math inline">\(TOC ( \cdot, \cdot )\)</span> uses a similar
 idea.<a href="#fnref9" class="footnote-back">↩︎</a></p></li>
-<li id="fn10"><p>The <code>print</code> and <code>summary</code> methods
-return the same output in our package.<a href="#fnref10" class="footnote-back">↩︎</a></p></li>
+<li id="fn10"><p>In practice, we use cumulative sums to estimate <span class="math inline">\(\widehat{TOC} ( \frac{j}{n}; \hat{\tau} )\)</span>
+for all units in our validation sample.<a href="#fnref10" class="footnote-back">↩︎</a></p></li>
+<li id="fn11"><p>The <code>print</code> and <code>summary</code> methods
+return the same output in our package.<a href="#fnref11" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
   </div>
