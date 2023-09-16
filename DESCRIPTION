@@ -1,11 +1,12 @@
 Package: evaluCATE
 Type: Package
-Title: Evaluating CATEs Estimates
+Title: Evaluation of CATE Estimates
 Version: 0.1.0
 Authors@R: person("Riccardo", "Di Francesco", email = "difrancesco.riccardo96@gmail.com", role = c("aut", "cre", "cph"))
 Maintainer: Riccardo Di Francesco <difrancesco.riccardo96@gmail.com>
-Description: Implementation of Generic Machine Learning Inference methods to
-    evaluate the quality of CATEs estimates.
+Description: Quality evaluation of conditional average treatment effect (CATE) estimates. The quality is assesed by estimating the best linear predictor of 
+    the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the 
+    estimated CATEs. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
