@@ -1,5 +1,9 @@
 # Evaluation of CATE Estimates <a href="https://riccardo-df.github.io/evaluCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/riccardo-df/evalueCATE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/riccardo-df/evalueCATE/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 R package to estimate and make inference about key features of heterogeneous treatment effects.
 
 To get started, please check the online [vignette](https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html) for a short tutorial.
