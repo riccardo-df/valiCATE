@@ -20,10 +20,10 @@ A list storing a data frame for the TOC results, a list with two data frames for
 data frame for the bootstrap results.
 }
 \description{
-Estimates the rank-weighted average treatment effect (RATE) induced by the estimated CATEs.
+Estimates the rank-weighted average treatment effects (RATEs) induced by the estimated CATEs.
 }
 \details{
-To estimate the RATE induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
+To estimate the RATEs induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
 using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 
 \code{\link{rate_estimation}} first calls the \code{\link{toc_estimation}} function to estimate the TOCs, and then computes two RATEs, the AUTOC and the QINI coefficient, 

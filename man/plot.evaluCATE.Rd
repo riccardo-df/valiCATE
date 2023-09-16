@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An \code{evaluCATE} object.}
 
-\item{target}{String controlling which plot to display. Must be either \code{"GATES"} or \code{"RATE"}.}
+\item{target}{String controlling which plot to display. Must be either \code{"GATES"} or \code{"TOC"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -22,7 +22,7 @@ Plots an \code{evaluCATE} object.
 \details{
 If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals are displayed.\cr
 
-If \code{target == "RATE"}, the estimated TOCs for the considered threshold values are displayed.\cr
+If \code{target == "TOC"}, the estimated TOCs for the considered threshold values are displayed.\cr
 }
 \examples{
 ## Generate data.
@@ -62,7 +62,7 @@ evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Plot.
 plot(evaluation, target = "GATES")
-plot(evaluation, target = "RATE")
+plot(evaluation, target = "TOC")
 
 }
 \author{
