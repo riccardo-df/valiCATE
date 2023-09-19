@@ -82,7 +82,7 @@ The estimated GATES are sorted to enforce monotonicity.\cr
 Two different RATEs are estimated: AUTOC and QINI coefficient. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -122,7 +122,7 @@ summary(evaluation)
 summary(evaluation, latex = "BLP")
 
 plot(evaluation, target = "GATES")
-plot(evaluation, target = "TOC")
+plot(evaluation, target = "TOC")}
 
 }
 \seealso{

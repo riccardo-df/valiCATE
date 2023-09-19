@@ -33,7 +33,7 @@ for details.\cr
 Standard errors are estimated using the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -72,7 +72,7 @@ library(aggTrees)
 scores_val <- dr_scores(Y_val, D_val, X_val)
 
 ## RATE estimation. 
-rate_results <- rate_estimation(cates_val, scores_val)
+rate_results <- rate_estimation(cates_val, scores_val)}
 
 }
 \seealso{

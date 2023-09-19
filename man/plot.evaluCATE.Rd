@@ -25,7 +25,7 @@ If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals ar
 If \code{target == "TOC"}, the estimated TOCs for the considered threshold values are displayed.\cr
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -62,7 +62,7 @@ evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Plot.
 plot(evaluation, target = "GATES")
-plot(evaluation, target = "TOC")
+plot(evaluation, target = "TOC")}
 
 }
 \author{

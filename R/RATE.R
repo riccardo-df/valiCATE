@@ -83,7 +83,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #' data frame for the bootstrap results.
 #'
 #' @examples
-#' ## Generate data.
+#' \donttest{## Generate data.
 #' set.seed(1986)
 #' 
 #' n <- 1000
@@ -122,7 +122,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #' scores_val <- dr_scores(Y_val, D_val, X_val)
 #' 
 #' ## RATE estimation. 
-#' rate_results <- rate_estimation(cates_val, scores_val)
+#' rate_results <- rate_estimation(cates_val, scores_val)}
 #'
 #' @details
 #' To estimate the RATEs induced the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 

@@ -50,7 +50,7 @@ Groups are constructed by cutting the distribution of \code{cates} into \code{n_
 The GATES estimated by the linear models are rearranged to obey the monotonicity property (i.e., we sort them in increasing order).\cr
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -99,7 +99,7 @@ scores_val <- dr_scores(Y_val, D_val, X_val)
 pscore_val <- rep(0.5, length(Y_val)) # We know true pscores.
 gates_results <- gates_estimation(Y_val, D_val, cates_val, 
                                   pscore_val, mu_val, mu0_val, mu1_val, 
-                                  scores_val)
+                                  scores_val)}
 
 }
 \seealso{

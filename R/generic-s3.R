@@ -10,7 +10,7 @@
 #' Summarizes an \code{evaluCATE} object.
 #' 
 #' @examples 
-#' ## Generate data.
+#' \donttest{## Generate data.
 #' set.seed(1986)
 #' 
 #' n <- 1000
@@ -47,7 +47,7 @@
 #' 
 #' ## Summary.
 #' summary(evaluation)
-#' summary(evaluation, latex = "BLP")
+#' summary(evaluation, latex = "BLP")}
 #' 
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
@@ -164,7 +164,7 @@ QINI:  ", qini, " [", qini_lower_ci, ", ", qini_upper_ci, "] \n", sep = "")
 #' Prints an \code{evaluCATE} object.
 #' 
 #' @examples 
-#' ## Generate data.
+#' \donttest{## Generate data.
 #' set.seed(1986)
 #' 
 #' n <- 1000
@@ -201,7 +201,7 @@ QINI:  ", qini, " [", qini_lower_ci, ", ", qini_upper_ci, "] \n", sep = "")
 #' 
 #' ## Print.
 #' print(evaluation)
-#' print(evaluation, latex = "BLP")
+#' print(evaluation, latex = "BLP")}
 #' 
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
@@ -226,7 +226,7 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' Plots an \code{evaluCATE} object.
 #'
 #' @examples
-#' ## Generate data.
+#' \donttest{## Generate data.
 #' set.seed(1986)
 #' 
 #' n <- 1000
@@ -263,7 +263,7 @@ print.evaluCATE <- function(x, latex = "none", ...) {
 #' 
 #' ## Plot.
 #' plot(evaluation, target = "GATES")
-#' plot(evaluation, target = "TOC")
+#' plot(evaluation, target = "TOC")}
 #'
 #' @details
 #' If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals are displayed.\cr

@@ -23,7 +23,7 @@ Summarizes an \code{evaluCATE} object.
 Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -60,7 +60,7 @@ evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Summary.
 summary(evaluation)
-summary(evaluation, latex = "BLP")
+summary(evaluation, latex = "BLP")}
 
 }
 \seealso{

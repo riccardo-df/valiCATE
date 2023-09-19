@@ -15,7 +15,7 @@
 #' A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.
 #'
 #' @examples
-#' ## Generate data.
+#' \donttest{## Generate data.
 #' set.seed(1986)
 #' 
 #' n <- 1000
@@ -64,7 +64,7 @@
 #' pscore_val <- rep(0.5, length(Y_val)) # We know true pscores.
 #' blp_results <- blp_estimation(Y_val, D_val, cates_val, 
 #'                               pscore_val, mu_val, mu0_val, mu1_val, 
-#'                               scores_val)
+#'                               scores_val)}
 #'
 #' @details
 #' To estimate the BLP of the actual CATEs using the estimated CATEs, the user must provide observations on the outcomes and the treatment status of units in 

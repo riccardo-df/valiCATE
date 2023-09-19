@@ -41,7 +41,7 @@ and \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoi
 Standard errors are estimated using the Eicker-Huber-White estimator.
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -90,7 +90,7 @@ scores_val <- dr_scores(Y_val, D_val, X_val)
 pscore_val <- rep(0.5, length(Y_val)) # We know true pscores.
 blp_results <- blp_estimation(Y_val, D_val, cates_val, 
                               pscore_val, mu_val, mu0_val, mu1_val, 
-                              scores_val)
+                              scores_val)}
 
 }
 \seealso{
