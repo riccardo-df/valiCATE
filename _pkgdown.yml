@@ -15,3 +15,22 @@ navbar:
   right:
   - icon: fa-github fa-lg
     href: https://github.com/riccardo-df/evaluCATE
+
+reference:
+  - title: Core function
+    contents:
+      - evalu_cates
+
+  - title: Generic S3
+    contents:
+      - plot.evaluCATE
+      - summary.evaluCATE
+      - print.evaluCATE
+
+  - title: Helper functions
+    contents:
+      - blp_estimation
+      - gates_estimation
+      - test_parametric_gates
+      - toc_estimation
+      - rate_estimation

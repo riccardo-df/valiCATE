@@ -27,7 +27,7 @@ The TOC is estimated using a sample-averaging estimator. Check the \href{https:/
 for details.
 }
 \examples{
-## Generate data.
+\donttest{## Generate data.
 set.seed(1986)
 
 n <- 1000
@@ -66,7 +66,7 @@ library(aggTrees)
 scores_val <- dr_scores(Y_val, D_val, X_val)
 
 ## TOC estimation. 
-toc_results <- toc_estimation(cates_val, scores_val)
+toc_results <- toc_estimation(cates_val, scores_val)}
 
 }
 \seealso{

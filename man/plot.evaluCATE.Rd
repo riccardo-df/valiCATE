@@ -19,11 +19,6 @@ Plots an \code{evaluCATE} object.
 \description{
 Plots an \code{evaluCATE} object.
 }
-\details{
-If \code{target == "GATES"}, the estimated GATES and 95% confidence intervals are displayed.\cr
-
-If \code{target == "TOC"}, the estimated TOCs for the considered threshold values are displayed.\cr
-}
 \examples{
 \donttest{## Generate data.
 set.seed(1986)
@@ -58,7 +53,7 @@ cates <- predict(forest, X)$predictions # We predict on the whole sample.
 
 ## CATEs evaluation. Estimate all nuisances internally. 
 pscore <- rep(0.5, length(Y))
-evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
+evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Plot.
 plot(evaluation, target = "GATES")

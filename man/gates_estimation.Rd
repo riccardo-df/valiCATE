@@ -36,18 +36,19 @@ To estimate the GATES, the user must provide observations on the outcomes and th
 the validation sample, as well as their estimated cates and nuisance functions. Be careful, as these estimates must be obtained using only observations from the training sample 
 (see the example section below). Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.\cr
 
-The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach.  Check the online 
-\href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{short tutorial} for details.\cr
+Groups are constructed by cutting the distribution of \code{cates} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, the function raises an error.\cr
+
+The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the online 
+\href{https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html}{short tutorial} for details.\cr
+
+For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. These standard errors are then used to test three distinct hypotheses of effect heterogeneity: whether
+all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, and whether the differences in the GATES across all pairs of groups are zero.
+For the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of the adjusted p-values. The nonparametric approach tests only the first
+of these hypotheses. Check \href{https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} for details.\cr
 
 Each strategy based on linear models supports different model specifications 
 that differ in additional and optional covariates that can be included in the regressions to reduce the estimation variance.
-Check \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details.\cr
-
-For the linear models, standard errors are estimated using the Eicker-Huber-White estimator.\cr
-
-Groups are constructed by cutting the distribution of \code{cates} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, the function raises an error.\cr
-
-The GATES estimated by the linear models are rearranged to obey the monotonicity property (i.e., we sort them in increasing order).\cr
+Check \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details.
 }
 \examples{
 \donttest{## Generate data.
@@ -103,7 +104,7 @@ gates_results <- gates_estimation(Y_val, D_val, cates_val,
 
 }
 \seealso{
-\code{\link{blp_estimation}}, \code{\link{toc_estimation}}, \code{\link{rate_estimation}}
+\code{\link{blp_estimation}}, \code{\link{toc_estimation}}, \code{\link{rate_estimation}}, \code{\link{test_parametric_gates}}
 }
 \author{
 Riccardo Di Francesco

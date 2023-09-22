@@ -4,12 +4,16 @@
 \alias{print.evaluCATE}
 \title{Print Method for evaluCATE Objects}
 \usage{
-\method{print}{evaluCATE}(x, latex = "none", ...)
+\method{print}{evaluCATE}(x, target = "BLP", latex = FALSE, which_models = c("all"), ...)
 }
 \arguments{
 \item{x}{An \code{evaluCATE} object.}
 
-\item{latex}{String to denote whether and which table to print in LATEX code. Must be one of \code{"none"}, \code{"BLP"}.}
+\item{target}{String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.}
+
+\item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
+
+\item{which_models}{Character vector with the names of the models to report in the LATEX table. Set equal to \code{c("all")} to display all models. Ignored if \code{latex == FALSE}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -56,11 +60,14 @@ cates <- predict(forest, X)$predictions # We predict on the whole sample.
 
 ## CATEs evaluation. Estimate all nuisances internally. 
 pscore <- rep(0.5, length(Y))
-evaluation <- evalue_cates(Y, D, X, cates, train_idx, pscore = pscore)
+evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Print.
-print(evaluation)
-print(evaluation, latex = "BLP")}
+print(evaluation, target = "BLP")
+print(evaluation, target = "BLP", latex = TRUE)
+
+print(evaluation, target = "GATES")
+print(evaluation, target = "GATES", latex = TRUE)}
 
 }
 \author{

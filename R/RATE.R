@@ -10,7 +10,7 @@
 #' A vector of estimated TOCs sorted according to the increasing or decreasing values of \code{cates}.
 #'
 #' @examples
-#' ## Generate data.
+#' \donttest{## Generate data.
 #' set.seed(1986)
 #' 
 #' n <- 1000
@@ -49,7 +49,7 @@
 #' scores_val <- dr_scores(Y_val, D_val, X_val)
 #' 
 #' ## TOC estimation. 
-#' toc_results <- toc_estimation(cates_val, scores_val)
+#' toc_results <- toc_estimation(cates_val, scores_val)}
 #'
 #' @details
 #' To estimate the TOC induced by the estimated CATEs, the user must provide the estimated CATEs and doubly-robust scores. Be careful, as the CATEs must be estimated only with 
@@ -129,7 +129,7 @@ toc_estimation <- function(cates, scores, beneficial = TRUE) {
 #' using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 #' 
 #' \code{\link{rate_estimation}} first calls the \code{\link{toc_estimation}} function to estimate the TOCs, and then computes two RATEs, the AUTOC and the QINI coefficient, 
-#' as weighted averages of the TOCs. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html}{online vignette} 
+#' as weighted averages of the TOCs. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html}{online vignette} 
 #' for details.\cr
 #' 
 #' Standard errors are estimated using the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.

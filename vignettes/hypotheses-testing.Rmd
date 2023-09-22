@@ -1,0 +1,48 @@
+---
+title: "Hypotheses Testing"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hypotheses Testing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+As described in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html), we can test particular hypotheses about the BLP, GATES, and RATEs to assess whether we detect systematic heterogeneity or just estimation noise. In this article, we discuss these hypotheses and their implications.
+
+The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html).
+
+## BLP
+Consider the heterogeneity parameter $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]$. Notice that $Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] = 0$ in two cases:
+
+- If $\tau ( x) = \tau$ for all $x$ (that is, if effects are homogeneous); 
+- If $\hat{\tau} ( \cdot )$ is pure noise uncorrelated to $\tau ( \cdot )$ (that is, if our CATE estimates are really bad).
+
+Consequently, $\beta_2 = 0$ either if the effects are homogeneous or our CATE estimates are unreliable. On the other hand, $Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] = Var [ \hat{\tau} ( X_i ) ]$ if $\hat{\tau} ( x ) = \tau ( x)$ for all $x$ (that is, if we have "perfect" CATE estimates). Therefore, $\beta_2 \approx 1$ if our CATE estimates are reliable.
+
+We can thus consider the hypothesis $\beta_2 = 0$ as an hypothesis for effect heterogeneity and reliability of our CATE estimates. If the effects are homogeneous, or if our estimates are "bad" (or if both conditions hold), then $\beta_2$ is going to be close to zero and we should fail to reject our hypothesis. On the other hand, if the effects are heterogeneous and our estimates are "good," then $\beta_2$ is going to be close to one and we should reject our hypothesis.
+
+If we estimate the BLP by one of the strategies outlined in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html) and using only the validation sample, then $\hat{\beta}_2$ features well-behaved asymptotic properties conditioned on the training sample, thus allowing us to use standard tools for inference (e.g., conventional confidence intervals and $p$-values).
+
+### GATES 
+One could compare the estimated GATES to evaluate how different groups respond differently to the treatment. However, discrepancies in the point estimates can arise simply due to estimation noise. 
+
+A more proper method for assessing the presence of systematic heterogeneity is to test the hypothesis that all GATES are the same, that is, $\gamma_1 = \gamma_2 = \dots = \gamma_K$. Alternatively, we can test whether the difference of the GATES for the most and least affected groups is statistically significant, that is, $\gamma_K = \gamma_1$.
+
+If we estimate the GATES by one of the strategies outlined in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html) and using only the validation sample, then $\hat{\gamma}_k$ features well-behaved asymptotic properties conditioned on the training sample, thus allowing us to use standard tools for inference (e.g., conventional confidence intervals and $p$-values).
+
+### RATE
+Notice that $TOC ( u; \hat{\tau} ) = 0$ for any $u \in (0, 1]$ in two cases:
+
+- If $\tau ( x) = \tau$ for all $x$ (that is, if effects are homogeneous);
+- If $\hat{\tau} ( \cdot )$ is pure noise uncorrelated to $\tau ( \cdot )$ (that is, if our CATE estimates are really bad).
+
+Consequently,  $\theta_{\alpha} ( \hat{\tau} ) = 0$ either if the effects are homogeneous or our CATE estimates are unreliable. We can thus consider the hypothesis $\theta_{\alpha} ( \hat{\tau} ) = 0$ as an hypothesis for effect heterogeneity and reliability of our CATE estimates. If the effects are homogeneous, or if our estimates are "bad" (or if both conditions hold), then $\theta_{\alpha} ( \hat{\tau} )$ is going to be close to zero and we should fail to reject our hypothesis. On the other hand, if the effects are heterogeneous and our estimates are "good," then $\theta_{\alpha} ( \hat{\tau} )$ is going to be large enough and we should reject our hypothesis.
+
+If we estimate the RATE by the strategy outlined in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html) and using only the validation sample, then $\hat{\theta}_{\alpha} ( \hat{\tau} )$ features well-behaved asymptotic properties conditioned on the training sample, thus allowing us to use standard tools for inference (e.g., conventional confidence intervals and $p$-values).
