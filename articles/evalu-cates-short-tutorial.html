@@ -130,9 +130,9 @@ Y_i ( 0 ) | X_i ]\)</span> → CATEs.</li>
 </ul>
 <p>Throughout the rest of the tutorial, we assume SUTVA and
 unconfoundedness (e.g., Imbens and Rubin, 2015).</p>
-<div class="section level2">
-<h2 id="motivating-example">Motivating Example<a class="anchor" aria-label="anchor" href="#motivating-example"></a>
-</h2>
+<div class="section level3">
+<h3 id="motivating-example">Motivating Example<a class="anchor" aria-label="anchor" href="#motivating-example"></a>
+</h3>
 <p>We illustrate the purpose of the <code>evaluCATE</code> package
 through the following example, where we generate simulated data. In this
 data, we have only one covariate <span class="math inline">\(X_{i, 1}
@@ -237,9 +237,9 @@ quality of the estimated CATEs and assess whether systematic
 heterogeneity is detected. This is exactly the purpose of the
 <code>evaluCATE</code> package.</p>
 </div>
-<div class="section level2">
-<h2 id="quality-evaluation">Quality Evaluation<a class="anchor" aria-label="anchor" href="#quality-evaluation"></a>
-</h2>
+<div class="section level3">
+<h3 id="quality-evaluation">Quality Evaluation<a class="anchor" aria-label="anchor" href="#quality-evaluation"></a>
+</h3>
 <p>The quality evaluation of the estimated CATEs is performed by
 targeting three key features of the CATEs:</p>
 <ul>
@@ -252,9 +252,9 @@ estimated CATEs.</li>
 <p>This section provides an overview of these targets. The discussion is
 loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021),
 and Imai and Li (2022).<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<div class="section level3">
-<h3 id="best-linear-predictor">Best Linear Predictor<a class="anchor" aria-label="anchor" href="#best-linear-predictor"></a>
-</h3>
+<div class="section level4">
+<h4 id="best-linear-predictor">Best Linear Predictor<a class="anchor" aria-label="anchor" href="#best-linear-predictor"></a>
+</h4>
 <p>The BLP of the actual CATEs using the estimated CATEs is defined as
 follows:</p>
 <p><span class="math display">\[ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )]
@@ -282,9 +282,9 @@ different strategies, each involving fitting a suitable linear model.<a href="#f
 valid inference, we require a training-validation sample split, as we
 did in the Motivating Example section. Then, estimation of the following
 is performed using only the validation sample.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
-<div class="section level4">
-<h4 id="blp---weighted-residuals">BLP - <strong>Weighted Residuals</strong>:<a class="anchor" aria-label="anchor" href="#blp---weighted-residuals"></a>
-</h4>
+<div class="section level5">
+<h5 id="blp---weighted-residuals">BLP - <strong>Weighted Residuals</strong>:<a class="anchor" aria-label="anchor" href="#blp---weighted-residuals"></a>
+</h5>
 <p><span class="math display">\[ Y_i = \beta_1 [ D_i - p ( X_i ) ] +
 \beta_2 \{ [ D_i - p ( X_i ) ] [ \hat{\tau} ( X_i ) - \mathbb{E}_n [
 \hat{\tau} ( X_i ) ] ] \} + \epsilon_i \]</span> with the model fitted
@@ -292,16 +292,16 @@ via WLS using weights <span class="math inline">\(w ( X_i)\)</span> and
 <span class="math inline">\(\mathbb{E}_n\)</span> denoting the sample
 average operator.</p>
 </div>
-<div class="section level4">
-<h4 id="blp---horvitz-thompson">BLP - <strong>Horvitz-Thompson</strong><a class="anchor" aria-label="anchor" href="#blp---horvitz-thompson"></a>
-</h4>
+<div class="section level5">
+<h5 id="blp---horvitz-thompson">BLP - <strong>Horvitz-Thompson</strong><a class="anchor" aria-label="anchor" href="#blp---horvitz-thompson"></a>
+</h5>
 <p><span class="math display">\[ H_i Y_i = \beta_1 + \beta_2 \{
 \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} +
 \epsilon_i \]</span> with the model fitted via OLS.</p>
 </div>
-<div class="section level4">
-<h4 id="blp---aipw">BLP - <strong>AIPW</strong><a class="anchor" aria-label="anchor" href="#blp---aipw"></a>
-</h4>
+<div class="section level5">
+<h5 id="blp---aipw">BLP - <strong>AIPW</strong><a class="anchor" aria-label="anchor" href="#blp---aipw"></a>
+</h5>
 <p><span class="math display">\[ \hat{\Gamma}_i = \beta_1 + \beta_2 \{
 \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} +
 \epsilon_i \]</span> with the model fitted via OLS and the doubly-robust
@@ -309,9 +309,9 @@ scores <span class="math inline">\(\Gamma_i\)</span> estimated using the
 validation sample and 5-fold cross-fitting.</p>
 </div>
 </div>
-<div class="section level3">
-<h3 id="sorted-group-average-treatment-effects">Sorted Group Average Treatment Effects<a class="anchor" aria-label="anchor" href="#sorted-group-average-treatment-effects"></a>
-</h3>
+<div class="section level4">
+<h4 id="sorted-group-average-treatment-effects">Sorted Group Average Treatment Effects<a class="anchor" aria-label="anchor" href="#sorted-group-average-treatment-effects"></a>
+</h4>
 <p>The GATES are defined as follows:</p>
 <p><span class="math display">\[ \gamma_k := \mathbb{E} [ \tau ( X_i ) |
 \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ], \,\,\, k
@@ -333,34 +333,34 @@ model, while the fourth hinges on a nonparametric estimator. To achieve
 valid inference, we require a training-validation sample split, as we
 did in the Motivating Example section. Then, estimation of the following
 is performed using only the validation sample.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
-<div class="section level4">
-<h4 id="gates---weighted-residuals">GATES - <strong>Weighted Residuals</strong><a class="anchor" aria-label="anchor" href="#gates---weighted-residuals"></a>
-</h4>
+<div class="section level5">
+<h5 id="gates---weighted-residuals">GATES - <strong>Weighted Residuals</strong><a class="anchor" aria-label="anchor" href="#gates---weighted-residuals"></a>
+</h5>
 <p><span class="math display">\[ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p
 ( X_i ) ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
 \hat{\ell}_k ) + \epsilon_i \]</span></p>
 <p>with the model fitted via WLS using weights <span class="math inline">\(w ( X_i)\)</span>.</p>
 </div>
-<div class="section level4">
-<h4 id="gates---horvitz-thompson">GATES - <strong>Horvitz-Thompson</strong><a class="anchor" aria-label="anchor" href="#gates---horvitz-thompson"></a>
-</h4>
+<div class="section level5">
+<h5 id="gates---horvitz-thompson">GATES - <strong>Horvitz-Thompson</strong><a class="anchor" aria-label="anchor" href="#gates---horvitz-thompson"></a>
+</h5>
 <p><span class="math display">\[ H_i Y_i = \sum_{k = 1}^K \gamma_k
 \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
 \hat{\ell}_k ) + \epsilon_i \]</span></p>
 <p>with the model fitted via OLS.</p>
 </div>
-<div class="section level4">
-<h4 id="gates---aipw">GATES - <strong>AIPW</strong><a class="anchor" aria-label="anchor" href="#gates---aipw"></a>
-</h4>
+<div class="section level5">
+<h5 id="gates---aipw">GATES - <strong>AIPW</strong><a class="anchor" aria-label="anchor" href="#gates---aipw"></a>
+</h5>
 <p><span class="math display">\[ \hat{\Gamma}_i = \sum_{k = 1}^K
 \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
 \hat{\ell}_k ) + \epsilon_i \]</span></p>
 <p>with the model fitted via OLS and the doubly-robust scores <span class="math inline">\(\hat{\Gamma}_i\)</span> estimated using the
 validation sample and 5-fold cross-fitting.</p>
 </div>
-<div class="section level4">
-<h4 id="gates---nonparametric">GATES - <strong>Nonparametric</strong><a class="anchor" aria-label="anchor" href="#gates---nonparametric"></a>
-</h4>
+<div class="section level5">
+<h5 id="gates---nonparametric">GATES - <strong>Nonparametric</strong><a class="anchor" aria-label="anchor" href="#gates---nonparametric"></a>
+</h5>
 <p><span class="math display">\[ \hat{\gamma}_k = \frac{K}{\sum_{i =
 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq
 \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 -
@@ -368,9 +368,9 @@ D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1}
 \leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) \]</span></p>
 </div>
 </div>
-<div class="section level3">
-<h3 id="rank-weighted-average-treatment-effects">Rank-Weighted Average Treatment Effects<a class="anchor" aria-label="anchor" href="#rank-weighted-average-treatment-effects"></a>
-</h3>
+<div class="section level4">
+<h4 id="rank-weighted-average-treatment-effects">Rank-Weighted Average Treatment Effects<a class="anchor" aria-label="anchor" href="#rank-weighted-average-treatment-effects"></a>
+</h4>
 <p>The RATE induced by the estimated CATEs is defined as follows:</p>
 <p><span class="math display">\[ \theta_{\alpha} ( \hat{\tau} ) :=
 \int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  \]</span> where:</p>
@@ -427,9 +427,9 @@ error of <span class="math inline">\(\hat{\theta}_{\alpha} ( \cdot
 estimates can be used as an estimator of the standard error of <span class="math inline">\(\hat{\theta}_{\alpha} ( \cdot )\)</span>.</p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="code">Code<a class="anchor" aria-label="anchor" href="#code"></a>
-</h2>
+<div class="section level3">
+<h3 id="code">Code<a class="anchor" aria-label="anchor" href="#code"></a>
+</h3>
 <p>The BLP, GATES, and RATEs can be estimated by calling the
 <code>evalu_cates</code> function. When calling this function, we need
 to supply the full sample using the first three arguments:
@@ -682,9 +682,7 @@ valid only under randomized experiments, where <span class="math inline">\(p ( \
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
