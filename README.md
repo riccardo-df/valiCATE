@@ -27,11 +27,6 @@ devtools::install_github("riccardo-df/evaluCATE") # run install.packages("devtoo
 <i>National Bureau of Economic Research</i>.
 [<a href="https://www.nber.org/papers/w24678">paper</a>]
 
-- Holm, S. (1979).
-<b>A Simple Sequentially Rejective Multiple Test Procedure.</b> 
-<i>Scandinavian Journal of Statistics</i>, 6(2).
-[<a href="https://www.jstor.org/stable/4615733">paper</a>] 
-
 - Imai, K., & Li, M. (2021).
 <b>Statistical inference for heterogeneous treatment effects discovered by generic machine learning in randomized experiments.</b>
 <i>arXiv preprint</i>.

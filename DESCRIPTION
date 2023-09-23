@@ -25,6 +25,8 @@ Imports:
     ggplot2,
     ggsci,
     grf,
+    gridExtra,
     magrittr,
+    reshape2,
     stringr
 URL: https://riccardo-df.github.io/evalueCATE/

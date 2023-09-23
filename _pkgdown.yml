@@ -10,6 +10,8 @@ navbar:
     href: articles/evalue-cates-short-tutorial.html
   - text: "Denoising"
     href: articles/denoising.html
+  - text: "Hypotheses Testing"
+    href: articles/hypotheses-testing.html
   - text: "Reference"
     href: reference/index.html
   right:

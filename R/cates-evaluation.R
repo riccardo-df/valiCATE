@@ -76,7 +76,7 @@
 #' training sample. This way, \code{\link{evalu_cates}} knows which observations to use to post-process the CATEs estimates.\cr
 #' 
 #' \code{\link{evalu_cates}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
-#' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalue_cates}}
+#' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalu_cates}}
 #' fits and returns all these possible models. GATES are also estimated using a nonparametric approach. Check the online 
 #' \href{https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html}{short tutorial} for details.\cr 
 #' 
