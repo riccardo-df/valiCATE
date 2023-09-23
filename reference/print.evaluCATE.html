@@ -29,6 +29,9 @@
   <a href="../articles/denoising.html">Denoising</a>
 </li>
 <li>
+  <a href="../articles/hypotheses-testing.html">Hypotheses Testing</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
@@ -57,7 +60,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for evaluCATE</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, latex <span class="op">=</span> <span class="st">"none"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, latex <span class="op">=</span> <span class="cn">FALSE</span>, which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -66,8 +69,16 @@
 <dd><p>An <code>evaluCATE</code> object.</p></dd>
 
 
+<dt>target</dt>
+<dd><p>String controlling which plot to display. Must be either <code>"BLP"</code> or <code>"GATES"</code>.</p></dd>
+
+
 <dt>latex</dt>
-<dd><p>String to denote whether and which table to print in LATEX code. Must be one of <code>"none"</code>, <code>"BLP"</code>.</p></dd>
+<dd><p>Logical, whether to print LATEX code for a table. Different tables are produced according to the <code>target</code> argument.</p></dd>
+
+
+<dt>which_models</dt>
+<dd><p>Character vector with the names of the models to report in the LATEX table. Set equal to <code>c("all")</code> to display all models. Ignored if <code>latex == FALSE</code>.</p></dd>
 
 
 <dt>...</dt>
@@ -124,7 +135,7 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## CATEs evaluation. Estimate all nuisances internally. </span></span></span>
 <span class="r-in"><span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="evalue_cates.html">evalue_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="evalu_cates.html">evalu_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions and AIPW scores; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATES estimation; </span>
@@ -133,64 +144,240 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Print.</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> CATEs evaluation results </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BLP and RATEs results </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimated ATE + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : -0.06 [-0.274, 0.147] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: -0.11 [-0.31, 0.093] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: -0.07 [-0.248, 0.109] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : -0.09 [-0.263, 0.093] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : -0.06 [-0.274, 0.147] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: -0.11 [-0.31, 0.093] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: -0.07 [-0.248, 0.109] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : -0.07 [-0.253, 0.106] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : -0.07 [-0.247, 0.109] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : -0.07 [-0.242, 0.112] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : -0.04 [-0.231, 0.143] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : -0.06 [-0.274,  0.147] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: -0.11 [-0.310,  0.093] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: -0.07 [-0.248,  0.109] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : -0.09 [-0.263,  0.093] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : -0.06 [-0.274,  0.147] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: -0.11 [-0.310,  0.093] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: -0.07 [-0.248,  0.109] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : -0.07 [-0.253,  0.106] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : -0.07 [-0.247,  0.109] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : -0.07 [-0.242,  0.112] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : -0.04 [-0.231,  0.143] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimated HET + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : 1.03 [0.784, 1.283] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: 1.07 [0.826, 1.304] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: 1.07 [0.876, 1.259] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : 1.05 [0.861, 1.24] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : 1.03 [0.784, 1.283] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: 1.07 [0.826, 1.304] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: 1.07 [0.876, 1.259] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : 1.06 [0.865, 1.249] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : 1.06 [0.87, 1.251] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : 1.06 [0.867, 1.248] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : 1.06 [0.859, 1.265] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none :  1.03 [ 0.784,  1.283] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1:  1.07 [ 0.826,  1.304] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2:  1.07 [ 0.876,  1.259] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 :  1.05 [ 0.861,  1.240] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none :  1.03 [ 0.784,  1.283] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1:  1.07 [ 0.826,  1.304] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2:  1.07 [ 0.876,  1.259] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 :  1.06 [ 0.865,  1.249] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 :  1.06 [ 0.870,  1.251] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 :  1.06 [ 0.867,  1.248] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    :  1.06 [ 0.859,  1.265] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> RATEs results + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUTOC: 0.88 [0.697, 1.061]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> QINI:  0.28 [0.221, 0.332] </span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, latex <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> AUTOC:  0.88[ 0.697,  1.061] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> QINI:   0.28[ 0.221,  0.332] </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, latex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     \setlength{\tabcolsep}{8pt}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     \renewcommand{\arraystretch}{1.1}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     \begin{table}[H]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \centering</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \begin{adjustbox}{width = 1\textwidth}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \begin{tabular}{@{\extracolsep{5pt}}l c c c c c c c c c c c}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \\[-1.8ex]\hline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \hline \\[-1.8ex]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         &amp; wr\_none &amp; wr\_cddf1 &amp; wr\_cddf2 &amp; wr\_mck1 &amp; ht\_none &amp; ht\_cddf1 &amp; ht\_cddf2 &amp; ht\_mck1 &amp; ht\_mck2 &amp; ht\_mck3 &amp; aipw \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \addlinespace[2pt]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \hline \\[-1.8ex] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \centering</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{adjustbox}{width = 1\textwidth}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{tabular}{@{\extracolsep{5pt}}l c c c c c c c c c c c}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp; ATE ($\beta_1$) &amp; HET ($\beta_2$)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[2pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         ATE ($\beta_1$) &amp; -0.06 &amp; -0.11 &amp; -0.07 &amp; -0.09 &amp; -0.06 &amp; -0.11 &amp; -0.07 &amp; -0.07 &amp; -0.07 &amp; -0.07 &amp; -0.04 \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          &amp;  [-0.274, 0.147] &amp; [-0.31, 0.093] &amp; [-0.248, 0.109] &amp; [-0.263, 0.093] &amp; [-0.274, 0.147] &amp; [-0.31, 0.093] &amp; [-0.248, 0.109] &amp; [-0.253, 0.106] &amp; [-0.247, 0.109] &amp; [-0.242, 0.112] &amp; [-0.231, 0.143] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         HET ($\beta_2$) &amp; 1.03 &amp; 1.07 &amp; 1.07 &amp; 1.05 &amp; 1.03 &amp; 1.07 &amp; 1.07 &amp; 1.06 &amp; 1.06 &amp; 1.06 &amp; 1.06 \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          &amp;  [0.784, 1.283] &amp; [0.826, 1.304] &amp; [0.876, 1.259] &amp; [0.861, 1.24] &amp; [0.784, 1.283] &amp; [0.826, 1.304] &amp; [0.876, 1.259] &amp; [0.865, 1.249] &amp; [0.87, 1.251] &amp; [0.867, 1.248] &amp; [0.859, 1.265] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       wr\_none &amp; -0.06 &amp; 1.03 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.274, 0.147] &amp; [0.784, 1.283] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       wr\_cddf1 &amp; -0.11 &amp; 1.07 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.310, 0.093] &amp; [0.826, 1.304] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       wr\_cddf2 &amp; -0.07 &amp; 1.07 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.248, 0.109] &amp; [0.876, 1.259] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       wr\_mck1 &amp; -0.09 &amp; 1.05 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.263, 0.093] &amp; [0.861, 1.240] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ht\_none &amp; -0.06 &amp; 1.03 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.274, 0.147] &amp; [0.784, 1.283] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ht\_cddf1 &amp; -0.11 &amp; 1.07 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.310, 0.093] &amp; [0.826, 1.304] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ht\_cddf2 &amp; -0.07 &amp; 1.07 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.248, 0.109] &amp; [0.876, 1.259] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ht\_mck1 &amp; -0.07 &amp; 1.06 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.253, 0.106] &amp; [0.865, 1.249] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ht\_mck2 &amp; -0.07 &amp; 1.06 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.247, 0.109] &amp; [0.870, 1.251] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ht\_mck3 &amp; -0.07 &amp; 1.06 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.242, 0.112] &amp; [0.867, 1.248] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       aipw &amp; -0.04 &amp; 1.06 \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-0.231, 0.143] &amp; [0.859, 1.265] \\ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \addlinespace[3pt]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \\[-1.8ex]\hline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \hline \\[-1.8ex]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \end{tabular}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \end{adjustbox}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \caption{BLP results. $95\%$ confidence intervals are displayed in brackets under each point estimate.}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         \label{table_blp_results}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{tabular}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{adjustbox}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \caption{BLP results. $95\%$ confidence intervals are displayed in brackets under each point estimate.}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \label{table_blp_results}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \end{table}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> \endgroup</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GATES results </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Estimated GATES + 95% confidence intervals: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.41 [-1.908, -0.921] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.46 [-0.891, -0.027] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.31 [-0.761,  0.134] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.51 [ 0.055,  0.964] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.36 [ 0.834,  1.887] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.52 [-1.993, -1.040] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.45 [-0.864, -0.034] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.42 [-0.823, -0.008] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.47 [ 0.035,  0.906] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.37 [ 0.861,  1.873] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.50 [-1.890, -1.116] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.43 [-0.845, -0.017] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.40 [-0.811,  0.007] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.55 [ 0.152,  0.948] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.38 [ 0.983,  1.782] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.49 [-1.866, -1.106] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.41 [-0.818,  0.003] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.40 [-0.810,  0.014] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.50 [ 0.094,  0.897] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.37 [ 0.982,  1.757] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.41 [-1.908, -0.921] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.46 [-0.891, -0.027] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.31 [-0.761,  0.134] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.51 [ 0.055,  0.964] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.36 [ 0.834,  1.887] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.52 [-1.993, -1.040] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.45 [-0.864, -0.034] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.42 [-0.823, -0.008] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.47 [ 0.035,  0.906] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.37 [ 0.861,  1.873] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.50 [-1.890, -1.116] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.43 [-0.845, -0.017] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.40 [-0.811,  0.007] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.55 [ 0.152,  0.948] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.38 [ 0.983,  1.782] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.48 [-1.868, -1.101] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.39 [-0.813,  0.030] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.40 [-0.814,  0.009] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.52 [ 0.132,  0.912] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.39 [ 0.997,  1.781] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.47 [-1.852, -1.086] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.41 [-0.823,  0.003] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.39 [-0.797,  0.014] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.54 [ 0.150,  0.928] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.39 [ 0.994,  1.778] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.46 [-1.841, -1.082] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.41 [-0.820,  0.002] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.39 [-0.791,  0.020] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.54 [ 0.154,  0.932] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.39 [ 0.992,  1.779] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 1 -1.47 [-1.865, -1.067] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 2 -0.36 [-0.789,  0.073] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 3 -0.38 [-0.822,  0.061] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 4  0.58 [ 0.172,  0.984] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.41 [ 0.987,  1.826] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Group 5  1.39 [ 0.880,  1.900] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Hypotheses testing results (p-values): </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_none : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf1: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_cddf2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> wr_mck1 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_none : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf1: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_cddf2: </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck1 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck2 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ht_mck3 : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> aipw    : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> imai_li : </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_1 = GATES_2 = ... = GATES_K : 0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     GATES_5 = GATES_1                 : NA</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, latex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \setlength{\tabcolsep}{8pt}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \renewcommand{\arraystretch}{1.1}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \begin{table}[H]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \centering</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{adjustbox}{width = 1\textwidth}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{tabular}{@{\extracolsep{5pt}}l c c c c c}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp; \textit{Group 1} &amp; \textit{Group 2} &amp; \textit{Group 3} &amp; \textit{Group 4} &amp; \textit{Group 5} \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[2pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_none  &amp;  -1.41 &amp;  -0.46 &amp;  -0.31 &amp;   0.51 &amp;   1.36\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.902, -0.918] &amp; [-0.891, -0.029] &amp; [-0.757,  0.137] &amp; [ 0.057,  0.963] &amp; [ 0.835,  1.885] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_cddf1  &amp;  -1.52 &amp;  -0.45 &amp;  -0.42 &amp;   0.47 &amp;   1.37\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.994, -1.046] &amp; [-0.864, -0.036] &amp; [-0.826, -0.014] &amp; [ 0.035,  0.905] &amp; [ 0.866,  1.874] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_cddf2  &amp;  -1.50 &amp;  -0.43 &amp;  -0.40 &amp;   0.55 &amp;   1.38\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.886, -1.114] &amp; [-0.844, -0.016] &amp; [-0.808,  0.008] &amp; [ 0.152,  0.948] &amp; [ 0.982,  1.778] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_mck1  &amp;  -1.49 &amp;  -0.41 &amp;  -0.40 &amp;   0.50 &amp;   1.37\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.868, -1.112] &amp; [-0.820,  0.000] &amp; [-0.812,  0.012] &amp; [ 0.100,  0.900] &amp; [ 0.984,  1.756] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_none  &amp;  -1.41 &amp;  -0.46 &amp;  -0.31 &amp;   0.51 &amp;   1.36\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.902, -0.918] &amp; [-0.891, -0.029] &amp; [-0.757,  0.137] &amp; [ 0.057,  0.963] &amp; [ 0.835,  1.885] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_cddf1  &amp;  -1.52 &amp;  -0.45 &amp;  -0.42 &amp;   0.47 &amp;   1.37\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.994, -1.046] &amp; [-0.864, -0.036] &amp; [-0.826, -0.014] &amp; [ 0.035,  0.905] &amp; [ 0.866,  1.874] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_cddf2  &amp;  -1.50 &amp;  -0.43 &amp;  -0.40 &amp;   0.55 &amp;   1.38\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.886, -1.114] &amp; [-0.844, -0.016] &amp; [-0.808,  0.008] &amp; [ 0.152,  0.948] &amp; [ 0.982,  1.778] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_mck1  &amp;  -1.48 &amp;  -0.39 &amp;  -0.40 &amp;   0.52 &amp;   1.39\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.862, -1.098] &amp; [-0.811,  0.031] &amp; [-0.812,  0.012] &amp; [ 0.130,  0.910] &amp; [ 0.998,  1.782] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_mck2  &amp;  -1.47 &amp;  -0.41 &amp;  -0.39 &amp;   0.54 &amp;   1.39\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.852, -1.088] &amp; [-0.822,  0.002] &amp; [-0.794,  0.014] &amp; [ 0.152,  0.928] &amp; [ 0.998,  1.782] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_mck3  &amp;  -1.46 &amp;  -0.41 &amp;  -0.39 &amp;   0.54 &amp;   1.39\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.838, -1.082] &amp; [-0.820,  0.000] &amp; [-0.794,  0.014] &amp; [ 0.152,  0.928] &amp; [ 0.998,  1.782] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        aipw  &amp;  -1.47 &amp;  -0.36 &amp;  -0.38 &amp;   0.58 &amp;   1.41\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.868, -1.072] &amp; [-0.789,  0.069] &amp; [-0.821,  0.061] &amp; [ 0.174,  0.986] &amp; [ 0.991,  1.829] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        imai\_li  &amp;  -1.44 &amp;  -0.46 &amp;  -0.31 &amp;   0.52 &amp;   1.39\\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.918, -0.962] &amp; [-0.891, -0.029] &amp; [-0.755,  0.135] &amp; [ 0.073,  0.967] &amp; [ 0.880,  1.900] \\ </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{tabular}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{adjustbox}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \caption{GATES results. $95\%$ confidence intervals are displayed in brackets under each point estimate.}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \label{table_blp_results}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     \end{table}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \endgroup</span>
 <span class="r-in"><span></span></span>

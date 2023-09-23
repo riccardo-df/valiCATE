@@ -13,7 +13,10 @@
     <loc>https://riccardo-df.github.io/evaluCATE/articles/denoising.html</loc>
   </url>
   <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/articles/evalue-cates-short-tutorial.html</loc>
+    <loc>https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html</loc>
+  </url>
+  <url>
+    <loc>https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html</loc>
   </url>
   <url>
     <loc>https://riccardo-df.github.io/evaluCATE/articles/index.html</loc>
@@ -28,7 +31,7 @@
     <loc>https://riccardo-df.github.io/evaluCATE/reference/blp_estimation.html</loc>
   </url>
   <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/evalue_cates.html</loc>
+    <loc>https://riccardo-df.github.io/evaluCATE/reference/evalu_cates.html</loc>
   </url>
   <url>
     <loc>https://riccardo-df.github.io/evaluCATE/reference/gates_estimation.html</loc>
@@ -50,6 +53,9 @@
   </url>
   <url>
     <loc>https://riccardo-df.github.io/evaluCATE/reference/summary.evaluCATE.html</loc>
+  </url>
+  <url>
+    <loc>https://riccardo-df.github.io/evaluCATE/reference/test_parametric_gates.html</loc>
   </url>
   <url>
     <loc>https://riccardo-df.github.io/evaluCATE/reference/toc_estimation.html</loc>
