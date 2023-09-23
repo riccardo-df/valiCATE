@@ -18,7 +18,7 @@ As described in the [short tutorial](https://riccardo-df.github.io/evaluCATE/art
 
 The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html).
 
-## BLP
+### BLP
 Consider the heterogeneity parameter $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]$. Notice that $Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] = 0$ in two cases:
 
 - If $\tau ( x) = \tau$ for all $x$ (that is, if effects are homogeneous); 

@@ -37,7 +37,7 @@ In this tutorial, we show how to use the `evaluCATE` package to evaluate the qua
 
 Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
 
-## Motivating Example
+### Motivating Example
 We illustrate the purpose of the `evaluCATE` package through the following example, where we generate simulated data. In this data, we have only one covariate $X_{i, 1} \sim \mathcal{U} ( 0, 1 )$, the treatment is randomly allocated as in a Bernoulli experiment, and treatment effects are zero for all units. 
 
 ```{r generate-data, eval = TRUE}
@@ -124,7 +124,7 @@ data.frame("x1" = X, "true_cates" = mu1 - mu0, "estimated_cates" = cates) %>%
 
 It is thus crucial to rely on appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is exactly the purpose of the `evaluCATE` package. 
 
-## Quality Evaluation
+### Quality Evaluation
 The quality evaluation of the estimated CATEs is performed by targeting three key features of the CATEs:
 
 - Best Linear Predictor (BLP) of the actual CATEs using the estimated CATEs;
@@ -133,7 +133,7 @@ The quality evaluation of the estimated CATEs is performed by targeting three ke
 
 This section provides an overview of these targets. The discussion is loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021), and Imai and Li (2022).[^1]
 
-### Best Linear Predictor
+#### Best Linear Predictor
 The BLP of the actual CATEs using the estimated CATEs is defined as follows:
 
 $$ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )] := \beta_1 + \beta_2 [ \hat{\tau} ( X_i ) - \mathbb{E} [ \hat{\tau} ( X_i ) ] ]$$
@@ -147,22 +147,22 @@ We are interested in the estimation of the BLP for two main reasons.
 
 The `evaluCATE` package estimates the BLP using three different strategies, each involving fitting a suitable linear model.[^3] To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the following is performed using only the validation sample.[^4]
 
-#### BLP - **Weighted Residuals**:
+##### BLP - **Weighted Residuals**:
 
 $$ Y_i = \beta_1 [ D_i - p ( X_i ) ] + \beta_2 \{ [ D_i - p ( X_i ) ] [ \hat{\tau} ( X_i ) - \mathbb{E}_n [ \hat{\tau} ( X_i ) ] ] \} + \epsilon_i $$
 with the model fitted via WLS using weights $w ( X_i)$ and $\mathbb{E}_n$ denoting the sample average operator. 
 
-#### BLP - **Horvitz-Thompson**
+##### BLP - **Horvitz-Thompson**
 
 $$ H_i Y_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
 with the model fitted via OLS. 
 
-#### BLP - **AIPW**
+##### BLP - **AIPW**
 
 $$ \hat{\Gamma}_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
 with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated using the validation sample and 5-fold cross-fitting.
 
-### Sorted Group Average Treatment Effects
+#### Sorted Group Average Treatment Effects
 The GATES are defined as follows: 
 
 $$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ], \,\,\, k = 1, \dots, K$$
@@ -176,29 +176,29 @@ We are interested in the estimation of the GATES for two main reasons:
 
 The `evaluCATE` package estimates the GATES using four different strategies: three of them involve fitting a suitable linear model, while the fourth hinges on a nonparametric estimator. To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the following is performed using only the validation sample.[^5]
 
-#### GATES - **Weighted Residuals**
+##### GATES - **Weighted Residuals**
 
 $$ Y_i = \sum_{k = 1}^K \gamma_k [ D_i - p ( X_i ) ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 
 with the model fitted via WLS using weights $w ( X_i)$.
 
-#### GATES - **Horvitz-Thompson**
+##### GATES - **Horvitz-Thompson**
 
 $$ H_i Y_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 
 with the model fitted via OLS.
 
-#### GATES - **AIPW**
+##### GATES - **AIPW**
 
 $$ \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 
 with the model fitted via OLS and the doubly-robust scores $\hat{\Gamma}_i$ estimated using the validation sample and 5-fold cross-fitting.
 
-#### GATES - **Nonparametric**
+##### GATES - **Nonparametric**
 
 $$ \hat{\gamma}_k = \frac{K}{\sum_{i = 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 - D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) $$
 
-### Rank-Weighted Average Treatment Effects
+#### Rank-Weighted Average Treatment Effects
 The RATE induced by the estimated CATEs is defined as follows:
 
 $$ \theta_{\alpha} ( \hat{\tau} ) := \int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  $$
@@ -225,7 +225,7 @@ where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$
 
 The half-sample bootstrap procedure is used to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$.
 
-## Code
+### Code
 The BLP, GATES, and RATEs can be estimated by calling the `evalu_cates` function. When calling this function, we need to supply the full sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, we must supply our CATE predictions on the full sample $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, we must supply a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs by using the `is_train` argument, so that the `evalu_cates` function knows which observations must be used to post-process our CATEs estimates.
 
 We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units. We supply these values in the call below and let the function estimate the other nuisances internally.[^9] 
