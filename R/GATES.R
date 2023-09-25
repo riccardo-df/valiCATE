@@ -220,7 +220,7 @@ gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   
   out_condition <- FALSE
   for (g in seq_len(dim(group_indicators)[2])) {
-    if (sum(D * group_indicators[g]) %in% c(0, sum(group_indicators[g]))) out_condition <- TRUE 
+    if (sum(D * group_indicators[, g]) %in% c(0, sum(group_indicators[, g]))) out_condition <- TRUE 
   }
   
   if (out_condition) stop("We have one or more homogeneous groups. Please try a different 'k' or a different sample split.", call. = FALSE)
