@@ -37,8 +37,8 @@ In this tutorial, we show how to use the `evaluCATE` package to evaluate the qua
 
 Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
 
-### Motivating Example
-We illustrate the purpose of the `evaluCATE` package through the following example, where we generate simulated data. In this data, we have only one covariate $X_{i, 1} \sim \mathcal{U} ( 0, 1 )$, the treatment is randomly allocated as in a Bernoulli experiment, and treatment effects are zero for all units. 
+## Motivating Example
+We illustrate the purpose of the `evaluCATE` package through the following example, where we generate simulated data. In this data, we have only one covariate $X_{i, 1} \sim \mathcal{U} ( 0, 1 )$, the treatment is randomly allocated as in a Bernoulli experiment, and the treatment effects are zero for all units. 
 
 ```{r generate-data, eval = TRUE}
 ## Generate data.
@@ -119,12 +119,12 @@ data.frame("x1" = X, "true_cates" = mu1 - mu0, "estimated_cates" = cates) %>%
   scale_color_manual(name = "", labels = c("True", "Estimated"), values = c("tomato", "dodgerblue")) +
   xlab("X1") + ylab("CATEs") +  
   theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), legend.position = c(0.12, 0.85), legend.text = element_text(size = 8), legend.key.size = unit(0.4, 'cm'))
+  theme(plot.title = element_text(hjust = 0.5), legend.position = c(0.13, 0.85), legend.text = element_text(size = 8), legend.key.size = unit(0.4, 'cm'))
 ```
 
 It is thus crucial to rely on appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is exactly the purpose of the `evaluCATE` package. 
 
-### Quality Evaluation
+## Quality Evaluation
 The quality evaluation of the estimated CATEs is performed by targeting three key features of the CATEs:
 
 - Best Linear Predictor (BLP) of the actual CATEs using the estimated CATEs;
@@ -133,14 +133,14 @@ The quality evaluation of the estimated CATEs is performed by targeting three ke
 
 This section provides an overview of these targets. The discussion is loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021), and Imai and Li (2022).[^1]
 
-#### Best Linear Predictor
+### Best Linear Predictor
 The BLP of the actual CATEs using the estimated CATEs is defined as follows:
 
 $$ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )] := \beta_1 + \beta_2 [ \hat{\tau} ( X_i ) - \mathbb{E} [ \hat{\tau} ( X_i ) ] ]$$
 
 with $\beta_1 = \mathbb{E} [ \tau ( X_i ) ]$ and $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]$. 
 
-We are interested in the estimation of the BLP for two main reasons. 
+We are interested in the estimation of the BLP for two main reasons: 
 
 - $\hat{\beta}_1$ provides an estimate of the ATE;
 - $\beta_2 = 0$ if either the effects are homogeneous or our CATE estimates are "bad." Thus, rejecting the hypothesis $\beta_2 = 0$ would imply that both the effects are heterogeneous and our CATE estimates are reliable.[^2]
@@ -162,7 +162,7 @@ with the model fitted via OLS.
 $$ \hat{\Gamma}_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
 with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated using the validation sample and 5-fold cross-fitting.
 
-#### Sorted Group Average Treatment Effects
+### Sorted Group Average Treatment Effects
 The GATES are defined as follows: 
 
 $$ \gamma_k := \mathbb{E} [ \tau ( X_i ) | \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ], \,\,\, k = 1, \dots, K$$
@@ -192,13 +192,13 @@ with the model fitted via OLS.
 
 $$ \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 
-with the model fitted via OLS and the doubly-robust scores $\hat{\Gamma}_i$ estimated using the validation sample and 5-fold cross-fitting.
+with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated using the validation sample and 5-fold cross-fitting.
 
 ##### GATES - **Nonparametric**
 
 $$ \hat{\gamma}_k = \frac{K}{\sum_{i = 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 - D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) $$
 
-#### Rank-Weighted Average Treatment Effects
+### Rank-Weighted Average Treatment Effects
 The RATE induced by the estimated CATEs is defined as follows:
 
 $$ \theta_{\alpha} ( \hat{\tau} ) := \int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  $$
@@ -225,7 +225,7 @@ where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$
 
 The half-sample bootstrap procedure is used to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$.
 
-### Code
+## Code
 The BLP, GATES, and RATEs can be estimated by calling the `evalu_cates` function. When calling this function, we need to supply the full sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, we must supply our CATE predictions on the full sample $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, we must supply a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs by using the `is_train` argument, so that the `evalu_cates` function knows which observations must be used to post-process our CATEs estimates.
 
 We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units. We supply these values in the call below and let the function estimate the other nuisances internally.[^9] 
@@ -252,7 +252,7 @@ The estimated ATEs range between $0.05$ and $0.18$, with all confidence interval
 summary(evaluation, target = "GATES") # Try 'latex = TRUE'.
 ```
 
-All the GATES confidence intervals include the zero, suggesting that no group is affected by the treatment (true in our example!). The $p$-values attached to testing the hypotheses that al thrl GATES are equal and that the most affected and the least affected groups feature the same response to the treatment are large and lead to a failure in rejecting these hypotheses. To better digest GATES point estimates and confidence intervals, we can use the `plot` method setting the `target` argument to `"GATES"`.
+All the GATES confidence intervals include the zero, suggesting that no group is affected by the treatment (true in our example!). The $p$-values attached to testing the hypotheses that all the GATES are equal and that the most affected and the least affected groups feature the same response to the treatment are large and lead to a failure in rejecting these hypotheses. To better digest GATES point estimates and confidence intervals, we can use the `plot` method setting the `target` argument to `"GATES"`.
 
 ```{r gates-plot, eval = TRUE, fig.dim = c(5, 3)}
 ## GATES plot.
