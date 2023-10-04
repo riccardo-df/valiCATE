@@ -111,13 +111,14 @@ evalu_cates <- function(Y, D, X, cates, is_train,
   if (is.logical(D)) D <- as.numeric(D)
   if (any(!(D %in% c(0, 1)))) stop("Invalid 'D'. Only binary treatments are allowed.", call. = FALSE)
   if (!is.matrix(X) & !is.data.frame(X)) stop("Invalid 'X'. This must be either a matrix or a data frame.", call. = FALSE)
+  if (var(cates) == 0) stop("No variation in 'cates'.", call. = FALSE)
   if (!is.logical(is_train)) stop("Invalid 'is_train'. This must be a logical vector.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
   if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
   if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)
   if (!is.logical((verbose))) stop("Invalid 'verbose'. This must be either TRUE or FALSE.", call. = FALSE)
   
-  ## 1.) Split the sample as indicated by the user.  and doubly-robust scores using the validation sample.
+  ## 1.) Split the sample as indicated by the user.
   train_idx <- which(is_train)
   val_idx <- which(!is_train)
   
