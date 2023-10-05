@@ -7,7 +7,7 @@ navbar:
   type: default
   left:
   - text: "Get started"
-    href: articles/evalue-cates-short-tutorial.html
+    href: articles/evalu-cates-short-tutorial.html
   - text: "Denoising"
     href: articles/denoising.html
   - text: "Hypotheses Testing"
