@@ -21,7 +21,7 @@ library(gridExtra)
 library(reshape2)
 ```
 
-In this tutorial, we show how to use the `evaluCATE` package to evaluate the quality of our conditional average treatment effect (CATE) estimates. Before diving in the technical details, we need to define notation:
+In this tutorial, we show how to use the `evaluCATE` package to evaluate your conditional average treatment effect (CATE) estimates. Before diving in the technical details, we need to define notation:
 
 - $Y_i$ &rarr; Observed outcome;
 - $D_i \in \{ 0, 1\}$ &rarr; Treatment indicator;
@@ -38,7 +38,15 @@ In this tutorial, we show how to use the `evaluCATE` package to evaluate the qua
 Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
 
 ## Motivating Example
-We illustrate the purpose of the `evaluCATE` package through the following example, where we generate simulated data. In this data, we have only one covariate $X_{i, 1} \sim \mathcal{U} ( 0, 1 )$, the treatment is randomly allocated as in a Bernoulli experiment, and the treatment effects are zero for all units. 
+We illustrate the usage of the `evaluCATE` package with simulated data:
+
+- $X_{i} \sim \mathcal{U} ( 0, 1 )$ single uniformly distributed covariate
+
+- $D_i \sim Bernoulli(1/2)$ randomly assigned treatment
+
+- $Y_i = X_i + 0 \times D_i + \varepsilon_i$ with $\varepsilon_i \sim \mathcal{N} ( 0, 1 )$
+
+This implies a homogeneous zero effect, i.e. $\tau ( X_i ) = 0$
 
 ```{r generate-data, eval = TRUE}
 ## Generate data.
@@ -55,9 +63,14 @@ mu1 <- X[, 1]
 Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 ```
 
-We now proceed to estimate the CATEs using an honest causal forest. To achieve this, we divide our data set into two subsamples: a training sample for estimation and a validation sample to check our results. The latter task is achieved by generating two plots: kernel density of the out-of-sample CATE predictions, and out-of-sample CATE predictions arranged in ascending order together with pointwise $95\%$ confidence intervals. To enhance visualization, we smooth the standard errors by a Nadaraya-Watson regression.
+We now proceed to estimate the CATEs using the causal forest. We divide our data set into two subsamples: 
 
-```{r cates-estimation, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
+1. a training sample for estimation of CATEs and
+
+2. a validation sample to evaluate the estimated heterogeneity.
+
+
+```{r cates-estimation, eval = TRUE}
 ## Sample split.
 train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 
@@ -76,7 +89,15 @@ forest_predictions <- predict(forest, X, estimate.variance = TRUE) # We predict 
 
 cates <- forest_predictions$predictions 
 se <- sqrt(forest_predictions$variance.estimates)
+```
 
+In a first step we display the estimated CATEs distributions in two plots: 
+
+1. Kernel density of the out-of-sample CATE predictions
+
+2. Out-of-sample CATE predictions arranged in ascending order together with pointwise $95\%$ confidence intervals. (To enhance visualization, we smooth the standard errors by a Nadaraya-Watson regression.)
+
+```{r cates-plot, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
 ## Arrange plot data and smooth standard errors.
 plot_dta <- data.frame("estimated_cates" = cates, "se" = se)
 plot_dta <- plot_dta[order(plot_dta$estimated_cates, decreasing = FALSE), ]
@@ -122,7 +143,7 @@ data.frame("x1" = X, "true_cates" = mu1 - mu0, "estimated_cates" = cates) %>%
   theme(plot.title = element_text(hjust = 0.5), legend.position = c(0.13, 0.85), legend.text = element_text(size = 8), legend.key.size = unit(0.4, 'cm'))
 ```
 
-It is thus crucial to rely on appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is exactly the purpose of the `evaluCATE` package. 
+It is thus crucial to rely on appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is the purpose of the `evaluCATE` package. 
 
 ## Quality Evaluation
 The quality evaluation of the estimated CATEs is performed by targeting three key features of the CATEs:
