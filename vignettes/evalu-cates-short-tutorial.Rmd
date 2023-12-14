@@ -27,7 +27,7 @@ In this tutorial, we show how to use the `evaluCATE` package to evaluate the qua
 - $D_i \in \{ 0, 1\}$ &rarr; Treatment indicator;
 - $X_i$ &rarr; Covariate vector;
 - $\mu ( X_i ) = \mathbb{E} [ Y_i | X_i ]$ &rarr; Conditional mean of $Y_i$ given $X_i$;
-- $\mu_d ( X_i ) = \mathbb{E} [ Y_i | X_i, D_i = d ]$ &rarr; Conditional mean of $Y_i$ given $X_i$ among those units such as $D_i = d$;
+- $\mu (d, X_i ) = \mathbb{E} [ Y_i | X_i, D_i = d ]$ &rarr; Conditional mean of $Y_i$ given $X_i$ among those units such as $D_i = d$;
 - $p ( X_i ) = \mathbb{P} [ D_i = 1 | X_i ]$ &rarr; Propensity score;
 - $w ( X_i ) = \frac{1}{p ( X_i ) [ 1 - p ( X_i )]}$ &rarr; Propensity score weights;
 - $H_i = w ( X_i ) [ D_i - p (X_i) ]$ &rarr; Horvitz-Thompson operator;
