@@ -23,7 +23,7 @@ devtools::install_github("riccardo-df/evaluCATE") # run install.packages("devtoo
 [<a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">book</a>]
 
 - Chernozhukov, V., Demirer, M., Duflo, E., & Fernandez-Val, I. (2017).
-<b>Generic Machine Learning Inference on Heterogeneous Treatment Effects in Randomized Experiments.</b>
+<b>Generic machine learning inference on heterogeneous treatment effects in randomized experiments.</b>
 <i>National Bureau of Economic Research</i>.
 [<a href="https://arxiv.org/abs/1712.04802">paper</a>]
 
