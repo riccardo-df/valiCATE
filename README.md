@@ -20,17 +20,17 @@ devtools::install_github("riccardo-df/evaluCATE") # run install.packages("devtoo
 - Imbens, G. W., & Rubin, D. B. (2015).
 <b>Causal inference for statistics, social, and biomedical sciences: An introduction.</b>
 <i>Cambridge University Press</i>.
-[<a href="https://www.nber.org/papers/w24678">paper</a>]
+[<a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">book</a>]
 
 - Chernozhukov, V., Demirer, M., Duflo, E., & Fernandez-Val, I. (2017).
 <b>Generic Machine Learning Inference on Heterogeneous Treatment Effects in Randomized Experiments.</b>
 <i>National Bureau of Economic Research</i>.
-[<a href="https://www.nber.org/papers/w24678">paper</a>]
+[<a href="https://arxiv.org/abs/1712.04802">paper</a>]
 
 - Imai, K., & Li, M. (2021).
 <b>Statistical inference for heterogeneous treatment effects discovered by generic machine learning in randomized experiments.</b>
 <i>arXiv preprint</i>.
-[<a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">book</a>]
+[<a href="https://arxiv.org/abs/2203.14511">paper</a>]
 
 - Yadlowsky, S., Fleming, S., Shah, N., Brunskill, E., & Wager, S. (2021).
 <b>Evaluating treatment prioritization rules via rank-weighted average treatment effects.</b>
