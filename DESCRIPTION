@@ -2,7 +2,7 @@ Package: evaluCATE
 Type: Package
 Title: Evaluation of CATE Estimates
 Version: 0.1.0
-Authors@R: c0(
+Authors@R: c(
     person("Riccardo", "Di Francesco", email = "difrancesco.riccardo96@gmail.com", role = c("cre", "aut")),
     person("Michael", "Knaus", email = "michael.knaus@uni-tuebingen.de", role = c("ctb")))
 Maintainer: Riccardo Di Francesco <difrancesco.riccardo96@gmail.com>
