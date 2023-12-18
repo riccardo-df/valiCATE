@@ -124,12 +124,12 @@ evalu_cates <- function(Y, D, X, cates, is_train,
   
   Y_tr <- Y[train_idx]
   D_tr <- D[train_idx]
-  X_tr <- matrix(X[train_idx, ], ncol = dim(X)[2])
+  X_tr <- as.matrix(X[train_idx, ], ncol = dim(X)[2])
   cates_tr <- cates[train_idx]
   
   Y_val <- Y[val_idx]
   D_val <- D[val_idx]
-  X_val <- matrix(X[val_idx, ], ncol = dim(X)[2])
+  X_val <- as.matrix(X[val_idx, ], ncol = dim(X)[2])
   cates_val <- cates[val_idx]
   
   ## 2.) If necessary, estimate nuisance functions using the training sample. Then,estimated AIPW scores in validation sample via cross-fitting.
@@ -146,12 +146,12 @@ evalu_cates <- function(Y, D, X, cates, is_train,
   }
   
   if (is.null(mu0)) {
-    mu0_forest <- grf::regression_forest(matrix(X_tr[D_tr == 0, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 0])
+    mu0_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 0, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 0])
     mu0 <- stats::predict(mu0_forest, X)$predictions
   }
   
   if (is.null(mu1)) {
-    mu1_forest <- grf::regression_forest(matrix(X_tr[D_tr == 1, ], ncol = dim(X)[2]), Y_tr[D_tr == 1])
+    mu1_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 1, ], ncol = dim(X)[2]), Y_tr[D_tr == 1])
     mu1 <- stats::predict(mu1_forest, X)$predictions
   }
   
