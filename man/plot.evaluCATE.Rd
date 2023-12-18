@@ -53,7 +53,7 @@ cates <- predict(forest, X)$predictions # We predict on the whole sample.
 
 ## CATEs evaluation. Estimate all nuisances internally. 
 pscore <- rep(0.5, length(Y))
-evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
+evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Plot.
 plot(evaluation, target = "GATES")

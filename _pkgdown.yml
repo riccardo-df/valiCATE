@@ -6,8 +6,8 @@ template:
 navbar:
   type: default
   left:
-  - text: "Get started"
-    href: articles/evalu-cates-short-tutorial.html
+  - text: "Short Tutorial"
+    href: articles/evaluCATE-short-tutorial.html
   - text: "Denoising"
     href: articles/denoising.html
   - text: "Hypotheses Testing"

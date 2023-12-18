@@ -14,6 +14,7 @@ Encoding: UTF-8
 LazyData: true
 Suggests: 
     knitr,
+    reshape2,
     rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
@@ -27,8 +28,6 @@ Imports:
     ggplot2,
     ggsci,
     grf,
-    gridExtra,
     magrittr,
-    reshape2,
     stringr
 URL: https://riccardo-df.github.io/evalueCATE/

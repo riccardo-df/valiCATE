@@ -60,7 +60,7 @@ cates <- predict(forest, X)$predictions # We predict on the whole sample.
 
 ## CATEs evaluation. Estimate all nuisances internally. 
 pscore <- rep(0.5, length(Y))
-evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
+evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
 
 ## Summary.
 summary(evaluation, target = "BLP")
@@ -71,7 +71,7 @@ summary(evaluation, target = "GATES", latex = TRUE)}
 
 }
 \seealso{
-\code{\link{evalu_cates}}
+\code{\link{evaluCATE}}
 }
 \author{
 Riccardo Di Francesco

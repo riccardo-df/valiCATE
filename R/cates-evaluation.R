@@ -55,7 +55,7 @@
 #' 
 #' ## CATEs evaluation. Estimate all nuisances internally. 
 #' pscore <- rep(0.5, length(Y))
-#' evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
+#' evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
 #' 
 #' ## Generic S3 methods.
 #' summary(evaluation, target = "BLP")
@@ -73,12 +73,12 @@
 #' as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
 #' 
 #' To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the 
-#' training sample. This way, \code{\link{evalu_cates}} knows which observations to use to post-process the CATEs estimates.\cr
+#' training sample. This way, \code{\link{evaluCATE}} knows which observations to use to post-process the CATEs estimates.\cr
 #' 
-#' \code{\link{evalu_cates}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
-#' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evalu_cates}}
+#' \code{\link{evaluCATE}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
+#' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evaluCATE}}
 #' fits and returns all these possible models. GATES are also estimated using a nonparametric approach. Check the online 
-#' \href{https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html}{short tutorial} for details.\cr 
+#' \href{https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html}{short tutorial} for details.\cr 
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. These standard errors are then used to test three distinct hypotheses of effect heterogeneity: whether
 #' all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, and whether the differences in the GATES across all pairs of groups are zero.
@@ -104,7 +104,7 @@
 #' @seealso Other functions
 #'
 #' @export
-evalu_cates <- function(Y, D, X, cates, is_train,
+evaluCATE <- function(Y, D, X, cates, is_train,
                         pscore = NULL, mu = NULL, mu0 = NULL, mu1 = NULL,
                         n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
   ## 0.) Handling inputs and checks.

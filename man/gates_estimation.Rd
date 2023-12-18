@@ -39,7 +39,7 @@ the validation sample, as well as their estimated cates and nuisance functions. 
 Groups are constructed by cutting the distribution of \code{cates} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, the function raises an error.\cr
 
 The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the online 
-\href{https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html}{short tutorial} for details.\cr
+\href{https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html}{short tutorial} for details.\cr
 
 For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. These standard errors are then used to test three distinct hypotheses of effect heterogeneity: whether
 all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, and whether the differences in the GATES across all pairs of groups are zero.

@@ -14,9 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-As described in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html), we can test particular hypotheses about the BLP, GATES, and RATEs to assess whether we detect systematic heterogeneity or just estimation noise. In this article, we discuss these hypotheses and their implications.
+As described in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html), we can test particular hypotheses about the BLP, GATES, and RATEs to assess whether we detect systematic heterogeneity or just estimation noise. In this article, we discuss these hypotheses and their implications.
 
-The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html).
+The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html).
 
 ### BLP
 Consider the heterogeneity parameter $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]$. Notice that $Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] = 0$ in two cases:

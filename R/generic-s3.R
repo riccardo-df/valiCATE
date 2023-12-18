@@ -45,7 +45,7 @@
 #' 
 #' ## CATEs evaluation. Estimate all nuisances internally. 
 #' pscore <- rep(0.5, length(Y))
-#' evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
+#' evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
 #' 
 #' ## Summary.
 #' summary(evaluation, target = "BLP")
@@ -57,7 +57,7 @@
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
 #' 
-#' @seealso \code{\link{evalu_cates}}
+#' @seealso \code{\link{evaluCATE}}
 #' 
 #' @import stats
 #' 
@@ -331,7 +331,7 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' 
 #' ## CATEs evaluation. Estimate all nuisances internally. 
 #' pscore <- rep(0.5, length(Y))
-#' evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
+#' evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
 #' 
 #' ## Print.
 #' print(evaluation, target = "BLP")
@@ -397,7 +397,7 @@ print.evaluCATE <- function(x, target = "BLP",
 #' 
 #' ## CATEs evaluation. Estimate all nuisances internally. 
 #' pscore <- rep(0.5, length(Y))
-#' evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore)
+#' evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
 #' 
 #' ## Plot.
 #' plot(evaluation, target = "GATES")

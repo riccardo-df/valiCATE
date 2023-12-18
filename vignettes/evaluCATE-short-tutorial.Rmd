@@ -17,7 +17,6 @@ library(evaluCATE)
 library(dplyr)
 library(grf)
 library(ggplot2)
-library(gridExtra)
 library(reshape2)
 ```
 
@@ -63,12 +62,11 @@ mu1 <- X[, 1]
 Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 ```
 
-We now proceed to estimate the CATEs using the causal forest. We divide our data set into two subsamples: 
+We now proceed to estimate the CATEs using the causal forest estimator. We divide our data set into two subsamples: 
 
-1. a training sample for estimation of CATEs and
+1. a training sample for estimation of CATEs, and
 
 2. a validation sample to evaluate the estimated heterogeneity.
-
 
 ```{r cates-estimation, eval = TRUE}
 ## Sample split.
@@ -91,45 +89,19 @@ cates <- forest_predictions$predictions
 se <- sqrt(forest_predictions$variance.estimates)
 ```
 
-In a first step we display the estimated CATEs distributions in two plots: 
-
-1. Kernel density of the out-of-sample CATE predictions
-
-2. Out-of-sample CATE predictions arranged in ascending order together with pointwise $95\%$ confidence intervals. (To enhance visualization, we smooth the standard errors by a Nadaraya-Watson regression.)
+We then display the out-of-sample estimated CATEs distribution: 
 
 ```{r cates-plot, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
-## Arrange plot data and smooth standard errors.
-plot_dta <- data.frame("estimated_cates" = cates, "se" = se)
-plot_dta <- plot_dta[order(plot_dta$estimated_cates, decreasing = FALSE), ]
-
-plot_dta$smoothed_se <- ksmooth(1:dim(plot_dta)[1], plot_dta$se, bandwidth = 100, kernel = "normal")$y
-
-plot_dta$CIL <- plot_dta$estimated_cates - 1.96 * plot_dta$smoothed_se
-plot_dta$CIU <- plot_dta$estimated_cates + 1.96 * plot_dta$smoothed_se
-
 ## Plot out-of-sample predicted CATEs.
-kernel_plot <- plot_dta[!train_idx, ] %>%
-  ggplot(aes(x = estimated_cates)) +
-  geom_density(color = "black", fill = "dodgerblue", alpha = 0.4, linewidth = 1) + 
+data.frame("cates" = cates[!train_idx]) %>%
+  ggplot(aes(x = cates)) +
+  geom_histogram(color = "black", fill = "dodgerblue", alpha = 0.4, bins = 10) + 
   xlab("Estimated CATEs") + ylab("Density") +
   theme_bw() + 
   theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
-
-sorted_plot <- plot_dta[!train_idx, ] %>%
-  ggplot(aes(x = 1:(n - sum(train_idx)), y = estimated_cates)) + 
-  geom_line(linewidth = 1, color = "black") + 
-  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.7) + 
-  geom_ribbon(aes(ymin = CIL, ymax = CIU), fill = "dodgerblue", linetype = 0, alpha = 0.5) + 
-  xlab("Units") + ylab("Estimated CATEs") + 
-  theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5), legend.position = "none")
-        
-grid.arrange(kernel_plot, sorted_plot, ncol = 2)
 ```
 
-One could look at the left panel of the figure above and conclude that there is heterogeneity in the treatment effects. However, high variation in the predictions does not necessarily imply that the effects are heterogeneous, as it could be that estimation noise is messing with our results (exactly what is happening in our example!). One could also look at right panel of the figure above and conclude that the effect is zero for all units, which is true in our example but in real applications we would not know whether this is driven again by estimation noise. 
-
-These complications arise because applying machine learning tools to the estimation of heterogeneous treatment effects may produce low-quality estimates of the CATEs, as shown in the next figure where we overlay the true and the estimated CATEs.
+One could look at the histogram and conclude that there is heterogeneity in the treatment effects. However, high variation in the predictions does not necessarily imply that the effects are heterogeneous, as it could be that estimation noise is messing with our results (exactly what is happening in our example!). These complications arise because applying machine learning tools to the estimation of heterogeneous treatment effects may produce low-quality estimates of the CATEs, as shown in the next figure where we overlay the true and the estimated CATEs.
 
 ```{r true-estimated-cates, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
 ## Plot true and estimated CATEs.
@@ -256,7 +228,7 @@ Finally, we have four additional optional arguments. The first of these argument
 ```{r call-main, eval = TRUE}
 ## Call main function.
 pscore <- rep(0.5, length(Y)) # True propensity scores.
-evaluation <- evalu_cates(Y, D, X, cates, train_idx, pscore = pscore, verbose = FALSE)
+evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore, verbose = FALSE)
 ```
 
 Let us have a look at the results. The `summary` method allows us to visualize the results of the BLP and RATE estimation if the `target` argument is set to `BLP` or the results of the GATES estimation if the `target` argument is set to `GATES`. The `latex` argument controls whether the raw results or LATEX code for a table will be displayed in the console.
