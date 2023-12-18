@@ -21,24 +21,32 @@ library(gridExtra)
 library(reshape2)
 ```
 
-In this tutorial, we show how to use the `evaluCATE` package to evaluate the quality of our conditional average treatment effect (CATE) estimates. Before diving in the technical details, we need to define notation:
+In this tutorial, we show how to use the `evaluCATE` package to evaluate your conditional average treatment effect (CATE) estimates. Before diving in the technical details, we need to define notation:
 
 - $Y_i$ &rarr; Observed outcome;
 - $D_i \in \{ 0, 1\}$ &rarr; Treatment indicator;
 - $X_i$ &rarr; Covariate vector;
-- $\mu ( X_i ) = \mathbb{E} [ Y_i | X_i ]$ &rarr; Conditional mean of $Y_i$ given $X_i$;
-- $\mu_d ( X_i ) = \mathbb{E} [ Y_i | X_i, D_i = d ]$ &rarr; Conditional mean of $Y_i$ given $X_i$ among those units such as $D_i = d$;
-- $p ( X_i ) = \mathbb{P} [ D_i = 1 | X_i ]$ &rarr; Propensity score;
-- $w ( X_i ) = \frac{1}{p ( X_i ) [ 1 - p ( X_i )]}$ &rarr; Propensity score weights;
-- $H_i = w ( X_i ) [ D_i - p (X_i) ]$ &rarr; Horvitz-Thompson operator;
-- $\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}$  &rarr; Doubly-robust scores;
-- $\tau = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ]$ &rarr; Average treatment effect (ATE);
-- $\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATEs.
+- $\mu ( X_i ) := \mathbb{E} [ Y_i | X_i ]$ &rarr; Conditional mean of $Y_i$ given $X_i$;
+- $\mu (d, X_i ) := \mathbb{E} [ Y_i | X_i, D_i = d ]$ &rarr; Conditional mean of $Y_i$ given $X_i$ for subgroup $D_i = d$;
+- $p ( X_i ) := \mathbb{P} [ D_i = 1 | X_i ]$ &rarr; Propensity score;
+- $w ( X_i ) := \frac{1}{p ( X_i ) [ 1 - p ( X_i )]}$ &rarr; Propensity score weights;
+- $H_i := w ( X_i ) [ D_i - p (X_i) ]$ &rarr; Horvitz-Thompson operator;
+- $\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}$  &rarr; Doubly-robust score;
+- $\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ]$ &rarr; Average treatment effect (ATE);
+- $\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATE.
 
 Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
 
 ## Motivating Example
-We illustrate the purpose of the `evaluCATE` package through the following example, where we generate simulated data. In this data, we have only one covariate $X_{i, 1} \sim \mathcal{U} ( 0, 1 )$, the treatment is randomly allocated as in a Bernoulli experiment, and the treatment effects are zero for all units. 
+We illustrate the usage of the `evaluCATE` package with simulated data:
+
+- $X_{i} \sim \mathcal{U} ( 0, 1 )$ single uniformly distributed covariate
+
+- $D_i \sim Bernoulli(1/2)$ randomly assigned treatment
+
+- $Y_i = X_i + 0 \times D_i + \varepsilon_i$ with $\varepsilon_i \sim \mathcal{N} ( 0, 1 )$
+
+This implies a homogeneous zero effect, i.e. $\tau ( X_i ) = 0$
 
 ```{r generate-data, eval = TRUE}
 ## Generate data.
@@ -55,9 +63,14 @@ mu1 <- X[, 1]
 Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 ```
 
-We now proceed to estimate the CATEs using an honest causal forest. To achieve this, we divide our data set into two subsamples: a training sample for estimation and a validation sample to check our results. The latter task is achieved by generating two plots: kernel density of the out-of-sample CATE predictions, and out-of-sample CATE predictions arranged in ascending order together with pointwise $95\%$ confidence intervals. To enhance visualization, we smooth the standard errors by a Nadaraya-Watson regression.
+We now proceed to estimate the CATEs using the causal forest. We divide our data set into two subsamples: 
 
-```{r cates-estimation, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
+1. a training sample for estimation of CATEs and
+
+2. a validation sample to evaluate the estimated heterogeneity.
+
+
+```{r cates-estimation, eval = TRUE}
 ## Sample split.
 train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
 
@@ -76,7 +89,15 @@ forest_predictions <- predict(forest, X, estimate.variance = TRUE) # We predict 
 
 cates <- forest_predictions$predictions 
 se <- sqrt(forest_predictions$variance.estimates)
+```
 
+In a first step we display the estimated CATEs distributions in two plots: 
+
+1. Kernel density of the out-of-sample CATE predictions
+
+2. Out-of-sample CATE predictions arranged in ascending order together with pointwise $95\%$ confidence intervals. (To enhance visualization, we smooth the standard errors by a Nadaraya-Watson regression.)
+
+```{r cates-plot, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
 ## Arrange plot data and smooth standard errors.
 plot_dta <- data.frame("estimated_cates" = cates, "se" = se)
 plot_dta <- plot_dta[order(plot_dta$estimated_cates, decreasing = FALSE), ]
@@ -122,7 +143,7 @@ data.frame("x1" = X, "true_cates" = mu1 - mu0, "estimated_cates" = cates) %>%
   theme(plot.title = element_text(hjust = 0.5), legend.position = c(0.13, 0.85), legend.text = element_text(size = 8), legend.key.size = unit(0.4, 'cm'))
 ```
 
-It is thus crucial to rely on appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is exactly the purpose of the `evaluCATE` package. 
+It is thus crucial to rely on appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is the purpose of the `evaluCATE` package. 
 
 ## Quality Evaluation
 The quality evaluation of the estimated CATEs is performed by targeting three key features of the CATEs:
@@ -138,14 +159,14 @@ The BLP of the actual CATEs using the estimated CATEs is defined as follows:
 
 $$ BLP [\tau ( X_i ) | \hat{\tau} ( X_i )] := \beta_1 + \beta_2 [ \hat{\tau} ( X_i ) - \mathbb{E} [ \hat{\tau} ( X_i ) ] ]$$
 
-with $\beta_1 = \mathbb{E} [ \tau ( X_i ) ]$ and $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]$. 
+with $\beta_1 = \mathbb{E} [ \tau ( X_i ) ]$ and $\beta_2 = Cov [ \tau ( X_i ), \hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ] = E\left[\frac{\hat{\tau} ( X_i )- E[\hat{\tau} ( X_i )]}{Var [ \hat{\tau} ( X_i ) ]} \tau ( X_i ) \right]$. 
 
 We are interested in the estimation of the BLP for two main reasons: 
 
 - $\hat{\beta}_1$ provides an estimate of the ATE;
 - $\beta_2 = 0$ if either the effects are homogeneous or our CATE estimates are "bad." Thus, rejecting the hypothesis $\beta_2 = 0$ would imply that both the effects are heterogeneous and our CATE estimates are reliable.[^2]
 
-The `evaluCATE` package estimates the BLP using three different strategies, each involving fitting a suitable linear model.[^3] To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the following is performed using only the validation sample.[^4]
+The `evaluCATE` package estimates the BLP using three different strategies, each involving fitting a suitable regression model.[^3] To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the BLP is performed in the validation sample.[^4] We consider three alternatives to estimate BLP:
 
 ##### BLP - **Weighted Residuals**:
 
@@ -160,7 +181,7 @@ with the model fitted via OLS.
 ##### BLP - **AIPW**
 
 $$ \hat{\Gamma}_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i $$
-with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated using the validation sample and 5-fold cross-fitting.
+with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated via cross-fitting in the validation sample.
 
 ### Sorted Group Average Treatment Effects
 The GATES are defined as follows: 
@@ -174,7 +195,7 @@ We are interested in the estimation of the GATES for two main reasons:
 - They quantify the extent to which the effects differ across groups;
 - They allow us to assess whether we detect systematic heterogeneity or just estimation noise by testing a set of hypotheses (check the [hypotheses testing vignette](https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html) for details).
 
-The `evaluCATE` package estimates the GATES using four different strategies: three of them involve fitting a suitable linear model, while the fourth hinges on a nonparametric estimator. To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the following is performed using only the validation sample.[^5]
+The `evaluCATE` package estimates the GATES using four different strategies: three of them involve fitting a suitable linear model, while the fourth hinges on a nonparametric estimator. To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the GATES is performed using only the validation sample.[^5] We consider four alternatives to estimate GATES:
 
 ##### GATES - **Weighted Residuals**
 
@@ -192,7 +213,7 @@ with the model fitted via OLS.
 
 $$ \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) < \hat{\ell}_k ) + \epsilon_i $$
 
-with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated using the validation sample and 5-fold cross-fitting.
+with the model fitted via OLS and the doubly-robust scores $\Gamma_i$ estimated via cross-fitting in the validation sample.
 
 ##### GATES - **Nonparametric**
 
@@ -209,7 +230,7 @@ with $F ( \cdot )$ the cumulative distribution function of $\hat{\tau} ( \cdot )
 
 The RATE provides a measure of the ability of our estimated CATEs to prioritize units to treatment in terms of intervention benefit. The idea is to regard $\hat{\tau} ( \cdot )$ as a "prioritization rule" that sorts units $i = 1, ..., n$ in order $j = 1, ..., n$ according to their estimated CATEs, for instance by prioritizing units with the largest estimated CATEs.[^6] [^7] 
 
-We are interested in the estimation of the RATE for two main reasons:
+We are interested in the estimation of the RATE for two reasons:
 
 - $\theta_{\alpha} ( \hat{\tau}_1 ) > \theta_{\alpha} ( \hat{\tau}_2 )$ means that $\hat{\tau}_1 ( \cdot )$ produces more accurate CATE estimates than $\hat{\tau}_2 ( \cdot )$; 
 - $\theta_{\alpha} ( \hat{\tau} ) = 0$ if either the effects are homogeneous or our CATE estimates are “bad." Thus, rejecting the hypothesis $\theta_{\alpha} ( \hat{\tau} ) = 0$ would imply that both the effects are heterogeneous and our CATE estimates are reliable.[^8]
@@ -218,7 +239,7 @@ The `evaluCATE` package estimates the TOCs and the RATE using the following samp
 
 $$ \widehat{TOC} ( u; \hat{\tau} ) = \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor} \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i $$
 $$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) $$
-where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and the doubly-robust scores $\Gamma_i$ are estimated using the validation sample and 5-fold cross-fitting. Two different weight functions are considered, each corresponding to a different RATE:
+where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and the doubly-robust scores $\Gamma_i$ are estimated via cross-fitting in the validation sample. Two different weight functions are considered, each corresponding to a different RATE:
 
 - $\alpha ( u ) = 1$ &rarr; Area under the TOC curve (AUTOC)
 - $\alpha ( u ) = u$ &rarr; Qini coefficient (QINI)
