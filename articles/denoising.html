@@ -47,7 +47,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../articles/evalu-cates-short-tutorial.html">Get started</a>
+  <a href="../articles/evaluCATE-short-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../articles/denoising.html">Denoising</a>
@@ -89,57 +89,57 @@
 
     
     
-<p>As described in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<p>As described in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>, some estimation strategies for the BLP and the GATES
 involve fitting suitable linear models. These regressions allow the
 inclusion of optional constructed covariates which are not necessary for
 identifying the targets but can significantly reduce the variance of the
 estimation. In this article, we discuss which covariates are
 incorporated in the regressions.</p>
-<p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>.</p>
 <p>There are several possible sets of constructed covariates that one
 can include in the regressions to reduce the variance of the estimation.
 Some of these sets have been proposed by Chernozukov et al. (2017),
 while others are new. For both the BLP and the GATES results, the
-<code>evalu_cates</code> function returns a bunch of fitted models, one
+<code>evaluCATE</code> function returns a bunch of fitted models, one
 for each of these sets. Thus, the user can compare the results across
 the different models.</p>
 <p>The optional constructed covariates depend on the nuisance functions
 <span class="math inline">\(p ( \cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span>. The
-<code>evalu_cates</code> function has four optional arguments that we
-can use to supply estimates of these nuisances. Be careful, as these
+<code>evaluCATE</code> function has four optional arguments that we can
+use to supply estimates of these nuisances. Be careful, as these
 estimates must be obtained using only the training sample. If not
 provided by the user, these functions are estimated internally via
 honest regression forests using only the training sample.</p>
-<p>Suppose that we assign the results of the <code>evalu_cates</code>
+<p>Suppose that we assign the results of the <code>evaluCATE</code>
 function call to a variable called <code>evaluation</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalu_cates.html">evalu_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span><span class="op">)</span></span></code></pre></div>
 <p>In the following, we list the covariates that are included in the
-fitted models returned by the <code>evalu_cates</code> function.</p>
+fitted models returned by the <code>evaluCATE</code> function.</p>
 <div class="section level3">
 <h3 id="weighted-residual">Weighted Residual<a class="anchor" aria-label="anchor" href="#weighted-residual"></a>
 </h3>
-<p>The <code>evalu_cates</code> function returns four different BLP and
+<p>The <code>evaluCATE</code> function returns four different BLP and
 GATES models fitted using the weighted residual strategy.</p>
 <ul>
 <li>
 <p>BLP:</p>
 <ul>
 <li>
-<code>evaluation$BLP$wr_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
-<code>evaluation$BLP$wr_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu}_0 ( X_i
 )\)</span>;</li>
 <li>
-<code>evaluation$BLP$wr_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(1, \hat{\mu}_0 ( X_i ), p
 ( X_i ), p ( X_i ) \cdot \hat{\tau} ( X_i )\)</span>;</li>
 <li>
-<code>evaluation$BLP$wr_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$wr_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 )\)</span>.</li>
 </ul>
@@ -149,22 +149,22 @@ tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 <ul>
 <li>
 <code>evaluation$GATES$wr_none</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
 <code>evaluation$GATES$wr_cddf1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu}_0 ( X_i
 )\)</span>;</li>
 <li>
 <code>evaluation$GATES$wr_cddf2</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu}_0 ( X_i ), p (
 X_i ) \cdot \mathbb{1} (G_1), \dots, p ( X_i ) \cdot \mathbb{1}
 (G_K)\)</span>;</li>
 <li>
 <code>evaluation$GATES$wr_mck1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 )\)</span>.</li>
 </ul>
@@ -174,36 +174,36 @@ tutorial</a> plus <span class="math inline">\(\hat{\mu} ( X_i
 <div class="section level3">
 <h3 id="horvitz-thompson">Horvitz-Thompson<a class="anchor" aria-label="anchor" href="#horvitz-thompson"></a>
 </h3>
-<p>The <code>evalu_cates</code> function returns six different BLP and
+<p>The <code>evaluCATE</code> function returns six different BLP and
 GATES models fitted using the Horvitz-Thompson transformation
 strategy.</p>
 <ul>
 <li>BLP:
 <ul>
 <li>
-<code>evaluation$BLP$ht_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_none</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
-<code>evaluation$BLP$ht_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_cddf1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_cddf2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i
 )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_mck1</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i
 )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_mck2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_mck2</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), H_i
 \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ]
 \cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
 <li>
-<code>evaluation$BLP$ht_mck3</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$ht_mck3</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), \{
 H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 ) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
@@ -213,34 +213,34 @@ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 <ul>
 <li>
 <code>evaluation$GATES$ht_none</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>;</li>
 <li>
 <code>evaluation$GATES$ht_cddf1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_cddf2</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p (
 X_i ) \cdot \mathbb{1} (G_K)\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck1</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot \hat{\mu}_0 (
 X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i
 )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck2</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), H_i
 \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ]
 \cdot \hat{\mu}_1 ( X_i )\)</span>;</li>
 <li>
 <code>evaluation$GATES$ht_mck3</code> → The model discussed in the
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a> plus <span class="math inline">\(H_i \cdot p ( X_i ), \{
 H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 ) ] \cdot \hat{\mu}_1 ( X_i ) \}\)</span>.</li>
@@ -251,20 +251,20 @@ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i
 <div class="section level3">
 <h3 id="aipw">AIPW<a class="anchor" aria-label="anchor" href="#aipw"></a>
 </h3>
-<p>The <code>evalu_cates</code> function returns only one BLP and GATES
+<p>The <code>evaluCATE</code> function returns only one BLP and GATES
 model fitted using the AIPW strategy.</p>
 <ul>
 <li>BLP:
 <ul>
 <li>
-<code>evaluation$BLP$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$BLP$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>.</li>
 </ul>
 </li>
 <li>GATES:
 <ul>
 <li>
-<code>evaluation$GATES$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
+<code>evaluation$GATES$aipw</code> → The model discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>.</li>
 </ul>
 </li>

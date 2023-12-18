@@ -23,7 +23,7 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
-  <a href="../articles/evalu-cates-short-tutorial.html">Get started</a>
+  <a href="../articles/evaluCATE-short-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../articles/denoising.html">Denoising</a>
@@ -123,7 +123,7 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## CATEs evaluation. Estimate all nuisances internally. </span></span></span>
 <span class="r-in"><span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="evalu_cates.html">evalu_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions and AIPW scores; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATES estimation; </span>

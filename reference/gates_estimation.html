@@ -23,7 +23,7 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
-  <a href="../articles/evalu-cates-short-tutorial.html">Get started</a>
+  <a href="../articles/evaluCATE-short-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../articles/denoising.html">Denoising</a>
@@ -113,7 +113,7 @@ the validation sample, as well as their estimated cates and nuisance functions. 
 (see the example section below). Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.<br></p>
 <p>Groups are constructed by cutting the distribution of <code>cates</code> into <code>n_groups</code> quantiles. If this leads to one or more groups composed of only treated or only control units, the function raises an error.<br></p>
 <p>The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the online 
-<a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short tutorial</a> for details.<br></p>
+<a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short tutorial</a> for details.<br></p>
 <p>For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. These standard errors are then used to test three distinct hypotheses of effect heterogeneity: whether
 all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, and whether the differences in the GATES across all pairs of groups are zero.
 For the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of the adjusted p-values. The nonparametric approach tests only the first
