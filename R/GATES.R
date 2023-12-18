@@ -253,7 +253,7 @@ gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   ht_cddf1_dta <- data.frame("HY" = HY, group_indicators, "H.mu0" = Hmu0)
   ht_cddf2_dta <- data.frame("HY" = HY, group_indicators, "H.mu0" = Hmu0, Hpscore_interaction)
   ht_mck1_dta <- data.frame("HY" = HY, group_indicators, "H.mu0" = Hmu0, "H.1-pscore.tauhat" = new_mck_covariate)
-  ht_mck2_dta <- data.frame("HY" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "h.mu1.1_pscore" = Hmu1_pscore)
+  ht_mck2_dta <- data.frame("HY" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "H.mu1.1_pscore" = Hmu1_pscore)
   ht_mck3_dta <- data.frame("HY" = HY, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
   
   aipw_dta <- data.frame("aipw" = scores, group_indicators)
