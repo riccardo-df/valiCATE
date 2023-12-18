@@ -21,7 +21,7 @@ navbar:
 reference:
   - title: Core function
     contents:
-      - evalu_cates
+      - evaluCATE
 
   - title: Generic S3
     contents:
