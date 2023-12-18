@@ -90,9 +90,9 @@
     
     
 <p>In this tutorial, we show how to use the <code>evaluCATE</code>
-package to evaluate the quality of our conditional average treatment
-effect (CATE) estimates. Before diving in the technical details, we need
-to define notation:</p>
+package to evaluate your conditional average treatment effect (CATE)
+estimates. Before diving in the technical details, we need to define
+notation:</p>
 <ul>
 <li>
 <span class="math inline">\(Y_i\)</span> → Observed outcome;</li>
@@ -102,43 +102,49 @@ indicator;</li>
 <li>
 <span class="math inline">\(X_i\)</span> → Covariate vector;</li>
 <li>
-<span class="math inline">\(\mu ( X_i ) = \mathbb{E} [ Y_i | X_i
+<span class="math inline">\(\mu ( X_i ) := \mathbb{E} [ Y_i | X_i
 ]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</span> given <span class="math inline">\(X_i\)</span>;</li>
 <li>
-<span class="math inline">\(\mu_d ( X_i ) = \mathbb{E} [ Y_i | X_i,
-D_i = d ]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</span> given <span class="math inline">\(X_i\)</span> among those units such as <span class="math inline">\(D_i = d\)</span>;</li>
+<span class="math inline">\(\mu (d, X_i ) := \mathbb{E} [ Y_i | X_i,
+D_i = d ]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</span> given <span class="math inline">\(X_i\)</span> for subgroup <span class="math inline">\(D_i = d\)</span>;</li>
 <li>
-<span class="math inline">\(p ( X_i ) = \mathbb{P} [ D_i = 1 | X_i
+<span class="math inline">\(p ( X_i ) := \mathbb{P} [ D_i = 1 | X_i
 ]\)</span> → Propensity score;</li>
 <li>
-<span class="math inline">\(w ( X_i ) = \frac{1}{p ( X_i ) [ 1 - p (
-X_i )]}\)</span> → Propensity score weights;</li>
+<span class="math inline">\(w ( X_i ) := \frac{1}{p ( X_i ) [ 1 - p
+( X_i )]}\)</span> → Propensity score weights;</li>
 <li>
-<span class="math inline">\(H_i = w ( X_i ) [ D_i - p (X_i)
+<span class="math inline">\(H_i := w ( X_i ) [ D_i - p (X_i)
 ]\)</span> → Horvitz-Thompson operator;</li>
 <li>
 <span class="math inline">\(\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i
 ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [
 Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}\)</span> → Doubly-robust
-scores;</li>
+score;</li>
 <li>
-<span class="math inline">\(\tau = \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0
+<span class="math inline">\(\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0
 ) ]\)</span> → Average treatment effect (ATE);</li>
 <li>
-<span class="math inline">\(\tau ( X_i ) = \mathbb{E} [ Y_i ( 1 ) -
-Y_i ( 0 ) | X_i ]\)</span> → CATEs.</li>
+<span class="math inline">\(\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) -
+Y_i ( 0 ) | X_i ]\)</span> → CATE.</li>
 </ul>
 <p>Throughout the rest of the tutorial, we assume SUTVA and
 unconfoundedness (e.g., Imbens and Rubin, 2015).</p>
 <div class="section level2">
 <h2 id="motivating-example">Motivating Example<a class="anchor" aria-label="anchor" href="#motivating-example"></a>
 </h2>
-<p>We illustrate the purpose of the <code>evaluCATE</code> package
-through the following example, where we generate simulated data. In this
-data, we have only one covariate <span class="math inline">\(X_{i, 1}
-\sim \mathcal{U} ( 0, 1 )\)</span>, the treatment is randomly allocated
-as in a Bernoulli experiment, and the treatment effects are zero for all
-units.</p>
+<p>We illustrate the usage of the <code>evaluCATE</code> package with
+simulated data:</p>
+<ul>
+<li><p><span class="math inline">\(X_{i} \sim \mathcal{U} ( 0, 1
+)\)</span> single uniformly distributed covariate</p></li>
+<li><p><span class="math inline">\(D_i \sim Bernoulli(1/2)\)</span>
+randomly assigned treatment</p></li>
+<li><p><span class="math inline">\(Y_i = X_i + 0 \times D_i +
+\varepsilon_i\)</span> with <span class="math inline">\(\varepsilon_i
+\sim \mathcal{N} ( 0, 1 )\)</span></p></li>
+</ul>
+<p>This implies a homogeneous zero effect, i.e. <span class="math inline">\(\tau ( X_i ) = 0\)</span></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Generate data.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1986</span><span class="op">)</span></span>
@@ -152,14 +158,13 @@ units.</p>
 <span><span class="va">mu0</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">mu0</span> <span class="op">+</span> <span class="va">D</span> <span class="op">*</span> <span class="op">(</span><span class="va">mu1</span> <span class="op">-</span> <span class="va">mu0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
-<p>We now proceed to estimate the CATEs using an honest causal forest.
-To achieve this, we divide our data set into two subsamples: a training
-sample for estimation and a validation sample to check our results. The
-latter task is achieved by generating two plots: kernel density of the
-out-of-sample CATE predictions, and out-of-sample CATE predictions
-arranged in ascending order together with pointwise <span class="math inline">\(95\%\)</span> confidence intervals. To enhance
-visualization, we smooth the standard errors by a Nadaraya-Watson
-regression.</p>
+<p>We now proceed to estimate the CATEs using the causal forest. We
+divide our data set into two subsamples:</p>
+<ol style="list-style-type: decimal">
+<li><p>a training sample for estimation of CATEs and</p></li>
+<li><p>a validation sample to evaluate the estimated
+heterogeneity.</p></li>
+</ol>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Sample split.</span></span>
 <span><span class="va">train_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -178,9 +183,18 @@ regression.</p>
 <span><span class="va">forest_predictions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X</span>, estimate.variance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># We predict on the full sample.</span></span>
 <span></span>
 <span><span class="va">cates</span> <span class="op">&lt;-</span> <span class="va">forest_predictions</span><span class="op">$</span><span class="va">predictions</span> </span>
-<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">forest_predictions</span><span class="op">$</span><span class="va">variance.estimates</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">## Arrange plot data and smooth standard errors.</span></span>
+<span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">forest_predictions</span><span class="op">$</span><span class="va">variance.estimates</span><span class="op">)</span></span></code></pre></div>
+<p>In a first step we display the estimated CATEs distributions in two
+plots:</p>
+<ol style="list-style-type: decimal">
+<li><p>Kernel density of the out-of-sample CATE predictions</p></li>
+<li><p>Out-of-sample CATE predictions arranged in ascending order
+together with pointwise <span class="math inline">\(95\%\)</span>
+confidence intervals. (To enhance visualization, we smooth the standard
+errors by a Nadaraya-Watson regression.)</p></li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## Arrange plot data and smooth standard errors.</span></span>
 <span><span class="va">plot_dta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"estimated_cates"</span> <span class="op">=</span> <span class="va">cates</span>, <span class="st">"se"</span> <span class="op">=</span> <span class="va">se</span><span class="op">)</span></span>
 <span><span class="va">plot_dta</span> <span class="op">&lt;-</span> <span class="va">plot_dta</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">plot_dta</span><span class="op">$</span><span class="va">estimated_cates</span>, decreasing <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, <span class="op">]</span></span>
 <span></span>
@@ -207,7 +221,7 @@ regression.</p>
 <span>  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>, legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span>        </span>
 <span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">kernel_plot</span>, <span class="va">sorted_plot</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="evalu-cates-short-tutorial_files/figure-html/cates-estimation-1.png" width="480"></p>
+<p><img src="evalu-cates-short-tutorial_files/figure-html/cates-plot-1.png" width="480"></p>
 <p>One could look at the left panel of the figure above and conclude
 that there is heterogeneity in the treatment effects. However, high
 variation in the predictions does not necessarily imply that the effects
@@ -221,7 +235,7 @@ estimation noise.</p>
 the estimation of heterogeneous treatment effects may produce
 low-quality estimates of the CATEs, as shown in the next figure where we
 overlay the true and the estimated CATEs.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Plot true and estimated CATEs.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"x1"</span> <span class="op">=</span> <span class="va">X</span>, <span class="st">"true_cates"</span> <span class="op">=</span> <span class="va">mu1</span> <span class="op">-</span> <span class="va">mu0</span>, <span class="st">"estimated_cates"</span> <span class="op">=</span> <span class="va">cates</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">melt</span><span class="op">(</span>id.vars <span class="op">=</span> <span class="st">"x1"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
@@ -234,7 +248,7 @@ overlay the true and the estimated CATEs.</p>
 <p><img src="evalu-cates-short-tutorial_files/figure-html/true-estimated-cates-1.png" width="480"></p>
 <p>It is thus crucial to rely on appropriate procedures to evaluate the
 quality of the estimated CATEs and assess whether systematic
-heterogeneity is detected. This is exactly the purpose of the
+heterogeneity is detected. This is the purpose of the
 <code>evaluCATE</code> package.</p>
 </div>
 <div class="section level2">
@@ -262,7 +276,9 @@ follows:</p>
 X_i ) ] ]\]</span></p>
 <p>with <span class="math inline">\(\beta_1 = \mathbb{E} [ \tau ( X_i )
 ]\)</span> and <span class="math inline">\(\beta_2 = Cov [ \tau ( X_i ),
-\hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ]\)</span>.</p>
+\hat{\tau} ( X_i ) ] / Var [ \hat{\tau} ( X_i ) ] =
+E\left[\frac{\hat{\tau} ( X_i )- E[\hat{\tau} ( X_i )]}{Var [ \hat{\tau}
+( X_i ) ]} \tau ( X_i ) \right]\)</span>.</p>
 <p>We are interested in the estimation of the BLP for two main
 reasons:</p>
 <ul>
@@ -278,10 +294,12 @@ reliable.<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>
 </li>
 </ul>
 <p>The <code>evaluCATE</code> package estimates the BLP using three
-different strategies, each involving fitting a suitable linear model.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> To achieve
-valid inference, we require a training-validation sample split, as we
-did in the Motivating Example section. Then, estimation of the following
-is performed using only the validation sample.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
+different strategies, each involving fitting a suitable regression
+model.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>
+To achieve valid inference, we require a training-validation sample
+split, as we did in the Motivating Example section. Then, estimation of
+the BLP is performed in the validation sample.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> We consider three
+alternatives to estimate BLP:</p>
 <div class="section level5">
 <h5 id="blp---weighted-residuals">BLP - <strong>Weighted Residuals</strong>:<a class="anchor" aria-label="anchor" href="#blp---weighted-residuals"></a>
 </h5>
@@ -305,8 +323,8 @@ average operator.</p>
 <p><span class="math display">\[ \hat{\Gamma}_i = \beta_1 + \beta_2 \{
 \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} +
 \epsilon_i \]</span> with the model fitted via OLS and the doubly-robust
-scores <span class="math inline">\(\Gamma_i\)</span> estimated using the
-validation sample and 5-fold cross-fitting.</p>
+scores <span class="math inline">\(\Gamma_i\)</span> estimated via
+cross-fitting in the validation sample.</p>
 </div>
 </div>
 <div class="section level3">
@@ -331,8 +349,9 @@ testing vignette</a> for details).</li>
 different strategies: three of them involve fitting a suitable linear
 model, while the fourth hinges on a nonparametric estimator. To achieve
 valid inference, we require a training-validation sample split, as we
-did in the Motivating Example section. Then, estimation of the following
-is performed using only the validation sample.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
+did in the Motivating Example section. Then, estimation of the GATES is
+performed using only the validation sample.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> We consider four
+alternatives to estimate GATES:</p>
 <div class="section level5">
 <h5 id="gates---weighted-residuals">GATES - <strong>Weighted Residuals</strong><a class="anchor" aria-label="anchor" href="#gates---weighted-residuals"></a>
 </h5>
@@ -355,8 +374,8 @@ is performed using only the validation sample.<a href="#fn5" class="footnote-ref
 <p><span class="math display">\[ \hat{\Gamma}_i = \sum_{k = 1}^K
 \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt;
 \hat{\ell}_k ) + \epsilon_i \]</span></p>
-<p>with the model fitted via OLS and the doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> estimated using the validation
-sample and 5-fold cross-fitting.</p>
+<p>with the model fitted via OLS and the doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> estimated via cross-fitting in
+the validation sample.</p>
 </div>
 <div class="section level5">
 <h5 id="gates---nonparametric">GATES - <strong>Nonparametric</strong><a class="anchor" aria-label="anchor" href="#gates---nonparametric"></a>
@@ -385,8 +404,7 @@ is to regard <span class="math inline">\(\hat{\tau} ( \cdot )\)</span>
 as a “prioritization rule” that sorts units <span class="math inline">\(i = 1, ..., n\)</span> in order <span class="math inline">\(j = 1, ..., n\)</span> according to their
 estimated CATEs, for instance by prioritizing units with the largest
 estimated CATEs.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> <a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a></p>
-<p>We are interested in the estimation of the RATE for two main
-reasons:</p>
+<p>We are interested in the estimation of the RATE for two reasons:</p>
 <ul>
 <li>
 <span class="math inline">\(\theta_{\alpha} ( \hat{\tau}_1 ) &gt;
@@ -410,9 +428,9 @@ using the following sample-averaging estimators:</p>
 \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} )
 \widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) \]</span> where we let <span class="math inline">\(i ( j )\)</span> be the mapping from rank <span class="math inline">\(j\)</span> to unit <span class="math inline">\(i\)</span> (e.g., <span class="math inline">\(i (
 1 )\)</span> returns the most-prioritized unit, and <span class="math inline">\(i ( n )\)</span> returns the least-prioritized
-unit) and the doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated using the
-validation sample and 5-fold cross-fitting. Two different weight
-functions are considered, each corresponding to a different RATE:</p>
+unit) and the doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated via cross-fitting
+in the validation sample. Two different weight functions are considered,
+each corresponding to a different RATE:</p>
 <ul>
 <li>
 <span class="math inline">\(\alpha ( u ) = 1\)</span> → Area under
@@ -465,7 +483,7 @@ should print the status of progress on the console. We use the default
 of 5 groups, 200 bootstrap replications, the treatment is considered to
 be beneficial, and we prevent the function from printing the
 progresses.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
 <span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
 <span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evalu_cates.html">evalu_cates</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -476,156 +494,156 @@ of the GATES estimation if the <code>target</code> argument is set to
 <code>GATES</code>. The <code>latex</code> argument controls whether the
 raw results or LATEX code for a table will be displayed in the
 console.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## BLP summary.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
 <span><span class="co">#&gt; BLP and RATEs results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated ATE + 95% confidence intervals: </span></span>
 <span><span class="co">#&gt; wr_none :  0.18 [-0.104,  0.457] </span></span>
-<span><span class="co">#&gt; wr_cddf1:  0.08 [-0.170,  0.323] </span></span>
-<span><span class="co">#&gt; wr_cddf2:  0.07 [-0.173,  0.314] </span></span>
-<span><span class="co">#&gt; wr_mck1 :  0.08 [-0.169,  0.332] </span></span>
+<span><span class="co">#&gt; wr_cddf1:  0.08 [-0.168,  0.324] </span></span>
+<span><span class="co">#&gt; wr_cddf2:  0.07 [-0.175,  0.313] </span></span>
+<span><span class="co">#&gt; wr_mck1 :  0.08 [-0.169,  0.330] </span></span>
 <span><span class="co">#&gt; ht_none :  0.18 [-0.104,  0.457] </span></span>
-<span><span class="co">#&gt; ht_cddf1:  0.08 [-0.170,  0.323] </span></span>
-<span><span class="co">#&gt; ht_cddf2:  0.07 [-0.173,  0.314] </span></span>
-<span><span class="co">#&gt; ht_mck1 :  0.08 [-0.171,  0.321] </span></span>
-<span><span class="co">#&gt; ht_mck2 :  0.07 [-0.176,  0.314] </span></span>
-<span><span class="co">#&gt; ht_mck3 :  0.06 [-0.185,  0.309] </span></span>
-<span><span class="co">#&gt; aipw    :  0.05 [-0.207,  0.306] </span></span>
+<span><span class="co">#&gt; ht_cddf1:  0.08 [-0.168,  0.324] </span></span>
+<span><span class="co">#&gt; ht_cddf2:  0.07 [-0.175,  0.313] </span></span>
+<span><span class="co">#&gt; ht_mck1 :  0.07 [-0.171,  0.321] </span></span>
+<span><span class="co">#&gt; ht_mck2 :  0.07 [-0.175,  0.315] </span></span>
+<span><span class="co">#&gt; ht_mck3 :  0.06 [-0.184,  0.310] </span></span>
+<span><span class="co">#&gt; aipw    :  0.04 [-0.212,  0.302] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated HET + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; wr_none : -0.42 [-5.206,  4.362] </span></span>
-<span><span class="co">#&gt; wr_cddf1: -0.23 [-4.151,  3.684] </span></span>
-<span><span class="co">#&gt; wr_cddf2:  0.08 [-3.827,  3.979] </span></span>
-<span><span class="co">#&gt; wr_mck1 : -0.37 [-4.418,  3.688] </span></span>
-<span><span class="co">#&gt; ht_none : -0.42 [-5.206,  4.362] </span></span>
-<span><span class="co">#&gt; ht_cddf1: -0.23 [-4.151,  3.684] </span></span>
-<span><span class="co">#&gt; ht_cddf2:  0.08 [-3.827,  3.979] </span></span>
-<span><span class="co">#&gt; ht_mck1 : -0.27 [-4.213,  3.675] </span></span>
-<span><span class="co">#&gt; ht_mck2 : -0.11 [-4.018,  3.802] </span></span>
-<span><span class="co">#&gt; ht_mck3 : -0.57 [-4.554,  3.407] </span></span>
-<span><span class="co">#&gt; aipw    :  0.27 [-3.846,  4.377] </span></span>
+<span><span class="co">#&gt; wr_none :  0.27 [-4.626,  5.166] </span></span>
+<span><span class="co">#&gt; wr_cddf1:  0.34 [-3.711,  4.392] </span></span>
+<span><span class="co">#&gt; wr_cddf2:  0.73 [-3.295,  4.747] </span></span>
+<span><span class="co">#&gt; wr_mck1 :  0.24 [-3.944,  4.423] </span></span>
+<span><span class="co">#&gt; ht_none :  0.27 [-4.626,  5.166] </span></span>
+<span><span class="co">#&gt; ht_cddf1:  0.34 [-3.711,  4.392] </span></span>
+<span><span class="co">#&gt; ht_cddf2:  0.73 [-3.295,  4.747] </span></span>
+<span><span class="co">#&gt; ht_mck1 :  0.25 [-3.835,  4.333] </span></span>
+<span><span class="co">#&gt; ht_mck2 :  0.54 [-3.496,  4.573] </span></span>
+<span><span class="co">#&gt; ht_mck3 :  0.00 [-4.126,  4.125] </span></span>
+<span><span class="co">#&gt; aipw    :  0.97 [-3.257,  5.203] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; RATEs results + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; AUTOC:  0.14 [-0.123,  0.402] </span></span>
-<span><span class="co">#&gt; QINI:   0.01 [-0.074,  0.087]</span></span></code></pre></div>
+<span><span class="co">#&gt; AUTOC:  0.13 [-0.118,  0.387] </span></span>
+<span><span class="co">#&gt; QINI:   0.02 [-0.059,  0.098]</span></span></code></pre></div>
 <p>The estimated ATEs range between <span class="math inline">\(0.05\)</span> and <span class="math inline">\(0.18\)</span>, with all confidence intervals
 covering the true value computed as <code>mean(mu1 - mu0)</code>.
 Additionally, we always fail to reject the hypothesis <span class="math inline">\(\beta_2 = 0\)</span>, implying that either the
 effects are homogeneous or our CATE estimates are unreliable (we know
 both to be true in our example). The estimated RATEs agree with these
 findings.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES summary.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
 <span><span class="co">#&gt; GATES results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated GATES + 95% confidence intervals: </span></span>
 <span><span class="co">#&gt; wr_none : </span></span>
-<span><span class="co">#&gt;     Group 1  0.36 [-0.433, 1.152] </span></span>
-<span><span class="co">#&gt;     Group 2  0.25 [-0.428, 0.928] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.07 [-0.595, 0.452] </span></span>
-<span><span class="co">#&gt;     Group 4  0.33 [-0.236, 0.888] </span></span>
-<span><span class="co">#&gt;     Group 5  0.11 [-0.486, 0.710] </span></span>
+<span><span class="co">#&gt;      Group 1 0.38 [-0.401, 1.165] </span></span>
+<span><span class="co">#&gt;      Group 2 0.09 [-0.699, 0.889] </span></span>
+<span><span class="co">#&gt;      Group 3 0.06 [-0.436, 0.565] </span></span>
+<span><span class="co">#&gt;      Group 4 0.26 [-0.359, 0.879] </span></span>
+<span><span class="co">#&gt;      Group 5 0.14 [-0.410, 0.695] </span></span>
 <span><span class="co">#&gt; wr_cddf1: </span></span>
-<span><span class="co">#&gt;     Group 1  0.22 [-0.372, 0.807] </span></span>
-<span><span class="co">#&gt;     Group 2  0.03 [-0.474, 0.537] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.05 [-0.565, 0.463] </span></span>
-<span><span class="co">#&gt;     Group 4  0.37 [-0.169, 0.918] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.14 [-0.711, 0.436] </span></span>
+<span><span class="co">#&gt;     Group 1  0.15 [-0.464, 0.762] </span></span>
+<span><span class="co">#&gt;     Group 2  0.01 [-0.547, 0.572] </span></span>
+<span><span class="co">#&gt;     Group 3  0.06 [-0.428, 0.544] </span></span>
+<span><span class="co">#&gt;     Group 4  0.23 [-0.367, 0.837] </span></span>
+<span><span class="co">#&gt;     Group 5 -0.04 [-0.569, 0.480] </span></span>
 <span><span class="co">#&gt; wr_cddf2: </span></span>
-<span><span class="co">#&gt;     Group 1  0.19 [-0.391, 0.771] </span></span>
-<span><span class="co">#&gt;     Group 2  0.00 [-0.509, 0.518] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.08 [-0.592, 0.441] </span></span>
-<span><span class="co">#&gt;     Group 4  0.29 [-0.226, 0.816] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.03 [-0.596, 0.531] </span></span>
+<span><span class="co">#&gt;      Group 1 0.14 [-0.486, 0.767] </span></span>
+<span><span class="co">#&gt;      Group 2 0.00 [-0.546, 0.547] </span></span>
+<span><span class="co">#&gt;      Group 3 0.04 [-0.453, 0.531] </span></span>
+<span><span class="co">#&gt;      Group 4 0.15 [-0.442, 0.749] </span></span>
+<span><span class="co">#&gt;      Group 5 0.04 [-0.476, 0.551] </span></span>
 <span><span class="co">#&gt; wr_mck1 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.25 [-0.375, 0.868] </span></span>
-<span><span class="co">#&gt;     Group 2  0.04 [-0.471, 0.553] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.07 [-0.581, 0.447] </span></span>
-<span><span class="co">#&gt;     Group 4  0.37 [-0.178, 0.909] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.12 [-0.704, 0.461] </span></span>
+<span><span class="co">#&gt;     Group 1  0.18 [-0.452, 0.815] </span></span>
+<span><span class="co">#&gt;     Group 2  0.01 [-0.576, 0.600] </span></span>
+<span><span class="co">#&gt;     Group 3  0.04 [-0.443, 0.531] </span></span>
+<span><span class="co">#&gt;     Group 4  0.21 [-0.395, 0.813] </span></span>
+<span><span class="co">#&gt;     Group 5 -0.02 [-0.548, 0.514] </span></span>
 <span><span class="co">#&gt; ht_none : </span></span>
-<span><span class="co">#&gt;     Group 1  0.36 [-0.433, 1.152] </span></span>
-<span><span class="co">#&gt;     Group 2  0.25 [-0.428, 0.928] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.07 [-0.595, 0.452] </span></span>
-<span><span class="co">#&gt;     Group 4  0.33 [-0.236, 0.888] </span></span>
-<span><span class="co">#&gt;     Group 5  0.11 [-0.486, 0.710] </span></span>
+<span><span class="co">#&gt;      Group 1 0.38 [-0.401, 1.165] </span></span>
+<span><span class="co">#&gt;      Group 2 0.09 [-0.699, 0.889] </span></span>
+<span><span class="co">#&gt;      Group 3 0.06 [-0.436, 0.565] </span></span>
+<span><span class="co">#&gt;      Group 4 0.26 [-0.359, 0.879] </span></span>
+<span><span class="co">#&gt;      Group 5 0.14 [-0.410, 0.695] </span></span>
 <span><span class="co">#&gt; ht_cddf1: </span></span>
-<span><span class="co">#&gt;     Group 1  0.22 [-0.372, 0.807] </span></span>
-<span><span class="co">#&gt;     Group 2  0.03 [-0.474, 0.537] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.05 [-0.565, 0.463] </span></span>
-<span><span class="co">#&gt;     Group 4  0.37 [-0.169, 0.918] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.14 [-0.711, 0.436] </span></span>
+<span><span class="co">#&gt;     Group 1  0.15 [-0.464, 0.762] </span></span>
+<span><span class="co">#&gt;     Group 2  0.01 [-0.547, 0.572] </span></span>
+<span><span class="co">#&gt;     Group 3  0.06 [-0.428, 0.544] </span></span>
+<span><span class="co">#&gt;     Group 4  0.23 [-0.367, 0.837] </span></span>
+<span><span class="co">#&gt;     Group 5 -0.04 [-0.569, 0.480] </span></span>
 <span><span class="co">#&gt; ht_cddf2: </span></span>
-<span><span class="co">#&gt;     Group 1  0.19 [-0.391, 0.771] </span></span>
-<span><span class="co">#&gt;     Group 2  0.00 [-0.509, 0.518] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.08 [-0.592, 0.441] </span></span>
-<span><span class="co">#&gt;     Group 4  0.29 [-0.226, 0.816] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.03 [-0.596, 0.531] </span></span>
+<span><span class="co">#&gt;      Group 1 0.14 [-0.486, 0.767] </span></span>
+<span><span class="co">#&gt;      Group 2 0.00 [-0.546, 0.547] </span></span>
+<span><span class="co">#&gt;      Group 3 0.04 [-0.453, 0.531] </span></span>
+<span><span class="co">#&gt;      Group 4 0.15 [-0.442, 0.749] </span></span>
+<span><span class="co">#&gt;      Group 5 0.04 [-0.476, 0.551] </span></span>
 <span><span class="co">#&gt; ht_mck1 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.22 [-0.373, 0.813] </span></span>
-<span><span class="co">#&gt;     Group 2  0.03 [-0.476, 0.536] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.05 [-0.568, 0.461] </span></span>
-<span><span class="co">#&gt;     Group 4  0.37 [-0.171, 0.914] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.14 [-0.717, 0.433] </span></span>
+<span><span class="co">#&gt;     Group 1  0.16 [-0.462, 0.772] </span></span>
+<span><span class="co">#&gt;     Group 2  0.01 [-0.547, 0.574] </span></span>
+<span><span class="co">#&gt;     Group 3  0.05 [-0.434, 0.540] </span></span>
+<span><span class="co">#&gt;     Group 4  0.22 [-0.380, 0.829] </span></span>
+<span><span class="co">#&gt;     Group 5 -0.05 [-0.573, 0.476] </span></span>
 <span><span class="co">#&gt; ht_mck2 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.21 [-0.381, 0.794] </span></span>
-<span><span class="co">#&gt;     Group 2  0.03 [-0.468, 0.535] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.08 [-0.605, 0.437] </span></span>
-<span><span class="co">#&gt;     Group 4  0.35 [-0.182, 0.876] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.10 [-0.670, 0.472] </span></span>
+<span><span class="co">#&gt;     Group 1  0.13 [-0.483, 0.753] </span></span>
+<span><span class="co">#&gt;     Group 2  0.03 [-0.525, 0.582] </span></span>
+<span><span class="co">#&gt;     Group 3  0.02 [-0.472, 0.513] </span></span>
+<span><span class="co">#&gt;     Group 4  0.21 [-0.387, 0.803] </span></span>
+<span><span class="co">#&gt;     Group 5 -0.01 [-0.527, 0.512] </span></span>
 <span><span class="co">#&gt; ht_mck3 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.24 [-0.363, 0.848] </span></span>
-<span><span class="co">#&gt;     Group 2  0.02 [-0.478, 0.527] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.08 [-0.597, 0.435] </span></span>
-<span><span class="co">#&gt;     Group 4  0.32 [-0.203, 0.851] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.14 [-0.728, 0.442] </span></span>
+<span><span class="co">#&gt;     Group 1  0.18 [-0.438, 0.807] </span></span>
+<span><span class="co">#&gt;     Group 2  0.01 [-0.562, 0.580] </span></span>
+<span><span class="co">#&gt;     Group 3  0.02 [-0.469, 0.511] </span></span>
+<span><span class="co">#&gt;     Group 4  0.17 [-0.426, 0.759] </span></span>
+<span><span class="co">#&gt;     Group 5 -0.03 [-0.563, 0.498] </span></span>
 <span><span class="co">#&gt; aipw    : </span></span>
-<span><span class="co">#&gt;     Group 1  0.17 [-0.453, 0.793] </span></span>
-<span><span class="co">#&gt;     Group 2 -0.06 [-0.602, 0.489] </span></span>
-<span><span class="co">#&gt;     Group 3 -0.12 [-0.660, 0.419] </span></span>
-<span><span class="co">#&gt;     Group 4  0.32 [-0.244, 0.889] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.02 [-0.603, 0.554] </span></span>
-<span><span class="co">#&gt;     Group 5  0.23 [-0.319, 0.779] </span></span>
+<span><span class="co">#&gt;     Group 1  0.13 [-0.518, 0.771] </span></span>
+<span><span class="co">#&gt;     Group 2 -0.13 [-0.735, 0.482] </span></span>
+<span><span class="co">#&gt;     Group 3  0.01 [-0.508, 0.525] </span></span>
+<span><span class="co">#&gt;     Group 4  0.15 [-0.458, 0.757] </span></span>
+<span><span class="co">#&gt;     Group 5  0.07 [-0.468, 0.598] </span></span>
+<span><span class="co">#&gt;     Group 5  0.09 [-0.459, 0.639] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Hypotheses testing results (p-values): </span></span>
 <span><span class="co">#&gt; wr_none : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.838</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.624</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.623</span></span>
 <span><span class="co">#&gt; wr_cddf1: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.699</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.396</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.637</span></span>
 <span><span class="co">#&gt; wr_cddf2: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.845</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.588</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.994</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.802</span></span>
 <span><span class="co">#&gt; wr_mck1 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.708</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.396</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.976</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.639</span></span>
 <span><span class="co">#&gt; ht_none : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.838</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.624</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.623</span></span>
 <span><span class="co">#&gt; ht_cddf1: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.699</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.396</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.637</span></span>
 <span><span class="co">#&gt; ht_cddf2: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.845</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.588</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.994</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.802</span></span>
 <span><span class="co">#&gt; ht_mck1 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.696</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.390</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.966</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.621</span></span>
 <span><span class="co">#&gt; ht_mck2 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.742</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.463</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.982</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.728</span></span>
 <span><span class="co">#&gt; ht_mck3 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.718</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.367</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.978</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.603</span></span>
 <span><span class="co">#&gt; aipw    : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.801</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.652</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.972</span></span>
+<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.886</span></span>
 <span><span class="co">#&gt; imai_li : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.977</span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.998</span></span>
 <span><span class="co">#&gt;     GATES_5 = GATES_1                 : NA</span></span></code></pre></div>
 <p>All the GATES confidence intervals include the zero, suggesting that
 no group is affected by the treatment (true in our example!). The <span class="math inline">\(p\)</span>-values attached to testing the
@@ -635,14 +653,14 @@ large and lead to a failure in rejecting these hypotheses. To better
 digest GATES point estimates and confidence intervals, we can use the
 <code>plot</code> method setting the <code>target</code> argument to
 <code>"GATES"</code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES plot.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evalu-cates-short-tutorial_files/figure-html/gates-plot-1.png" width="480"></p>
 <p>Finally, we can look at the estimated TOC curve by calling the
 <code>plot</code> method setting the <code>target</code> argument to
 <code>"TOC"</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## TOC curve.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"TOC"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evalu-cates-short-tutorial_files/figure-html/toc-plot-1.png" width="480"></p>
