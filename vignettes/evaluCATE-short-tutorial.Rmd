@@ -197,7 +197,7 @@ The RATE induced by the estimated CATEs is defined as follows:
 $$ \theta_{\alpha} ( \hat{\tau} ) := \int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  $$
 where:
 
-$$ TOC (u; \hat{\tau}) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | F ( \hat{\tau} ( X_i ) \geq 1 - u) ] - \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ] $$
+$$ TOC (u; \hat{\tau}) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) \mid F ( \hat{\tau} ( X_i )) \geq 1 - u ] - \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ] $$
 with $F ( \cdot )$ the cumulative distribution function of $\hat{\tau} ( \cdot )$, $0 < u \leq 1$, and $\alpha : ( 0, 1 ] \rightarrow \mathcal{R}$ a generic weight function.
 
 The RATE provides a measure of the ability of our estimated CATEs to prioritize units to treatment in terms of intervention benefit. The idea is to regard $\hat{\tau} ( \cdot )$ as a "prioritization rule" that sorts units $i = 1, ..., n$ in order $j = 1, ..., n$ according to their estimated CATEs, for instance by prioritizing units with the largest estimated CATEs.[^6] [^7] 
@@ -210,7 +210,7 @@ We are interested in the estimation of the RATE for two reasons:
 The `evaluCATE` package estimates the TOCs and the RATE using the following sample-averaging estimators:
 
 $$ \widehat{TOC} ( u; \hat{\tau} ) = \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor} \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i $$
-$$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) $$
+$$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha \left( \frac{j}{n} \right) \widehat{TOC} \left( \frac{j}{n}; \hat{\tau} \right) $$
 where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and the doubly-robust scores $\Gamma_i$ are estimated via cross-fitting in the validation sample. Two different weight functions are considered, each corresponding to a different RATE:
 
 - $\alpha ( u ) = 1$ &rarr; Area under the TOC curve (AUTOC)
@@ -219,11 +219,11 @@ where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$
 The half-sample bootstrap procedure is used to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$.
 
 ## Code
-The BLP, GATES, and RATEs can be estimated by calling the `evalu_cates` function. When calling this function, we need to supply the full sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, we must supply our CATE predictions on the full sample $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, we must supply a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs by using the `is_train` argument, so that the `evalu_cates` function knows which observations must be used to post-process our CATEs estimates.
+The BLP, GATES, and RATEs can be estimated by calling the `evaluCATE` function. When calling this function, we need to supply the full sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, we must supply our CATE predictions on the full sample $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, we must supply a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs by using the `is_train` argument, so that the `evaluCATE` function knows which observations must be used to post-process our CATEs estimates.
 
 We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units. We supply these values in the call below and let the function estimate the other nuisances internally.[^9] 
 
-Finally, we have four additional optional arguments. The first of these arguments controls the number of groups to be formed for the GATES analysis, with the default number equal to five. The second of these arguments controls the number of bootstrap replications used to estimate the standard error of the estimated RATEs. The third of these arguments controls how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). The fourth of these arguments controls whether the `evalu_cates` function should print the status of progress on the console. We use the default of 5 groups, 200 bootstrap replications, the treatment is considered to be beneficial, and we prevent the function from printing the progresses.  
+Finally, we have four additional optional arguments. The first of these arguments controls the number of groups to be formed for the GATES analysis, with the default number equal to five. The second of these arguments controls the number of bootstrap replications used to estimate the standard error of the estimated RATEs. The third of these arguments controls how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). The fourth of these arguments controls whether the `evaluCATE` function should print the status of progress on the console. We use the default of 5 groups, 200 bootstrap replications, the treatment is considered to be beneficial, and we prevent the function from printing the progresses.  
 
 ```{r call-main, eval = TRUE}
 ## Call main function.
