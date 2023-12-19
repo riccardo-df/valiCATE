@@ -20,7 +20,7 @@ The notation is the same as in the [short tutorial](https://riccardo-df.github.i
 
 There are several possible sets of constructed covariates that one can include in the regressions to reduce the variance of the estimation. Some of these sets have been proposed by Chernozukov et al. (2017), while others are new. For both the BLP and the GATES results, the `evaluCATE` function returns a bunch of fitted models, one for each of these sets. Thus, the user can compare the results across the different models.
 
-The optional constructed covariates depend on the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. The `evaluCATE` function has four optional arguments that we can use to supply estimates of these nuisance parameter. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample.
+The optional constructed covariates depend on the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. The `evaluCATE` function has four optional arguments that we can use to supply estimates of these nuisance parameters. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample.
 
 Suppose that we assign the results of the `evaluCATE` function call to a variable called `evaluation`.
 
