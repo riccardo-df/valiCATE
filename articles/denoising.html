@@ -94,7 +94,7 @@ tutorial</a>, some estimation strategies for the BLP and the GATES
 involve fitting suitable linear models. These regressions allow the
 inclusion of optional constructed covariates which are not necessary for
 identifying the targets but can significantly reduce the variance of the
-estimation. In this article, we discuss which covariates are
+estimation. On this page, we discuss which covariates can be
 incorporated in the regressions.</p>
 <p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>.</p>
@@ -108,8 +108,8 @@ the different models.</p>
 <p>The optional constructed covariates depend on the nuisance functions
 <span class="math inline">\(p ( \cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span>. The
 <code>evaluCATE</code> function has four optional arguments that we can
-use to supply estimates of these nuisances. Be careful, as these
-estimates must be obtained using only the training sample. If not
+use to supply estimates of these nuisance parameter. Be careful, as
+these estimates must be obtained using only the training sample. If not
 provided by the user, these functions are estimated internally via
 honest regression forests using only the training sample.</p>
 <p>Suppose that we assign the results of the <code>evaluCATE</code>

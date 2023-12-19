@@ -362,8 +362,8 @@ D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1}
 <p><span class="math display">\[ \theta_{\alpha} ( \hat{\tau} ) :=
 \int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  \]</span> where:</p>
 <p><span class="math display">\[ TOC (u; \hat{\tau}) := \mathbb{E} [ Y_i
-( 1 ) - Y_i ( 0 ) | F ( \hat{\tau} ( X_i ) \geq 1 - u) ] - \mathbb{E} [
-Y_i ( 1 ) - Y_i ( 0 ) ] \]</span> with <span class="math inline">\(F (
+( 1 ) - Y_i ( 0 ) \mid F ( \hat{\tau} ( X_i )) \geq 1 - u ] - \mathbb{E}
+[ Y_i ( 1 ) - Y_i ( 0 ) ] \]</span> with <span class="math inline">\(F (
 \cdot )\)</span> the cumulative distribution function of <span class="math inline">\(\hat{\tau} ( \cdot )\)</span>, <span class="math inline">\(0 &lt; u \leq 1\)</span>, and <span class="math inline">\(\alpha : ( 0, 1 ] \rightarrow \mathcal{R}\)</span>
 a generic weight function.</p>
 <p>The RATE provides a measure of the ability of our estimated CATEs to
@@ -393,8 +393,10 @@ using the following sample-averaging estimators:</p>
 \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor}
 \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i
 \]</span> <span class="math display">\[ \hat{\theta}_{\alpha} (
-\hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} )
-\widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) \]</span> where we let <span class="math inline">\(i ( j )\)</span> be the mapping from rank <span class="math inline">\(j\)</span> to unit <span class="math inline">\(i\)</span> (e.g., <span class="math inline">\(i (
+\hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha \left( \frac{j}{n}
+\right) \widehat{TOC} \left( \frac{j}{n}; \hat{\tau} \right) \]</span>
+where we let <span class="math inline">\(i ( j )\)</span> be the mapping
+from rank <span class="math inline">\(j\)</span> to unit <span class="math inline">\(i\)</span> (e.g., <span class="math inline">\(i (
 1 )\)</span> returns the most-prioritized unit, and <span class="math inline">\(i ( n )\)</span> returns the least-prioritized
 unit) and the doubly-robust scores <span class="math inline">\(\Gamma_i\)</span> are estimated via cross-fitting
 in the validation sample. Two different weight functions are considered,
@@ -417,15 +419,14 @@ estimates can be used as an estimator of the standard error of <span class="math
 <h2 id="code">Code<a class="anchor" aria-label="anchor" href="#code"></a>
 </h2>
 <p>The BLP, GATES, and RATEs can be estimated by calling the
-<code>evalu_cates</code> function. When calling this function, we need
-to supply the full sample using the first three arguments:
-<code>Y</code>, <code>D</code>, and <code>X</code>, corresponding to
-<span class="math inline">\(Y_i\)</span>, <span class="math inline">\(D_i\)</span>, and <span class="math inline">\(X_i\)</span>. Additionally, we must supply our
+<code>evaluCATE</code> function. When calling this function, we need to
+supply the full sample using the first three arguments: <code>Y</code>,
+<code>D</code>, and <code>X</code>, corresponding to <span class="math inline">\(Y_i\)</span>, <span class="math inline">\(D_i\)</span>, and <span class="math inline">\(X_i\)</span>. Additionally, we must supply our
 CATE predictions on the full sample <span class="math inline">\(\hat{\tau} ( X_i )\)</span> obtained using only
 the training sample by using the <code>cates</code> argument. Finally,
 we must supply a logical vector with the <code>TRUE</code>s denoting
 those observations used to estimate the CATEs by using the
-<code>is_train</code> argument, so that the <code>evalu_cates</code>
+<code>is_train</code> argument, so that the <code>evaluCATE</code>
 function knows which observations must be used to post-process our CATEs
 estimates.</p>
 <p>We also have four optional arguments that we can use to supply
@@ -446,7 +447,7 @@ arguments controls the number of bootstrap replications used to estimate
 the standard error of the estimated RATEs. The third of these arguments
 controls how to rank units for the RATE estimation (according to either
 increasing or decreasing values of the estimated CATEs). The fourth of
-these arguments controls whether the <code>evalu_cates</code> function
+these arguments controls whether the <code>evaluCATE</code> function
 should print the status of progress on the console. We use the default
 of 5 groups, 200 bootstrap replications, the treatment is considered to
 be beneficial, and we prevent the function from printing the
