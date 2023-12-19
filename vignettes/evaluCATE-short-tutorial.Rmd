@@ -197,7 +197,7 @@ The RATE induced by the estimated CATEs is defined as follows:
 $$ \theta_{\alpha} ( \hat{\tau} ) := \int_0^1 \alpha ( u ) TOC ( u; \hat{\tau} ) d u  $$
 where:
 
-$$ TOC (u; \hat{\tau}) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | F ( \hat{\tau} ( X_i ) \geq 1 - u) ] - \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ] $$
+$$ TOC (u; \hat{\tau}) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) \mid F ( \hat{\tau} ( X_i )) \geq 1 - u ] - \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ] $$
 with $F ( \cdot )$ the cumulative distribution function of $\hat{\tau} ( \cdot )$, $0 < u \leq 1$, and $\alpha : ( 0, 1 ] \rightarrow \mathcal{R}$ a generic weight function.
 
 The RATE provides a measure of the ability of our estimated CATEs to prioritize units to treatment in terms of intervention benefit. The idea is to regard $\hat{\tau} ( \cdot )$ as a "prioritization rule" that sorts units $i = 1, ..., n$ in order $j = 1, ..., n$ according to their estimated CATEs, for instance by prioritizing units with the largest estimated CATEs.[^6] [^7] 
@@ -210,7 +210,7 @@ We are interested in the estimation of the RATE for two reasons:
 The `evaluCATE` package estimates the TOCs and the RATE using the following sample-averaging estimators:
 
 $$ \widehat{TOC} ( u; \hat{\tau} ) = \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor} \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i $$
-$$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha ( \frac{j}{n} ) \widehat{TOC} ( \frac{j}{n}; \hat{\tau} ) $$
+$$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha \left( \frac{j}{n} \right) \widehat{TOC} \left( \frac{j}{n}; \hat{\tau} \right) $$
 where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and the doubly-robust scores $\Gamma_i$ are estimated via cross-fitting in the validation sample. Two different weight functions are considered, each corresponding to a different RATE:
 
 - $\alpha ( u ) = 1$ &rarr; Area under the TOC curve (AUTOC)
