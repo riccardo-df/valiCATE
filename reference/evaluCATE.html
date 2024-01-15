@@ -143,7 +143,8 @@ the estimated CATEs.</p>
     <div id="details">
     <h2>Details</h2>
     <p>To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well
-as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).<br></p>
+as their estimated CATEs. Be careful, as although the CATEs must be estimated only with part of the sample (which we call the training sample), they must be predicted
+on the whole sample <code>X</code> when passed in <code>evaluCATE</code> (see the example section below).<br></p>
 <p>To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the <code>TRUE</code>s denoting observations in the
 training sample. This way, <code>evaluCATE</code> knows which observations to use to post-process the CATEs estimates.<br></p>
 <p><code>evaluCATE</code> implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
