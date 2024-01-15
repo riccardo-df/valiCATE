@@ -70,7 +70,8 @@
 #' @md
 #' @details
 #' To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
-#' as their estimated CATEs. Be careful, as the CATEs must be estimated only with part of the sample, which we call the training sample (see the example section below).\cr
+#' as their estimated CATEs. Be careful, as although the CATEs must be estimated only with part of the sample (which we call the training sample), they must be predicted
+#' on the whole sample \code{X} when passed in \code{\link{evaluCATE}} (see the example section below).\cr
 #' 
 #' To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the 
 #' training sample. This way, \code{\link{evaluCATE}} knows which observations to use to post-process the CATEs estimates.\cr
