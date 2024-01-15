@@ -6,7 +6,7 @@
 
 R package to estimate and make inference about key features of heterogeneous treatment effects.
 
-To get started, please check the online [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html) for a short tutorial.
+To get started, please check the online [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html).
 
 ## Installation  
 The current development version of the package can be installed using the `devtools` package:
