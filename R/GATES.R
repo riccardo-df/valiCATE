@@ -223,7 +223,7 @@ gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
     if (sum(D * group_indicators[, g]) %in% c(0, sum(group_indicators[, g]))) out_condition <- TRUE 
   }
   
-  if (out_condition) stop("We have one or more homogeneous groups. Please try a different 'k' or a different sample split.", call. = FALSE)
+  if (out_condition) stop("We have one or more homogeneous groups. Please try a different 'n_groups' or a different sample split.", call. = FALSE)
   
   ## 2.) Construct covariates.
   wr_weights <- (pscore * (1 - pscore))^(-1) 
