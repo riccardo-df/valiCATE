@@ -369,6 +369,8 @@ print.evaluCATE <- function(x, target = "BLP",
 #' @param x An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be either \code{"GATES"} or \code{"TOC"}.
 #' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}. Ignored if \code{target == "TOC"}.
+#' @param gates_hline Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.
+#' @param toc_smoother Integer number, controls the amount of smoothing in the TOC plot. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return
@@ -420,10 +422,14 @@ print.evaluCATE <- function(x, target = "BLP",
 #' @author Riccardo Di Francesco
 #'
 #' @export
-plot.evaluCATE <- function(x, target = "GATES", which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), ...) {
+plot.evaluCATE <- function(x, target = "GATES", 
+                           which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), 
+                           gates_hline = TRUE, toc_smoother = 1, ...) {
   ## Checks.
   if (!(target %in% c("GATES", "TOC"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
   if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
+  if (!is.logical(gates_hline)) stop("Invalid 'gates_hline'. This must be either 'TRUE' or 'FALSE'.", call. = FALSE)
+  if (!is.numeric(toc_smoother) & toc_smoother < 1 & toc_smoother %% 1 != 0) stop("Invalid 'toc_smoother'. This must be an integer greater than or equal to one.", call. = FALSE)
   
   group <- NULL
   estimator <- NULL
@@ -471,6 +477,7 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = c("wr_none", "wr_
     
     ggplot2::ggplot(plot_dta, ggplot2::aes(x = group, y = estimated_gate, colour = factor(estimator, levels = which_models))) +
       ggplot2::geom_point() + 
+      ggplot2::geom_hline(yintercept = if (gates_hline) 0 else NULL, linetype = "dashed") + 
       ggplot2::geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se)) +
       ggplot2::facet_grid(cols = vars(factor(strategy, levels = c("WR", "HT", "AIPW"))), rows = if (facet_condition) vars(factor(denoise, levels = c("None", "cddf1", "cddf2", "mck1", "mck2", "mck3"))) else NULL, scales = "fixed") +
       ggplot2::xlab("Group") + ggplot2::ylab("GATES") + ggplot2::labs(colour = "Estimator") +
@@ -478,10 +485,22 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = c("wr_none", "wr_
       ggplot2::theme(strip.text.x = ggplot2::element_text(size = 10, face = "italic"), strip.text.y = ggplot2::element_text(size = 10, face = "italic"), legend.position = "none")
   } else if (target == "TOC") {
     plot_dta <- data.frame("unit" = (1:length(x$RATE$toc_results) / length(x$RATE$toc_results)), "TOC" = x$RATE$toc_results)
-    ggplot2::ggplot(plot_dta, ggplot2::aes(x = unit, y = TOC)) +
-      ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
-      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
-      ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
-      ggplot2::theme_bw() 
+
+    if (toc_smoother == 1) {
+      plot_dta %>%
+        ggplot2::ggplot(ggplot2::aes(x = unit, y = TOC)) +
+        ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
+        ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
+        ggplot2::theme_bw() 
+    } else {
+      plot_dta %>%
+        dplyr::slice(which(row_number() %% toc_smoother == 1)) %>%
+        ggplot2::ggplot(ggplot2::aes(x = unit, y = TOC)) +
+        ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
+        ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
+        ggplot2::theme_bw() 
+    }
   }
 }

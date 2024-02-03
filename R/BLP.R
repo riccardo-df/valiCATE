@@ -126,7 +126,7 @@ blp_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores) {
   ht_cddf1_model <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf1_dta, se_type = "HC1") 
   ht_cddf2_model <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf2_dta, se_type = "HC1") 
   ht_mck1_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck1_dta, se_type = "HC1") 
-  ht_mck2_model <- estimatr::lm_robust(HY ~0 + ., ht_mck2_dta, se_type = "HC1") 
+  ht_mck2_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck2_dta, se_type = "HC1") 
   ht_mck3_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck3_dta, se_type = "HC1") 
   
   aipw_model <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
