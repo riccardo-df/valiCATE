@@ -115,7 +115,7 @@ honest regression forests using only the training sample.</p>
 <p>Suppose that we assign the results of the <code>evaluCATE</code>
 function call to a variable called <code>evaluation</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, is_train <span class="op">=</span> <span class="va">train_idx</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span><span class="op">)</span></span></code></pre></div>
 <p>In the following, we list the covariates that are included in the
 fitted models returned by the <code>evaluCATE</code> function.</p>
 <div class="section level3">

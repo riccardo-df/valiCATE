@@ -64,15 +64,17 @@ the estimated CATEs.</p>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">evaluCATE</span><span class="op">(</span></span>
-<span>  <span class="va">Y</span>,</span>
-<span>  <span class="va">D</span>,</span>
-<span>  <span class="va">X</span>,</span>
-<span>  <span class="va">cates</span>,</span>
-<span>  <span class="va">is_train</span>,</span>
-<span>  pscore <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu0 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">Y_tr</span>,</span>
+<span>  <span class="va">Y_val</span>,</span>
+<span>  <span class="va">D_tr</span>,</span>
+<span>  <span class="va">D_val</span>,</span>
+<span>  <span class="va">X_tr</span>,</span>
+<span>  <span class="va">X_val</span>,</span>
+<span>  <span class="va">cates_val</span>,</span>
+<span>  pscore_val <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu_val <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu0_val <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu1_val <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_groups <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  beneficial <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_boot <span class="op">=</span> <span class="fl">200</span>,</span>
@@ -82,40 +84,48 @@ the estimated CATEs.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>Y</dt>
-<dd><p>Observed outcomes.</p></dd>
+    <dl><dt>Y_tr</dt>
+<dd><p>Observed outcomes from the training sample.</p></dd>
 
 
-<dt>D</dt>
-<dd><p>Treatment indicator.</p></dd>
+<dt>Y_val</dt>
+<dd><p>Observed outcomes from the validation sample.</p></dd>
 
 
-<dt>X</dt>
-<dd><p>Covariate matrix (no intercept).</p></dd>
+<dt>D_tr</dt>
+<dd><p>Treatment indicator for the training sample.</p></dd>
 
 
-<dt>cates</dt>
-<dd><p>Estimated CATEs. Must be estimated using only the training sample.</p></dd>
+<dt>D_val</dt>
+<dd><p>Treatment indicator for the validation sample.</p></dd>
 
 
-<dt>is_train</dt>
-<dd><p>Logical vector denoting which observations belong to the training sample.</p></dd>
+<dt>X_tr</dt>
+<dd><p>Covariate matrix for the training sample (no intercept).</p></dd>
 
 
-<dt>pscore</dt>
-<dd><p>Propensity scores. If unknown, must be estimated using only the training sample.</p></dd>
+<dt>X_val</dt>
+<dd><p>Covariate matrix for the validation sample (no intercept).</p></dd>
 
 
-<dt>mu</dt>
-<dd><p>Estimated regression function. Must be estimated using only the training sample.</p></dd>
+<dt>cates_val</dt>
+<dd><p>CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.</p></dd>
 
 
-<dt>mu0</dt>
-<dd><p>Estimated regression function for control units. Must be estimated using only the training sample.</p></dd>
+<dt>pscore_val</dt>
+<dd><p>Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).</p></dd>
 
 
-<dt>mu1</dt>
-<dd><p>Estimated regression function for treated units. Must be estimated using only the training sample.</p></dd>
+<dt>mu_val</dt>
+<dd><p>Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.</p></dd>
+
+
+<dt>mu0_val</dt>
+<dd><p>Control units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.</p></dd>
+
+
+<dt>mu1_val</dt>
+<dd><p>Treated units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.</p></dd>
 
 
 <dt>n_groups</dt>
@@ -142,11 +152,8 @@ the estimated CATEs.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well
-as their estimated CATEs. Be careful, as although the CATEs must be estimated only with part of the sample (which we call the training sample), they must be predicted
-on the whole sample <code>X</code> when passed in <code>evaluCATE</code> (see the example section below).<br></p>
-<p>To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the <code>TRUE</code>s denoting observations in the
-training sample. This way, <code>evaluCATE</code> knows which observations to use to post-process the CATEs estimates.<br></p>
+    <p>To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately.
+Additionally, the user must provide CATE predictions on the validation sample obtained from a model estimated using only the training sample.<br></p>
 <p><code>evaluCATE</code> implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
 different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. <code>evaluCATE</code>
 fits and returns all these possible models. GATES are also estimated using a nonparametric approach. Check the online
@@ -204,11 +211,11 @@ via honest <code><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" cl
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X_tr</span>, <span class="va">Y_tr</span>, <span class="va">D_tr</span><span class="op">)</span> <span class="co"># We use only the training sample.</span></span></span>
-<span class="r-in"><span><span class="va">cates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co"># We predict on the whole sample.</span></span></span>
+<span class="r-in"><span><span class="va">cates_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co"># We predict on the validation sample.</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## CATEs evaluation. Estimate all nuisances internally. </span></span></span>
-<span class="r-in"><span><span class="va">pscore</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu">evaluCATE</span><span class="op">(</span><span class="va">Y</span>, <span class="va">D</span>, <span class="va">X</span>, <span class="va">cates</span>, <span class="va">train_idx</span>, pscore <span class="op">=</span> <span class="va">pscore</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu">evaluCATE</span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions and AIPW scores; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATES estimation; </span>

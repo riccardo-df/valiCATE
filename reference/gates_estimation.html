@@ -73,27 +73,27 @@
 
 
 <dt>cates</dt>
-<dd><p>Estimated CATEs. Must be estimated with different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>CATE predictions. Must be produced by a model estimated using different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
 
 
 <dt>pscore</dt>
-<dd><p>Propensity scores. If unknown, must be estimated using different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>Propensity scores predictions. Must be produced by a model estimated using different observations than those in <code>Y</code> and <code>D</code> (unless the propensity score is known, in which case we provide the true values).</p></dd>
 
 
 <dt>mu</dt>
-<dd><p>Estimated regression function. Must be estimated with different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>Conditional mean predictions. Must be produced by a model estimated using different observations than those in <code>Y</code> and <code>D</code></p></dd>
 
 
 <dt>mu0</dt>
-<dd><p>Estimated regression function for control units. Must be estimated with different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>Control units' conditional mean predictions. Must be produced by a model estimated using different observations than those in <code>Y</code> and <code>D</code></p></dd>
 
 
 <dt>mu1</dt>
-<dd><p>Estimated regression function for treated units. Must be estimated with different observations than those in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>Treated units' conditional mean predictions. Must be produced by a model estimated using different observations than those in <code>Y</code> and <code>D</code></p></dd>
 
 
 <dt>scores</dt>
-<dd><p>Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting with the same observations as in <code>Y</code> and <code>D</code>.</p></dd>
+<dd><p>Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the same observations as in <code>Y</code> and <code>D</code>.</p></dd>
 
 
 <dt>n_groups</dt>
