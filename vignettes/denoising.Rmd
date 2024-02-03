@@ -25,7 +25,7 @@ The optional constructed covariates depend on the nuisance functions $p ( \cdot 
 Suppose that we assign the results of the `evaluCATE` function call to a variable called `evaluation`.
 
 ```{r call-main, eval = FALSE}
-evaluation <- evaluCATE(Y, D, X, cates, is_train = train_idx)
+evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val)
 ```
 
 In the following, we list the covariates that are included in the fitted models returned by the `evaluCATE` function. 

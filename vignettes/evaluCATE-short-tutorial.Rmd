@@ -83,17 +83,14 @@ Y_val <- Y[!train_idx]
 
 ## CATEs estimation.
 forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-forest_predictions <- predict(forest, X, estimate.variance = TRUE) # We predict on the full sample.
-
-cates <- forest_predictions$predictions 
-se <- sqrt(forest_predictions$variance.estimates)
+cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
 ```
 
 We then display the out-of-sample estimated CATEs distribution: 
 
 ```{r cates-plot, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
 ## Plot out-of-sample predicted CATEs.
-data.frame("cates" = cates[!train_idx]) %>%
+data.frame("cates" = cates_val) %>%
   ggplot(aes(x = cates)) +
   geom_histogram(color = "black", fill = "dodgerblue", alpha = 0.4, bins = 10) + 
   xlab("Estimated CATEs") + ylab("Density") +
@@ -105,7 +102,7 @@ One could look at the histogram and conclude that there is heterogeneity in the 
 
 ```{r true-estimated-cates, eval = TRUE, fig.show = 'hold', fig.dim = c(5, 3)}
 ## Plot true and estimated CATEs.
-data.frame("x1" = X, "true_cates" = mu1 - mu0, "estimated_cates" = cates) %>%
+data.frame("x1" = X_val, "true_cates" = mu1[!train_idx] - mu0[!train_idx], "estimated_cates" = cates_val) %>%
   melt(id.vars = "x1") %>%
   ggplot(aes(x = x1, y = value, group = variable, color = variable)) + 
   geom_line(linewidth = 1) +
@@ -219,16 +216,16 @@ where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$
 The half-sample bootstrap procedure is used to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$.
 
 ## Code
-The BLP, GATES, and RATEs can be estimated by calling the `evaluCATE` function. When calling this function, we need to supply the full sample using the first three arguments: `Y`, `D`, and `X`, corresponding to $Y_i$, $D_i$, and $X_i$. Additionally, we must supply our CATE predictions on the full sample $\hat{\tau} ( X_i )$ obtained using only the training sample by using the `cates` argument. Finally, we must supply a logical vector with the `TRUE`s denoting those observations used to estimate the CATEs by using the `is_train` argument, so that the `evaluCATE` function knows which observations must be used to post-process our CATEs estimates.
+The BLP, GATES, and RATEs can be estimated by calling the `evaluCATE` function. When calling this function, we need to supply our sample using the first six arguments: `Y_tr`, `Y_val`, `D_tr`, `D_val`, `X_tr`, and `X_val`, corresponding to $Y_i$, $D_i$, and $X_i$ separately for the training and validation subsamples. Additionally, we must supply our CATE predictions on the validation sample $\hat{\tau} ( X_i )$ by using the `cates_val` argument. Be careful, as these predictions must be produced by a model estimated using only the training sample.
 
-We also have four optional arguments that we can use to supply estimates of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Be careful, as these estimates must be obtained using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units. We supply these values in the call below and let the function estimate the other nuisances internally.[^9] 
+We also have four optional arguments that we can use to supply predictins on the validation sample of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Again, these predictions must be produced by models estimated using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units. We supply these values in the call below and let the function estimate the other nuisances internally.[^9] 
 
 Finally, we have four additional optional arguments. The first of these arguments controls the number of groups to be formed for the GATES analysis, with the default number equal to five. The second of these arguments controls the number of bootstrap replications used to estimate the standard error of the estimated RATEs. The third of these arguments controls how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). The fourth of these arguments controls whether the `evaluCATE` function should print the status of progress on the console. We use the default of 5 groups, 200 bootstrap replications, the treatment is considered to be beneficial, and we prevent the function from printing the progresses.  
 
 ```{r call-main, eval = TRUE}
 ## Call main function.
-pscore <- rep(0.5, length(Y)) # True propensity scores.
-evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore, verbose = FALSE)
+pscore_val <- rep(0.5, length(Y_val)) # True propensity scores.
+evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val, verbose = FALSE)
 ```
 
 Let us have a look at the results. The `summary` method allows us to visualize the results of the BLP and RATE estimation if the `target` argument is set to `BLP` or the results of the GATES estimation if the `target` argument is set to `GATES`. The `latex` argument controls whether the raw results or LATEX code for a table will be displayed in the console.

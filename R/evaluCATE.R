@@ -4,15 +4,17 @@
 #' CATEs, the sorted group average treatment effects (GATES), and the rank-weighted average treatment effect (RATE) induced by
 #' the estimated CATEs.
 #'
-#' @param Y Observed outcomes.
-#' @param D Treatment indicator.
-#' @param X Covariate matrix (no intercept).
-#' @param cates Estimated CATEs. Must be estimated using only the training sample.
-#' @param is_train Logical vector denoting which observations belong to the training sample.
-#' @param pscore Propensity scores. If unknown, must be estimated using only the training sample. 
-#' @param mu Estimated regression function. Must be estimated using only the training sample.
-#' @param mu0 Estimated regression function for control units. Must be estimated using only the training sample.
-#' @param mu1 Estimated regression function for treated units. Must be estimated using only the training sample.
+#' @param Y_tr Observed outcomes from the training sample.
+#' @param Y_val Observed outcomes from the validation sample.
+#' @param D_tr Treatment indicator for the training sample.
+#' @param D_val Treatment indicator for the validation sample.
+#' @param X_tr Covariate matrix for the training sample (no intercept).
+#' @param X_val Covariate matrix for the validation sample (no intercept).
+#' @param cates_val CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.
+#' @param pscore_val Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values). 
+#' @param mu_val Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
+#' @param mu0_val Control units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
+#' @param mu1_val Treated units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
 #' @param n_groups Number of groups to be formed for the GATES analysis.
 #' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates}.
 #' @param n_boot Number of bootstrap replications to estimate the standard error of the RATE estimates.
@@ -51,11 +53,11 @@
 #' library(grf)
 #' 
 #' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-#' cates <- predict(forest, X)$predictions # We predict on the whole sample.
+#' cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
 #' 
 #' ## CATEs evaluation. Estimate all nuisances internally. 
-#' pscore <- rep(0.5, length(Y))
-#' evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
+#' pscore_val <- rep(0.5, length(Y_val))
+#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
 #' 
 #' ## Generic S3 methods.
 #' summary(evaluation, target = "BLP")
@@ -69,12 +71,8 @@
 #'
 #' @md
 #' @details
-#' To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well 
-#' as their estimated CATEs. Be careful, as although the CATEs must be estimated only with part of the sample (which we call the training sample), they must be predicted
-#' on the whole sample \code{X} when passed in \code{\link{evaluCATE}} (see the example section below).\cr
-#' 
-#' To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the 
-#' training sample. This way, \code{\link{evaluCATE}} knows which observations to use to post-process the CATEs estimates.\cr
+#' To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately.
+#' Additionally, the user must provide CATE predictions on the validation sample obtained from a model estimated using only the training sample.\cr
 #' 
 #' \code{\link{evaluCATE}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
 #' different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evaluCATE}}
@@ -105,68 +103,44 @@
 #' @seealso Other functions
 #'
 #' @export
-evaluCATE <- function(Y, D, X, cates, is_train,
-                        pscore = NULL, mu = NULL, mu0 = NULL, mu1 = NULL,
-                        n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
+evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
+                      pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
+                      n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
   ## 0.) Handling inputs and checks.
-  if (is.logical(D)) D <- as.numeric(D)
-  if (any(!(D %in% c(0, 1)))) stop("Invalid 'D'. Only binary treatments are allowed.", call. = FALSE)
-  if (!is.matrix(X) & !is.data.frame(X)) stop("Invalid 'X'. This must be either a matrix or a data frame.", call. = FALSE)
-  if (var(cates) == 0) stop("No variation in 'cates'.", call. = FALSE)
-  if (!is.logical(is_train)) stop("Invalid 'is_train'. This must be a logical vector.", call. = FALSE)
+  if (is.logical(D_tr)) D_tr <- as.numeric(D_tr)
+  if (is.logical(D_val)) D_val <- as.numeric(D_val)
+  if (any(!(D_tr %in% c(0, 1)))) stop("Invalid 'D_tr'. Only binary treatments are allowed.", call. = FALSE)
+  if (any(!(D_val %in% c(0, 1)))) stop("Invalid 'D_val'. Only binary treatments are allowed.", call. = FALSE)
+  if (!is.matrix(X_tr) & !is.data.frame(X_tr)) stop("Invalid 'X_tr'. This must be either a matrix or a data frame.", call. = FALSE)
+  if (!is.matrix(X_val) & !is.data.frame(X_val)) stop("Invalid 'X_val'. This must be either a matrix or a data frame.", call. = FALSE)
+  if (var(cates_val) == 0) stop("No variation in 'cates_val'.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
   if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
   if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)
   if (!is.logical((verbose))) stop("Invalid 'verbose'. This must be either TRUE or FALSE.", call. = FALSE)
   
-  ## 1.) Split the sample as indicated by the user.
-  train_idx <- which(is_train)
-  val_idx <- which(!is_train)
-  
-  Y_tr <- Y[train_idx]
-  D_tr <- D[train_idx]
-  X_tr <- as.matrix(X[train_idx, ], ncol = dim(X)[2])
-  cates_tr <- cates[train_idx]
-  
-  Y_val <- Y[val_idx]
-  D_val <- D[val_idx]
-  X_val <- as.matrix(X[val_idx, ], ncol = dim(X)[2])
-  cates_val <- cates[val_idx]
-  
-  ## 2.) If necessary, estimate nuisance functions using the training sample. Then,estimated AIPW scores in validation sample via cross-fitting.
+  ## 1.) If necessary, estimate nuisance functions using the training sample. Then, estimate AIPW scores in validation sample via cross-fitting.
   if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
   
-  if (is.null(pscore)) {
+  if (is.null(pscore_val)) {
     pscore_forest <- grf::regression_forest(X_tr, D_tr)
-    pscore <- stats::predict(pscore_forest, X)$predictions
+    pscore_val <- stats::predict(pscore_forest, X_val)$predictions
   }
   
-  if (is.null(mu)) {
+  if (is.null(mu_val)) {
     mu_forest <- grf::regression_forest(X_tr, Y_tr)
-    mu <- stats::predict(mu_forest, X)$predictions
+    mu_val <- stats::predict(mu_forest, X_val)$predictions
   }
   
-  if (is.null(mu0)) {
+  if (is.null(mu0_val)) {
     mu0_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 0, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 0])
-    mu0 <- stats::predict(mu0_forest, X)$predictions
+    mu0_val <- stats::predict(mu0_forest, X_val)$predictions
   }
   
-  if (is.null(mu1)) {
-    mu1_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 1, ], ncol = dim(X)[2]), Y_tr[D_tr == 1])
-    mu1 <- stats::predict(mu1_forest, X)$predictions
+  if (is.null(mu1_val)) {
+    mu1_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 1, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 1])
+    mu1_val <- stats::predict(mu1_forest, X_val)$predictions
   }
-  
-  pscore_tr <- pscore[train_idx]
-  pscore_val <- pscore[val_idx]
-  
-  mu_tr <- mu[train_idx]
-  mu_val <- mu[val_idx]
-  
-  mu0_tr <- mu0[train_idx]
-  mu0_val <- mu0[val_idx]
-  
-  mu1_tr <- mu1[train_idx]
-  mu1_val <- mu1[val_idx]
   
   scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
   

@@ -4,12 +4,12 @@
 #'
 #' @param Y Observed outcomes.
 #' @param D Treatment indicator.
-#' @param cates Estimated CATEs. Must be estimated with different observations than those in \code{Y} and \code{D}.
-#' @param pscore Propensity scores. If unknown, must be estimated using different observations than those in \code{Y} and \code{D}. 
-#' @param mu Estimated regression function. Must be estimated with different observations than those in \code{Y} and \code{D}. 
-#' @param mu0 Estimated regression function for control units. Must be estimated with different observations than those in \code{Y} and \code{D}.
-#' @param mu1 Estimated regression function for treated units. Must be estimated with different observations than those in \code{Y} and \code{D}. 
-#' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting with the same observations as in \code{Y} and \code{D}. 
+#' @param cates CATE predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}.
+#' @param pscore Propensity scores predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D} (unless the propensity score is known, in which case we provide the true values).
+#' @param mu Conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}
+#' @param mu0 Control units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}
+#' @param mu1 Treated units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}
+#' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the same observations as in \code{Y} and \code{D}. 
 #'
 #' @return
 #' A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.

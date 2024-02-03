@@ -5,15 +5,17 @@
 \title{CATEs Evaluation}
 \usage{
 evaluCATE(
-  Y,
-  D,
-  X,
-  cates,
-  is_train,
-  pscore = NULL,
-  mu = NULL,
-  mu0 = NULL,
-  mu1 = NULL,
+  Y_tr,
+  Y_val,
+  D_tr,
+  D_val,
+  X_tr,
+  X_val,
+  cates_val,
+  pscore_val = NULL,
+  mu_val = NULL,
+  mu0_val = NULL,
+  mu1_val = NULL,
   n_groups = 5,
   beneficial = TRUE,
   n_boot = 200,
@@ -21,23 +23,27 @@ evaluCATE(
 )
 }
 \arguments{
-\item{Y}{Observed outcomes.}
+\item{Y_tr}{Observed outcomes from the training sample.}
 
-\item{D}{Treatment indicator.}
+\item{Y_val}{Observed outcomes from the validation sample.}
 
-\item{X}{Covariate matrix (no intercept).}
+\item{D_tr}{Treatment indicator for the training sample.}
 
-\item{cates}{Estimated CATEs. Must be estimated using only the training sample.}
+\item{D_val}{Treatment indicator for the validation sample.}
 
-\item{is_train}{Logical vector denoting which observations belong to the training sample.}
+\item{X_tr}{Covariate matrix for the training sample (no intercept).}
 
-\item{pscore}{Propensity scores. If unknown, must be estimated using only the training sample.}
+\item{X_val}{Covariate matrix for the validation sample (no intercept).}
 
-\item{mu}{Estimated regression function. Must be estimated using only the training sample.}
+\item{cates_val}{CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
 
-\item{mu0}{Estimated regression function for control units. Must be estimated using only the training sample.}
+\item{pscore_val}{Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).}
 
-\item{mu1}{Estimated regression function for treated units. Must be estimated using only the training sample.}
+\item{mu_val}{Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
+
+\item{mu0_val}{Control units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
+
+\item{mu1_val}{Treated units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
 
 \item{n_groups}{Number of groups to be formed for the GATES analysis.}
 
@@ -56,12 +62,8 @@ CATEs, the sorted group average treatment effects (GATES), and the rank-weighted
 the estimated CATEs.
 }
 \details{
-To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the whole sample, as well
-as their estimated CATEs. Be careful, as although the CATEs must be estimated only with part of the sample (which we call the training sample), they must be predicted
-on the whole sample \code{X} when passed in \code{\link{evaluCATE}} (see the example section below).\cr
-
-To let the function know which observations were used for the CATEs estimation, the user must also provide a logical vector with the \code{TRUE}s denoting observations in the
-training sample. This way, \code{\link{evaluCATE}} knows which observations to use to post-process the CATEs estimates.\cr
+To estimate BLP, GATES, and RATEs, the user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately.
+Additionally, the user must provide CATE predictions on the validation sample obtained from a model estimated using only the training sample.\cr
 
 \code{\link{evaluCATE}} implements a number of strategies to estimate the BLP and the GATES. Most of them involve fitting a suitable linear model. The linear models differ according to the
 different identification strategies. Furthermore, for each strategy, there exist various sets of constructed covariates that one can add to reduce the variance of the estimation. \code{\link{evaluCATE}}
@@ -115,11 +117,11 @@ Y_val <- Y[!train_idx]
 library(grf)
 
 forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-cates <- predict(forest, X)$predictions # We predict on the whole sample.
+cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
 
 ## CATEs evaluation. Estimate all nuisances internally. 
-pscore <- rep(0.5, length(Y))
-evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
+pscore_val <- rep(0.5, length(Y_val))
+evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
 
 ## Generic S3 methods.
 summary(evaluation, target = "BLP")

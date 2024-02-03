@@ -11,17 +11,17 @@ gates_estimation(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups = 5)
 
 \item{D}{Treatment indicator.}
 
-\item{cates}{Estimated CATEs. Must be estimated with different observations than those in \code{Y} and \code{D}.}
+\item{cates}{CATE predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}.}
 
-\item{pscore}{Propensity scores. If unknown, must be estimated using different observations than those in \code{Y} and \code{D}.}
+\item{pscore}{Propensity scores predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D} (unless the propensity score is known, in which case we provide the true values).}
 
-\item{mu}{Estimated regression function. Must be estimated with different observations than those in \code{Y} and \code{D}.}
+\item{mu}{Conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}}
 
-\item{mu0}{Estimated regression function for control units. Must be estimated with different observations than those in \code{Y} and \code{D}.}
+\item{mu0}{Control units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}}
 
-\item{mu1}{Estimated regression function for treated units. Must be estimated with different observations than those in \code{Y} and \code{D}.}
+\item{mu1}{Treated units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}}
 
-\item{scores}{Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting with the same observations as in \code{Y} and \code{D}.}
+\item{scores}{Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the same observations as in \code{Y} and \code{D}.}
 
 \item{n_groups}{Number of groups to be formed.}
 }

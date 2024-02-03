@@ -56,11 +56,11 @@ Y_val <- Y[!train_idx]
 library(grf)
 
 forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-cates <- predict(forest, X)$predictions # We predict on the whole sample.
+cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
 
 ## CATEs evaluation. Estimate all nuisances internally. 
-pscore <- rep(0.5, length(Y))
-evaluation <- evaluCATE(Y, D, X, cates, train_idx, pscore = pscore)
+pscore_val <- rep(0.5, length(Y_val))
+evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
 
 ## Print.
 print(evaluation, target = "BLP")
