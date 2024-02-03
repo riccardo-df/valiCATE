@@ -228,25 +228,26 @@ pscore_val <- rep(0.5, length(Y_val)) # True propensity scores.
 evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val, verbose = FALSE)
 ```
 
-Let us have a look at the results. The `summary` method allows us to visualize the results of the BLP and RATE estimation if the `target` argument is set to `BLP` or the results of the GATES estimation if the `target` argument is set to `GATES`. The `latex` argument controls whether the raw results or LATEX code for a table will be displayed in the console.
+Let us have a look at the results. The `summary` method allows us to visualize the results of the BLP and RATE estimation if the `target` argument is set to `BLP` or the results of the GATES estimation if the `target` argument is set to `GATES`. The `latex` argument controls whether the raw results or LATEX code for a table will be displayed in the console. We also use the `which_models` argument to choose which results to display (useful to avoid a lengthy output).
 
 ```{r blp-rates summary, eval = TRUE}
 ## BLP summary.
-summary(evaluation, target = "BLP") # Try 'latex = TRUE'.
+which_models <- c("wr_none", "ht_none", "aipw")
+summary(evaluation, target = "BLP", which_models = which_models) # Try 'latex = TRUE'.
 ```
 
 The estimated ATEs range between $0.05$ and $0.18$, with all confidence intervals covering the true value computed as `mean(mu1 - mu0)`. Additionally, we always fail to reject the hypothesis $\beta_2 = 0$, implying that either the effects are homogeneous or our CATE estimates are unreliable (we know both to be true in our example). The estimated RATEs agree with these findings.
 
 ```{r gates-summary, eval = TRUE}
 ## GATES summary.
-summary(evaluation, target = "GATES") # Try 'latex = TRUE'.
+summary(evaluation, target = "GATES", which_models = which_models) # Try 'latex = TRUE'.
 ```
 
 All the GATES confidence intervals include the zero, suggesting that no group is affected by the treatment (true in our example!). The $p$-values attached to testing the hypotheses that all the GATES are equal and that the most affected and the least affected groups feature the same response to the treatment are large and lead to a failure in rejecting these hypotheses. To better digest GATES point estimates and confidence intervals, we can use the `plot` method setting the `target` argument to `"GATES"`.
 
 ```{r gates-plot, eval = TRUE, fig.dim = c(5, 3)}
 ## GATES plot.
-plot(evaluation, target = "GATES")
+plot(evaluation, target = "GATES", which_models = which_models)
 
 ```
 

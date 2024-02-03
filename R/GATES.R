@@ -66,7 +66,9 @@
 #' and whether the differences in the GATES across all pairs of groups are zero. For the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure 
 #' and report the median of the adjusted p-values.
 #'
-#' @import estimatr GenericML evalITR car
+#' @import estimatr GenericML evalITR
+#' @importFrom car linearHypothesis
+#' @importFrom stats p.adjust
 #'
 #' @author Riccardo Di Francesco
 #'

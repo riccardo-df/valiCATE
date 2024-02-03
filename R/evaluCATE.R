@@ -11,6 +11,7 @@
 #' @param X_tr Covariate matrix for the training sample (no intercept).
 #' @param X_val Covariate matrix for the validation sample (no intercept).
 #' @param cates_val CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.
+#' @param strategies Character vector with the names of the strategies to implement. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.
 #' @param pscore_val Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values). 
 #' @param mu_val Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
 #' @param mu0_val Control units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
@@ -103,7 +104,7 @@
 #' @seealso Other functions
 #'
 #' @export
-evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
+evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
                       pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
                       n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
   ## 0.) Handling inputs and checks.
@@ -114,12 +115,13 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
   if (!is.matrix(X_tr) & !is.data.frame(X_tr)) stop("Invalid 'X_tr'. This must be either a matrix or a data frame.", call. = FALSE)
   if (!is.matrix(X_val) & !is.data.frame(X_val)) stop("Invalid 'X_val'. This must be either a matrix or a data frame.", call. = FALSE)
   if (var(cates_val) == 0) stop("No variation in 'cates_val'.", call. = FALSE)
+  if (any(!(strategies %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
   if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
   if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)
   if (!is.logical((verbose))) stop("Invalid 'verbose'. This must be either TRUE or FALSE.", call. = FALSE)
   
-  ## 1.) If necessary, estimate nuisance functions using the training sample. Then, estimate AIPW scores in validation sample via cross-fitting.
+  ## 1.) If necessary, estimate nuisance functions using the training sample. Then, estimate AIPW scores in validation sample via cross-fitting. ## CODE ESTIMATION OF REQUIRED NUISANCES!
   if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
   
   if (is.null(pscore_val)) {

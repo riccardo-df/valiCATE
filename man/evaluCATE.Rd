@@ -12,6 +12,8 @@ evaluCATE(
   X_tr,
   X_val,
   cates_val,
+  strategies = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1",
+    "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
   pscore_val = NULL,
   mu_val = NULL,
   mu0_val = NULL,
@@ -36,6 +38,8 @@ evaluCATE(
 \item{X_val}{Covariate matrix for the validation sample (no intercept).}
 
 \item{cates_val}{CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
+
+\item{strategies}{Character vector with the names of the strategies to implement. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.}
 
 \item{pscore_val}{Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).}
 

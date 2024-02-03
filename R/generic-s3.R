@@ -5,7 +5,7 @@
 #' @param object An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
-#' @param which_models Character vector with the names of the models to report in the LATEX table. Set equal to \code{c("all")} to display all models. Ignored if \code{latex == FALSE}.
+#' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
@@ -59,18 +59,18 @@
 #' 
 #' @seealso \code{\link{evaluCATE}}
 #' 
-#' @import stats
+#' @importFrom stats coef
 #' 
 #' @author Riccardo Di Francesco
 #' 
 #' @export
 summary.evaluCATE <- function(object, target = "BLP", 
-                              latex = FALSE, which_models = c("all"), ...) {
+                              latex = FALSE, which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), ...) {
   if (!(target %in% c("BLP", "GATES"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
   if (!is.logical(latex)) stop("Invalid 'latex'. This must be either TRUE or FALSE.", call. = FALSE)
-  if (length(which_models) > 1 & sum(which_models == "all") > 1) stop("Invalid 'which_models'. It you want all models, set this argument to 'all', without any additional strings.", call. = FALSE)
-  if (target == "BLP" & sum(!(which_models %in% c("all", names(object$BLP)))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
-  if (target == "GATES" & sum(!(which_models %in% c("all", names(object$GATES)))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
+  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
+  if (target == "BLP" & sum(!(which_models %in% names(object$BLP))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
+  if (target == "GATES" & sum(!(which_models %in% names(object$GATES))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
   
   n_models_blp <- length(object$BLP)
   n_models_gates <- length(object$GATES)
@@ -87,6 +87,9 @@ summary.evaluCATE <- function(object, target = "BLP",
       for (i in seq_len(n_models_blp)) {
         model <- object$BLP[[i]]
         model_name <- names(object$BLP)[i]
+        
+        if (!(model_name %in% which_models)) next
+        
         model_name_space <- paste0(model_name, strrep(" ", max_chars - nchar(model_name)))
         estimated_ate <- format(round(stats::coef(model)[names(stats::coef(model)) == "beta1"], 2), nsmall = 2)
         lower_ci <- format(round(model$conf.low["beta1"], 3), nsmall = 3)
@@ -101,6 +104,9 @@ summary.evaluCATE <- function(object, target = "BLP",
       for (i in seq_len(n_models_blp)) {
         model <- object$BLP[[i]]
         model_name <- names(object$BLP)[i]
+        
+        if (!(model_name %in% which_models)) next
+        
         model_name_space <- paste0(model_name, strrep(" ", max_chars - nchar(model_name)))
         estimated_het <- format(round(stats::coef(model)[names(stats::coef(model)) == "beta2"], 2), nsmall = 2)
         lower_ci <- format(round(model$conf.low["beta2"], 3), nsmall = 3)
@@ -133,6 +139,9 @@ summary.evaluCATE <- function(object, target = "BLP",
       for (i in seq_len(n_models_gates)) {
         model <- object$GATES[[i]]
         model_name <- names(object$GATES)[i]
+        
+        if (!(model_name %in% which_models)) next
+        
         model_name_space <- paste0(model_name, strrep(" ", max_chars - nchar(model_name)))
         
         if (model_name != "imai_li") {
@@ -164,6 +173,9 @@ summary.evaluCATE <- function(object, target = "BLP",
       for (i in seq_len(n_models_gates)) {
         model <- object$GATES[[i]]
         model_name <- names(object$GATES)[i]
+        
+        if (!(model_name %in% which_models)) next
+        
         model_name_space <- paste0(model_name, strrep(" ", max_chars - nchar(model_name)))
         
         if (model_name != "imai_li") {
@@ -172,14 +184,14 @@ summary.evaluCATE <- function(object, target = "BLP",
 
           cat(model_name_space, ": 
     GATES_1 = GATES_2 = ... = GATES_K : ",  gates_all_equal, "
-    GATES_5 = GATES_1                 : ",  gates_largest_diff, "\n", sep = "") 
+    GATES_K = GATES_1                 : ",  gates_largest_diff, "\n", sep = "") 
         } else if (model_name == "imai_li") {
           gates_all_equal <- format(round(model$p.value.gates.all.equal, 3), nsmall = 3)[1]
           gates_largest_diff <- format(round(model$p.value.gates.largest.difference, 3), nsmall = 3)[1]
           
           cat(model_name_space, ": 
     GATES_1 = GATES_2 = ... = GATES_K : ",  gates_all_equal, "
-    GATES_5 = GATES_1                 : ",  gates_largest_diff, "\n", sep = "")          
+    GATES_K = GATES_1                 : ",  gates_largest_diff, "\n", sep = "")          
         }
       }
     }
@@ -195,15 +207,13 @@ summary.evaluCATE <- function(object, target = "BLP",
       
       names(estimated_ates) <- names(estimated_ates_lower_ci) <- names (estimated_ates_upper_ci) <- names(estimated_hets) <- names(estimated_hets_lower_ci) <- names(estimated_hets_upper_ci) <- unlist(strsplit(names(estimated_ates), ".beta1"))
       
-      if (sum(which_models != "all") > 0) {
-        estimated_ates <- estimated_ates[which_models]
-        estimated_ates_lower_ci <- estimated_ates_lower_ci[which_models]
-        estimated_ates_upper_ci <- estimated_ates_upper_ci[which_models]
+      estimated_ates <- estimated_ates[which_models]
+      estimated_ates_lower_ci <- estimated_ates_lower_ci[which_models]
+      estimated_ates_upper_ci <- estimated_ates_upper_ci[which_models]
 
-        estimated_hets <- estimated_hets[which_models]
-        estimated_hets_lower_ci <- estimated_hets_lower_ci[which_models]
-        estimated_hets_upper_ci <- estimated_hets_upper_ci[which_models]   
-      }
+      estimated_hets <- estimated_hets[which_models]
+      estimated_hets_lower_ci <- estimated_hets_lower_ci[which_models]
+      estimated_hets_upper_ci <- estimated_hets_upper_ci[which_models]   
       
       cat("\\begingroup
     \\setlength{\\tabcolsep}{8pt}
@@ -291,7 +301,7 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' @param x An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
-#' @param which_models Character vector with the names of the models to report in the LATEX table. Set equal to \code{c("all")} to display all models. Ignored if \code{latex == FALSE}.
+#' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
@@ -347,7 +357,7 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' 
 #' @export
 print.evaluCATE <- function(x, target = "BLP", 
-                            latex = FALSE, which_models = c("all"), ...) {
+                            latex = FALSE, which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), ...) {
   summary.evaluCATE(x, target, latex, which_models, ...)
 }
 
@@ -358,6 +368,7 @@ print.evaluCATE <- function(x, target = "BLP",
 #'
 #' @param x An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be either \code{"GATES"} or \code{"TOC"}.
+#' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}. Ignored if \code{target == "TOC"}.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return
@@ -403,19 +414,23 @@ print.evaluCATE <- function(x, target = "BLP",
 #' plot(evaluation, target = "GATES")
 #' plot(evaluation, target = "TOC")}
 #'
-#' @import magrittr ggplot2 ggsci stats
+#' @import dplyr ggplot2 ggsci
+#' @importFrom stats coef
 #'
 #' @author Riccardo Di Francesco
 #'
 #' @export
-plot.evaluCATE <- function(x, target = "GATES", ...) {
+plot.evaluCATE <- function(x, target = "GATES", which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), ...) {
   ## Checks.
   if (!(target %in% c("GATES", "TOC"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
+  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
   
   group <- NULL
   estimator <- NULL
   estimated_gate <- NULL
   se <- NULL
+  strategy <- NULL
+  denoise <- NULL
   
   u <- NULL
   TOC <- NULL
@@ -434,16 +449,33 @@ plot.evaluCATE <- function(x, target = "GATES", ...) {
     ## Arrange plot data and call ggplot.
     n_groups <- length(stats::coef(x$GATES$wr_none))
     plot_dta <- data.frame("group" = rep(1:n_groups, length(gates_list)), 
-                           "estimator" = factor(rep(names(gates_list), each = n_groups)),
+                           "estimator" = rep(names(gates_list), each = n_groups),
                            "estimated_gate" = unlist(gates_list), 
-                           "se" = unlist(gates_se_list))
+                           "se" = unlist(gates_se_list)) %>%
+      dplyr::filter(estimator %in% which_models)
     
-    ggplot2::ggplot(plot_dta, ggplot2::aes(x = group, y = estimated_gate, colour = estimator)) +
+    plot_dta$strategy <- NA
+    plot_dta$strategy[plot_dta$estimator %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1")] <- "WR"
+    plot_dta$strategy[plot_dta$estimator %in% c("ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3")] <- "HT"
+    plot_dta$strategy[plot_dta$estimator == "aipw"] <- "AIPW"
+    
+    plot_dta$denoise <- NA
+    plot_dta$denoise[plot_dta$estimator %in% c("wr_none", "ht_none", "aipw")] <- "None"
+    plot_dta$denoise[plot_dta$estimator %in% c("wr_cddf1", "ht_cddf1")] <- "cddf1"
+    plot_dta$denoise[plot_dta$estimator %in% c("wr_cddf2", "ht_cddf2")] <- "cddf2"
+    plot_dta$denoise[plot_dta$estimator %in% c("wr_mck1", "ht_mck1")] <- "mck1"
+    plot_dta$denoise[plot_dta$estimator %in% c("ht_mck2")] <- "mck2"
+    plot_dta$denoise[plot_dta$estimator %in% c("ht_mck3")] <- "mck3"
+    
+    facet_condition <- length(unique(factor(plot_dta$denoise, levels = c("None", "cddf1", "cddf2", "mck1", "mck2", "mck3")))) > 1
+    
+    ggplot2::ggplot(plot_dta, ggplot2::aes(x = group, y = estimated_gate, colour = factor(estimator, levels = which_models))) +
       ggplot2::geom_point() + 
       ggplot2::geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se)) +
-      # ggsci::scale_fill_rickandmorty() + 
-      ggplot2::xlab("Group") +ggplot2:: ylab("GATES") + ggplot2::labs(colour = "Estimator") +
-      ggplot2::theme_bw() 
+      ggplot2::facet_grid(cols = vars(factor(strategy, levels = c("WR", "HT", "AIPW"))), rows = if (facet_condition) vars(factor(denoise, levels = c("None", "cddf1", "cddf2", "mck1", "mck2", "mck3"))) else NULL, scales = "fixed") +
+      ggplot2::xlab("Group") + ggplot2::ylab("GATES") + ggplot2::labs(colour = "Estimator") +
+      ggplot2::theme_bw() + 
+      ggplot2::theme(strip.text.x = ggplot2::element_text(size = 10, face = "italic"), strip.text.y = ggplot2::element_text(size = 10, face = "italic"), legend.position = "none")
   } else if (target == "TOC") {
     plot_dta <- data.frame("unit" = (1:length(x$RATE$toc_results) / length(x$RATE$toc_results)), "TOC" = x$RATE$toc_results)
     ggplot2::ggplot(plot_dta, ggplot2::aes(x = unit, y = TOC)) +
