@@ -455,37 +455,23 @@ allows us to visualize the results of the BLP and RATE estimation if the
 <code>target</code> argument is set to <code>BLP</code> or the results
 of the GATES estimation if the <code>target</code> argument is set to
 <code>GATES</code>. The <code>latex</code> argument controls whether the
-raw results or LATEX code for a table will be displayed in the
-console.</p>
+raw results or LATEX code for a table will be displayed in the console.
+We also use the <code>which_models</code> argument to choose which
+results to display (useful to avoid a lengthy output).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## BLP summary.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
+<span><span class="va">which_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wr_none"</span>, <span class="st">"ht_none"</span>, <span class="st">"aipw"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, which_models <span class="op">=</span> <span class="va">which_models</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
 <span><span class="co">#&gt; BLP and RATEs results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated ATE + 95% confidence intervals: </span></span>
 <span><span class="co">#&gt; wr_none :  0.18 [-0.104,  0.457] </span></span>
-<span><span class="co">#&gt; wr_cddf1:  0.08 [-0.168,  0.324] </span></span>
-<span><span class="co">#&gt; wr_cddf2:  0.07 [-0.175,  0.313] </span></span>
-<span><span class="co">#&gt; wr_mck1 :  0.08 [-0.169,  0.330] </span></span>
 <span><span class="co">#&gt; ht_none :  0.18 [-0.104,  0.457] </span></span>
-<span><span class="co">#&gt; ht_cddf1:  0.08 [-0.168,  0.324] </span></span>
-<span><span class="co">#&gt; ht_cddf2:  0.07 [-0.175,  0.313] </span></span>
-<span><span class="co">#&gt; ht_mck1 :  0.07 [-0.171,  0.321] </span></span>
-<span><span class="co">#&gt; ht_mck2 :  0.07 [-0.175,  0.315] </span></span>
-<span><span class="co">#&gt; ht_mck3 :  0.06 [-0.184,  0.310] </span></span>
 <span><span class="co">#&gt; aipw    :  0.04 [-0.212,  0.302] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated HET + 95% confidence intervals: </span></span>
 <span><span class="co">#&gt; wr_none :  0.27 [-4.626,  5.166] </span></span>
-<span><span class="co">#&gt; wr_cddf1:  0.34 [-3.711,  4.392] </span></span>
-<span><span class="co">#&gt; wr_cddf2:  0.73 [-3.295,  4.747] </span></span>
-<span><span class="co">#&gt; wr_mck1 :  0.24 [-3.944,  4.423] </span></span>
 <span><span class="co">#&gt; ht_none :  0.27 [-4.626,  5.166] </span></span>
-<span><span class="co">#&gt; ht_cddf1:  0.34 [-3.711,  4.392] </span></span>
-<span><span class="co">#&gt; ht_cddf2:  0.73 [-3.295,  4.747] </span></span>
-<span><span class="co">#&gt; ht_mck1 :  0.25 [-3.835,  4.333] </span></span>
-<span><span class="co">#&gt; ht_mck2 :  0.54 [-3.496,  4.573] </span></span>
-<span><span class="co">#&gt; ht_mck3 :  0.00 [-4.126,  4.125] </span></span>
 <span><span class="co">#&gt; aipw    :  0.97 [-3.257,  5.203] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; RATEs results + 95% confidence intervals: </span></span>
@@ -499,7 +485,7 @@ both to be true in our example). The estimated RATEs agree with these
 findings.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES summary.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, which_models <span class="op">=</span> <span class="va">which_models</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
 <span><span class="co">#&gt; GATES results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated GATES + 95% confidence intervals: </span></span>
@@ -509,105 +495,29 @@ findings.</p>
 <span><span class="co">#&gt;      Group 3 0.06 [-0.436, 0.565] </span></span>
 <span><span class="co">#&gt;      Group 4 0.26 [-0.359, 0.879] </span></span>
 <span><span class="co">#&gt;      Group 5 0.14 [-0.410, 0.695] </span></span>
-<span><span class="co">#&gt; wr_cddf1: </span></span>
-<span><span class="co">#&gt;     Group 1  0.15 [-0.464, 0.762] </span></span>
-<span><span class="co">#&gt;     Group 2  0.01 [-0.547, 0.572] </span></span>
-<span><span class="co">#&gt;     Group 3  0.06 [-0.428, 0.544] </span></span>
-<span><span class="co">#&gt;     Group 4  0.23 [-0.367, 0.837] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.04 [-0.569, 0.480] </span></span>
-<span><span class="co">#&gt; wr_cddf2: </span></span>
-<span><span class="co">#&gt;      Group 1 0.14 [-0.486, 0.767] </span></span>
-<span><span class="co">#&gt;      Group 2 0.00 [-0.546, 0.547] </span></span>
-<span><span class="co">#&gt;      Group 3 0.04 [-0.453, 0.531] </span></span>
-<span><span class="co">#&gt;      Group 4 0.15 [-0.442, 0.749] </span></span>
-<span><span class="co">#&gt;      Group 5 0.04 [-0.476, 0.551] </span></span>
-<span><span class="co">#&gt; wr_mck1 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.18 [-0.452, 0.815] </span></span>
-<span><span class="co">#&gt;     Group 2  0.01 [-0.576, 0.600] </span></span>
-<span><span class="co">#&gt;     Group 3  0.04 [-0.443, 0.531] </span></span>
-<span><span class="co">#&gt;     Group 4  0.21 [-0.395, 0.813] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.02 [-0.548, 0.514] </span></span>
 <span><span class="co">#&gt; ht_none : </span></span>
 <span><span class="co">#&gt;      Group 1 0.38 [-0.401, 1.165] </span></span>
 <span><span class="co">#&gt;      Group 2 0.09 [-0.699, 0.889] </span></span>
 <span><span class="co">#&gt;      Group 3 0.06 [-0.436, 0.565] </span></span>
 <span><span class="co">#&gt;      Group 4 0.26 [-0.359, 0.879] </span></span>
 <span><span class="co">#&gt;      Group 5 0.14 [-0.410, 0.695] </span></span>
-<span><span class="co">#&gt; ht_cddf1: </span></span>
-<span><span class="co">#&gt;     Group 1  0.15 [-0.464, 0.762] </span></span>
-<span><span class="co">#&gt;     Group 2  0.01 [-0.547, 0.572] </span></span>
-<span><span class="co">#&gt;     Group 3  0.06 [-0.428, 0.544] </span></span>
-<span><span class="co">#&gt;     Group 4  0.23 [-0.367, 0.837] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.04 [-0.569, 0.480] </span></span>
-<span><span class="co">#&gt; ht_cddf2: </span></span>
-<span><span class="co">#&gt;      Group 1 0.14 [-0.486, 0.767] </span></span>
-<span><span class="co">#&gt;      Group 2 0.00 [-0.546, 0.547] </span></span>
-<span><span class="co">#&gt;      Group 3 0.04 [-0.453, 0.531] </span></span>
-<span><span class="co">#&gt;      Group 4 0.15 [-0.442, 0.749] </span></span>
-<span><span class="co">#&gt;      Group 5 0.04 [-0.476, 0.551] </span></span>
-<span><span class="co">#&gt; ht_mck1 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.16 [-0.462, 0.772] </span></span>
-<span><span class="co">#&gt;     Group 2  0.01 [-0.547, 0.574] </span></span>
-<span><span class="co">#&gt;     Group 3  0.05 [-0.434, 0.540] </span></span>
-<span><span class="co">#&gt;     Group 4  0.22 [-0.380, 0.829] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.05 [-0.573, 0.476] </span></span>
-<span><span class="co">#&gt; ht_mck2 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.13 [-0.483, 0.753] </span></span>
-<span><span class="co">#&gt;     Group 2  0.03 [-0.525, 0.582] </span></span>
-<span><span class="co">#&gt;     Group 3  0.02 [-0.472, 0.513] </span></span>
-<span><span class="co">#&gt;     Group 4  0.21 [-0.387, 0.803] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.01 [-0.527, 0.512] </span></span>
-<span><span class="co">#&gt; ht_mck3 : </span></span>
-<span><span class="co">#&gt;     Group 1  0.18 [-0.438, 0.807] </span></span>
-<span><span class="co">#&gt;     Group 2  0.01 [-0.562, 0.580] </span></span>
-<span><span class="co">#&gt;     Group 3  0.02 [-0.469, 0.511] </span></span>
-<span><span class="co">#&gt;     Group 4  0.17 [-0.426, 0.759] </span></span>
-<span><span class="co">#&gt;     Group 5 -0.03 [-0.563, 0.498] </span></span>
 <span><span class="co">#&gt; aipw    : </span></span>
 <span><span class="co">#&gt;     Group 1  0.13 [-0.518, 0.771] </span></span>
 <span><span class="co">#&gt;     Group 2 -0.13 [-0.735, 0.482] </span></span>
 <span><span class="co">#&gt;     Group 3  0.01 [-0.508, 0.525] </span></span>
 <span><span class="co">#&gt;     Group 4  0.15 [-0.458, 0.757] </span></span>
 <span><span class="co">#&gt;     Group 5  0.07 [-0.468, 0.598] </span></span>
-<span><span class="co">#&gt;     Group 5  0.09 [-0.459, 0.639] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Hypotheses testing results (p-values): </span></span>
 <span><span class="co">#&gt; wr_none : </span></span>
 <span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.623</span></span>
-<span><span class="co">#&gt; wr_cddf1: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.637</span></span>
-<span><span class="co">#&gt; wr_cddf2: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.994</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.802</span></span>
-<span><span class="co">#&gt; wr_mck1 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.976</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.639</span></span>
+<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.623</span></span>
 <span><span class="co">#&gt; ht_none : </span></span>
 <span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.623</span></span>
-<span><span class="co">#&gt; ht_cddf1: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.637</span></span>
-<span><span class="co">#&gt; ht_cddf2: </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.994</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.802</span></span>
-<span><span class="co">#&gt; ht_mck1 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.966</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.621</span></span>
-<span><span class="co">#&gt; ht_mck2 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.982</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.728</span></span>
-<span><span class="co">#&gt; ht_mck3 : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.978</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.603</span></span>
+<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.623</span></span>
 <span><span class="co">#&gt; aipw    : </span></span>
 <span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.972</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : 0.886</span></span>
-<span><span class="co">#&gt; imai_li : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.998</span></span>
-<span><span class="co">#&gt;     GATES_5 = GATES_1                 : NA</span></span></code></pre></div>
+<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.886</span></span></code></pre></div>
 <p>All the GATES confidence intervals include the zero, suggesting that
 no group is affected by the treatment (true in our example!). The <span class="math inline">\(p\)</span>-values attached to testing the
 hypotheses that all the GATES are equal and that the most affected and
@@ -618,7 +528,7 @@ digest GATES point estimates and confidence intervals, we can use the
 <code>"GATES"</code>.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES plot.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, which_models <span class="op">=</span> <span class="va">which_models</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evaluCATE-short-tutorial_files/figure-html/gates-plot-1.png" width="480"></p>
 <p>Finally, we can look at the estimated TOC curve by calling the
 <code>plot</code> method setting the <code>target</code> argument to
