@@ -9,15 +9,21 @@
   target = "GATES",
   which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1",
     "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
+  gates_hline = TRUE,
+  toc_smoother = 1,
   ...
 )
 }
 \arguments{
 \item{x}{An \code{evaluCATE} object.}
 
-\item{target}{String controlling which plot to display. Must be either \code{"GATES"} or \code{"TOC"}.}
+\item{target}{String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATEs"}.}
 
 \item{which_models}{Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}. Ignored if \code{target == "TOC"}.}
+
+\item{gates_hline}{Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.}
+
+\item{toc_smoother}{Integer number, controls the amount of smoothing in the TOC plot. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

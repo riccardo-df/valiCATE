@@ -367,7 +367,7 @@ print.evaluCATE <- function(x, target = "BLP",
 #' Plots an \code{evaluCATE} object.
 #'
 #' @param x An \code{evaluCATE} object.
-#' @param target String controlling which plot to display. Must be either \code{"GATES"} or \code{"TOC"}.
+#' @param target String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATEs"}.
 #' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}. Ignored if \code{target == "TOC"}.
 #' @param gates_hline Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.
 #' @param toc_smoother Integer number, controls the amount of smoothing in the TOC plot. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc.
@@ -426,7 +426,7 @@ plot.evaluCATE <- function(x, target = "GATES",
                            which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), 
                            gates_hline = TRUE, toc_smoother = 1, ...) {
   ## Checks.
-  if (!(target %in% c("GATES", "TOC"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
+  if (!(target %in% c("GATES", "TOC", "RATEs"))) stop("Invalid 'target'. This must be one of 'GATES', 'TOC', or 'RATEs'.", call. = FALSE)
   if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
   if (!is.logical(gates_hline)) stop("Invalid 'gates_hline'. This must be either 'TRUE' or 'FALSE'.", call. = FALSE)
   if (!is.numeric(toc_smoother) & toc_smoother < 1 & toc_smoother %% 1 != 0) stop("Invalid 'toc_smoother'. This must be an integer greater than or equal to one.", call. = FALSE)
@@ -489,18 +489,29 @@ plot.evaluCATE <- function(x, target = "GATES",
     if (toc_smoother == 1) {
       plot_dta %>%
         ggplot2::ggplot(ggplot2::aes(x = unit, y = TOC)) +
-        ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
-        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
+        ggplot2::geom_line(color = "tomato", linewidth = 1.5) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
         ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
-        ggplot2::theme_bw() 
+        ggplot2::theme_bw()
     } else {
       plot_dta %>%
         dplyr::slice(which(row_number() %% toc_smoother == 1)) %>%
         ggplot2::ggplot(ggplot2::aes(x = unit, y = TOC)) +
-        ggplot2::geom_line(color = "tomato", linewidth = 1.5) + 
-        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") + 
+        ggplot2::geom_line(color = "tomato", linewidth = 1.5) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
         ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
-        ggplot2::theme_bw() 
+        ggplot2::theme_bw()
     }
+  } else if (target == "RATEs") {
+    plot_dta %>%
+      dplyr::mutate(TOCu = TOC * unit) %>% 
+      reshape2::melt(id.vars = c("unit"), measure.vars = c("TOC", "TOCu")) %>%
+      ggplot2::ggplot(ggplot2::aes(x = unit, y = value, group = variable, colour = variable)) +
+      ggplot2::geom_line(linewidth = 1.5) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+      ggplot2::scale_color_hue(labels = c(expression("TOC"), expression("u" %*% "TOC"))) +
+      ggplot2::xlab("Fraction treated") +ggplot2:: ylab("") +
+      ggplot2::theme_bw() +
+      ggplot2::theme(legend.position = c(0.9, 0.9), legend.title = ggplot2::element_blank(), legend.direction = "vertical", legend.text = element_text(size = 7))
   }
 }
