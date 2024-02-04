@@ -7,8 +7,7 @@
 \method{plot}{evaluCATE}(
   x,
   target = "GATES",
-  which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1",
-    "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
+  which_models = names(x$GATES),
   gates_hline = TRUE,
   toc_smoother = 1,
   ...
@@ -19,7 +18,7 @@
 
 \item{target}{String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATEs"}.}
 
-\item{which_models}{Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}. Ignored if \code{target == "TOC"}.}
+\item{which_models}{Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}. Ignored if \code{target != "GATES"}.}
 
 \item{gates_hline}{Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.}
 

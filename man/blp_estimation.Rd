@@ -4,7 +4,18 @@
 \alias{blp_estimation}
 \title{BLP Estimation}
 \usage{
-blp_estimation(Y, D, cates, pscore, mu, mu0, mu1, scores)
+blp_estimation(
+  Y,
+  D,
+  cates,
+  pscore,
+  mu,
+  mu0,
+  mu1,
+  scores,
+  strategies,
+  denoising
+)
 }
 \arguments{
 \item{Y}{Observed outcomes.}
@@ -22,6 +33,10 @@ blp_estimation(Y, D, cates, pscore, mu, mu0, mu1, scores)
 \item{mu1}{Treated units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}}
 
 \item{scores}{Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the same observations as in \code{Y} and \code{D}.}
+
+\item{strategies}{Character vector controlling the identification strategies to implement for BLP and GATES. Admitted values are \code{"WR"} (weighted residuals), \code{"HT"} (Horwitz-Thompson), and \code{"AIPW"} (augmented inverse-probability weighting).}
+
+\item{denoising}{Character vector controlling if and which additional covariates to include in the regressions to reduce the variance of the estimation. Admitted values are \code{"none"}, \code{"cddf1"}, \code{"cddf2"}, \code{"mck1"}, \code{"mck2"}, and \code{"mck3"}.}
 }
 \value{
 A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.
@@ -40,62 +55,10 @@ and \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoi
 
 Standard errors are estimated using the Eicker-Huber-White estimator.
 }
-\examples{
-\donttest{## Generate data.
-set.seed(1986)
-
-n <- 1000
-k <- 2
-
-X <- matrix(rnorm(n * k), ncol = k)
-colnames(X) <- paste0("x", seq_len(k))
-D <- rbinom(n, size = 1, prob = 0.5)
-mu0 <- 0.5 * X[, 1]
-mu1 <- 0.5 * X[, 1] + X[, 2]
-Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-
-## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-
-X_tr <- X[train_idx, ]
-X_val <- X[!train_idx, ]
-
-D_tr <- D[train_idx]
-D_val <- D[!train_idx]
-
-Y_tr <- Y[train_idx]
-Y_val <- Y[!train_idx]
-
-## CATEs and nuisance functions estimation.
-## We use only the training sample for estimation.
-## We predict on the validation sample.
-library(grf)
-
-cates_forest <- causal_forest(X_tr, Y_tr, D_tr) 
-mu_forest <- regression_forest(X_tr, Y_tr)
-mu0_forest <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
-mu1_forest <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
-
-cates_val <- predict(cates_forest, X_val)$predictions 
-mu_val <- predict(mu_forest, X_val)$predictions
-mu0_val <- predict(mu0_forest, X_val)$predictions
-mu1_val <- predict(mu1_forest, X_val)$predictions
-
-## AIPW scores estimation.
-## Cross-fitting on the validation sample.
-library(aggTrees)
-scores_val <- dr_scores(Y_val, D_val, X_val)
-
-## BLP estimation. 
-pscore_val <- rep(0.5, length(Y_val)) # We know true pscores.
-blp_results <- blp_estimation(Y_val, D_val, cates_val, 
-                              pscore_val, mu_val, mu0_val, mu1_val, 
-                              scores_val)}
-
-}
 \seealso{
 \code{\link{gates_estimation}}, \code{\link{toc_estimation}}, \code{\link{rate_estimation}}
 }
 \author{
 Riccardo Di Francesco
 }
+\keyword{internal}

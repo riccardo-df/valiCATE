@@ -26,52 +26,10 @@ using the training sample, while the doubly-robust scores must be estimated in t
 The TOC is estimated using a sample-averaging estimator. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html}{online vignette} 
 for details.
 }
-\examples{
-\donttest{## Generate data.
-set.seed(1986)
-
-n <- 1000
-k <- 2
-
-X <- matrix(rnorm(n * k), ncol = k)
-colnames(X) <- paste0("x", seq_len(k))
-D <- rbinom(n, size = 1, prob = 0.5)
-mu0 <- 0.5 * X[, 1]
-mu1 <- 0.5 * X[, 1] + X[, 2]
-Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-
-## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-
-X_tr <- X[train_idx, ]
-X_val <- X[!train_idx, ]
-
-D_tr <- D[train_idx]
-D_val <- D[!train_idx]
-
-Y_tr <- Y[train_idx]
-Y_val <- Y[!train_idx]
-
-## CATEs and nuisance functions estimation.
-## We use only the training sample for estimation.
-## We predict on the validation sample.
-library(grf)
-
-cates_forest <- causal_forest(X_tr, Y_tr, D_tr) 
-cates_val <- predict(cates_forest, X_val)$predictions 
-
-## AIPW scores estimation.
-## Cross-fitting on the validation sample.
-library(aggTrees)
-scores_val <- dr_scores(Y_val, D_val, X_val)
-
-## TOC estimation. 
-toc_results <- toc_estimation(cates_val, scores_val)}
-
-}
 \seealso{
 \code{\link{blp_estimation}}, \code{\link{gates_estimation}}, \code{\link{rate_estimation}}
 }
 \author{
 Riccardo Di Francesco
 }
+\keyword{internal}

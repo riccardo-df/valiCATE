@@ -10,61 +10,11 @@
 #' @param mu0 Control units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}
 #' @param mu1 Treated units' conditional mean predictions. Must be produced by a model estimated using different observations than those in \code{Y} and \code{D}
 #' @param scores Estimated doubly-robust scores. Must be estimated via K-fold cross-fitting using the same observations as in \code{Y} and \code{D}. 
-#'
+#' @param strategies Character vector controlling the identification strategies to implement for BLP and GATES. Admitted values are \code{"WR"} (weighted residuals), \code{"HT"} (Horwitz-Thompson), and \code{"AIPW"} (augmented inverse-probability weighting).
+#' @param denoising Character vector controlling if and which additional covariates to include in the regressions to reduce the variance of the estimation. Admitted values are \code{"none"}, \code{"cddf1"}, \code{"cddf2"}, \code{"mck1"}, \code{"mck2"}, and \code{"mck3"}.
+#' 
 #' @return
 #' A list of fitted models as \code{\link[estimatr]{lm_robust}} objects.
-#'
-#' @examples
-#' \donttest{## Generate data.
-#' set.seed(1986)
-#' 
-#' n <- 1000
-#' k <- 2
-#' 
-#' X <- matrix(rnorm(n * k), ncol = k)
-#' colnames(X) <- paste0("x", seq_len(k))
-#' D <- rbinom(n, size = 1, prob = 0.5)
-#' mu0 <- 0.5 * X[, 1]
-#' mu1 <- 0.5 * X[, 1] + X[, 2]
-#' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-#' 
-#' ## Sample split.
-#' train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-#' 
-#' X_tr <- X[train_idx, ]
-#' X_val <- X[!train_idx, ]
-#' 
-#' D_tr <- D[train_idx]
-#' D_val <- D[!train_idx]
-#' 
-#' Y_tr <- Y[train_idx]
-#' Y_val <- Y[!train_idx]
-#' 
-#' ## CATEs and nuisance functions estimation.
-#' ## We use only the training sample for estimation.
-#' ## We predict on the validation sample.
-#' library(grf)
-#' 
-#' cates_forest <- causal_forest(X_tr, Y_tr, D_tr) 
-#' mu_forest <- regression_forest(X_tr, Y_tr)
-#' mu0_forest <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
-#' mu1_forest <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
-#' 
-#' cates_val <- predict(cates_forest, X_val)$predictions 
-#' mu_val <- predict(mu_forest, X_val)$predictions
-#' mu0_val <- predict(mu0_forest, X_val)$predictions
-#' mu1_val <- predict(mu1_forest, X_val)$predictions
-#' 
-#' ## AIPW scores estimation.
-#' ## Cross-fitting on the validation sample.
-#' library(aggTrees)
-#' scores_val <- dr_scores(Y_val, D_val, X_val)
-#' 
-#' ## BLP estimation. 
-#' pscore_val <- rep(0.5, length(Y_val)) # We know true pscores.
-#' blp_results <- blp_estimation(Y_val, D_val, cates_val, 
-#'                               pscore_val, mu_val, mu0_val, mu1_val, 
-#'                               scores_val)}
 #'
 #' @details
 #' To estimate the BLP of the actual CATEs using the estimated CATEs, the user must provide observations on the outcomes and the treatment status of units in 
@@ -83,8 +33,8 @@
 #'
 #' @seealso \code{\link{gates_estimation}}, \code{\link{toc_estimation}}, \code{\link{rate_estimation}}
 #'
-#' @export
-blp_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores) {
+#' @keywords internal
+blp_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, strategies, denoising) {
   ## 1.) Construct covariates 
   wr_weights <- (pscore * (1 - pscore))^(-1)
   D_residual <- D - pscore
@@ -101,39 +51,91 @@ blp_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores) {
   Hmu1_pscore <- H * mu1 * (1 - pscore)
   Hmu0_pscore_mu1_pscore <- Hmu0_pscore + Hmu1_pscore
   
-  ## 2.) Define specifications.
-  wr_none_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates)
-  wr_cddf1_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu0" = mu0)
-  wr_cddf2_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates, "constant" = rep(1, length(Y)), "mu0" = mu0, "pscore" = pscore, "pscore.tauhat" = interaction_pscore_cates)
-  wr_mck1_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu" = mu)
+  ## 2.) Fit linear models. Save them in a list for flexible output.
+  model_list <- list()
+  counter <- 1
   
-  ht_none_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates)
-  ht_cddf1_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0)
-  ht_cddf2_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0, "H.pscore" = Hpscore, "H.pscore.tauhat" = Hinteraction_pscore_cates)
-  ht_mck1_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0, "H.1_pscore.tauhat" = new_mck_covariate)
-  ht_mck2_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "H.mu1.1_pscore" = Hmu1_pscore)
-  ht_mck3_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
+  if (any(strategies == "WR")) {
+    if (any(denoising == "none")) {
+      wr_none_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates)
+      model_list[[counter]] <- estimatr::lm_robust(Y ~ 0 + ., wr_none_dta, weights = wr_weights, se_type = "HC1") 
+      names(model_list)[[counter]] <- "wr_none" 
+      counter <- counter + 1
+    }
+    
+    if (any(denoising == "cddf1")) {
+      wr_cddf1_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu0" = mu0)
+      model_list[[counter]] <- estimatr::lm_robust(Y ~ 0 + ., wr_cddf1_dta, weights = wr_weights, se_type = "HC1") 
+      names(model_list)[[counter]] <- "wr_cddf1"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "cddf2")) {
+      wr_cddf2_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates, "constant" = rep(1, length(Y)), "mu0" = mu0, "pscore" = pscore, "pscore.tauhat" = interaction_pscore_cates)
+      model_list[[counter]] <- estimatr::lm_robust(Y ~ 0 + ., wr_cddf2_dta, weights = wr_weights, se_type = "HC1") 
+      names(model_list)[[counter]] <- "wr_cddf2"  
+      counter <- counter + 1
+    }  
+    
+    if (any(denoising == "mck1")) {
+      wr_mck1_dta <- data.frame("Y" = Y, "beta1" = D_residual, "beta2" = interaction_D_cates, "mu" = mu)
+      model_list[[counter]] <- estimatr::lm_robust(Y ~ 0 + ., wr_mck1_dta, weights = wr_weights, se_type = "HC1") 
+      names(model_list)[[counter]] <- "wr_mck1"  
+      counter <- counter + 1
+    } 
+  }
   
-  aipw_dta <- data.frame("aipw" = scores, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates)
+  if (any(strategies == "HT")) {
+    if (any(denoising == "none")) {
+      ht_none_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates)
+      model_list[[counter]] <- estimatr::lm_robust(HY ~ 0 + ., ht_none_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "ht_none"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "cddf1")) {
+      ht_cddf1_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0)
+      model_list[[counter]] <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf1_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "ht_cddf1"  
+      counter <- counter + 1
+    }
+    
+    if (any(denoising == "cddf2")) {
+      ht_cddf2_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0, "H.pscore" = Hpscore, "H.pscore.tauhat" = Hinteraction_pscore_cates)
+      model_list[[counter]] <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf2_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "ht_cddf2"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "mck1")) {
+      ht_mck1_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.mu0" = Hmu0, "H.1_pscore.tauhat" = new_mck_covariate)
+      model_list[[counter]] <- estimatr::lm_robust(HY ~ 0 + ., ht_mck1_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "ht_mck1"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "mck2")) {
+      ht_mck2_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "H.mu1.1_pscore" = Hmu1_pscore)
+      model_list[[counter]] <- estimatr::lm_robust(HY ~ 0 + ., ht_mck2_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "ht_mck2"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "mck3")) {
+      ht_mck3_dta <- data.frame("HY" = HY, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
+      model_list[[counter]] <- estimatr::lm_robust(HY ~ 0 + ., ht_mck3_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "ht_mck3"  
+      counter <- counter + 1
+    } 
+  }
   
-  ## 3.) Fit linear models.
-  wr_none_model <- estimatr::lm_robust(Y ~ 0 + ., wr_none_dta, weights = wr_weights, se_type = "HC1") 
-  wr_cddf1_model <- estimatr::lm_robust(Y ~ 0 + ., wr_cddf1_dta, weights = wr_weights, se_type = "HC1") 
-  wr_cddf2_model <- estimatr::lm_robust(Y ~ 0 + ., wr_cddf2_dta, weights = wr_weights, se_type = "HC1") 
-  wr_mck1_model <- estimatr::lm_robust(Y ~ 0 + ., wr_mck1_dta, weights = wr_weights, se_type = "HC1") 
-  
-  ht_none_model <- estimatr::lm_robust(HY ~ 0 + ., ht_none_dta, se_type = "HC1") 
-  ht_cddf1_model <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf1_dta, se_type = "HC1") 
-  ht_cddf2_model <- estimatr::lm_robust(HY ~ 0 + ., ht_cddf2_dta, se_type = "HC1") 
-  ht_mck1_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck1_dta, se_type = "HC1") 
-  ht_mck2_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck2_dta, se_type = "HC1") 
-  ht_mck3_model <- estimatr::lm_robust(HY ~ 0 + ., ht_mck3_dta, se_type = "HC1") 
-  
-  aipw_model <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
-  
-  ## 4.) Output.
-  out <- list("wr_none" = wr_none_model, "wr_cddf1" = wr_cddf1_model, "wr_cddf2" = wr_cddf2_model, "wr_mck1" = wr_mck1_model, 
-              "ht_none" = ht_none_model, "ht_cddf1" = ht_cddf1_model, "ht_cddf2" = ht_cddf2_model, "ht_mck1" = ht_mck1_model, "ht_mck2" = ht_mck2_model, "ht_mck3" = ht_mck3_model,
-              "aipw" = aipw_model)
-  return(out)
+  if (any(strategies == "AIPW")) {
+    aipw_dta <- data.frame("aipw" = scores, "beta1" = rep(1, length(Y)), "beta2" = demeaned_cates)
+    model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
+    names(model_list)[[counter]] <- "aipw"  
+    counter <- counter + 1
+  } 
+
+  ## 3.) Output.
+  return(model_list)
 }

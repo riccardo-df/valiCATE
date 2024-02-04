@@ -4,20 +4,21 @@
 #' CATEs, the sorted group average treatment effects (GATES), and the rank-weighted average treatment effect (RATE) induced by
 #' the estimated CATEs.
 #'
-#' @param Y_tr Observed outcomes from the training sample.
-#' @param Y_val Observed outcomes from the validation sample.
+#' @param Y_tr Observed outcomes for the training sample.
+#' @param Y_val Observed outcomes for the validation sample.
 #' @param D_tr Treatment indicator for the training sample.
 #' @param D_val Treatment indicator for the validation sample.
 #' @param X_tr Covariate matrix for the training sample (no intercept).
 #' @param X_val Covariate matrix for the validation sample (no intercept).
 #' @param cates_val CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.
-#' @param strategies Character vector with the names of the strategies to implement. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.
-#' @param pscore_val Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values). 
+#' @param strategies Character vector controlling the identification strategies to implement for BLP and GATES. Admitted values are \code{"WR"} (weighted residuals), \code{"HT"} (Horwitz-Thompson), and \code{"AIPW"} (augmented inverse-probability weighting).
+#' @param denoising Character vector controlling if and which additional covariates to include in the regressions to reduce the variance of the estimation. Admitted values are \code{"none"}, \code{"cddf1"}, \code{"cddf2"}, \code{"mck1"}, \code{"mck2"}, and \code{"mck3"}.
+#' @param pscore_val Propensity score predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values). 
 #' @param mu_val Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
 #' @param mu0_val Control units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
 #' @param mu1_val Treated units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.
 #' @param n_groups Number of groups to be formed for the GATES analysis.
-#' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates}.
+#' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates_val} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates_val}.
 #' @param n_boot Number of bootstrap replications to estimate the standard error of the RATE estimates.
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
@@ -56,9 +57,14 @@
 #' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
 #' cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
 #' 
-#' ## CATEs evaluation. Estimate all nuisances internally. 
+#' ## CATEs evaluation. Estimate all nuisances internally. Do not use denoising.
+#' strategies <- c("WR", "HT", "AIPW")
+#' denoising <- "none"
+#' 
 #' pscore_val <- rep(0.5, length(Y_val))
-#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
+#' 
+#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
+#'                         strategies = strategies, denoising = denoising, pscore_val = pscore_val)
 #' 
 #' ## Generic S3 methods.
 #' summary(evaluation, target = "BLP")
@@ -98,13 +104,16 @@
 #' Two different RATEs are estimated: AUTOC and QINI coefficient. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap. 
 #'
 #' @import grf
+#' @importFrom stats predict
+#' @importFrom stats var
 #'
 #' @author Riccardo Di Francesco
 #'
 #' @seealso Other functions
 #'
 #' @export
-evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
+evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
+                      strategies = c("WR", "HT", "AIPW"), denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
                       pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
                       n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
   ## 0.) Handling inputs and checks.
@@ -114,49 +123,62 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategi
   if (any(!(D_val %in% c(0, 1)))) stop("Invalid 'D_val'. Only binary treatments are allowed.", call. = FALSE)
   if (!is.matrix(X_tr) & !is.data.frame(X_tr)) stop("Invalid 'X_tr'. This must be either a matrix or a data frame.", call. = FALSE)
   if (!is.matrix(X_val) & !is.data.frame(X_val)) stop("Invalid 'X_val'. This must be either a matrix or a data frame.", call. = FALSE)
-  if (var(cates_val) == 0) stop("No variation in 'cates_val'.", call. = FALSE)
-  if (any(!(strategies %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
+  if (stats::var(cates_val) == 0) stop("No variation in 'cates_val'.", call. = FALSE)
+  if (any(!(strategies %in% c("WR", "HT", "AIPW")))) stop("Invalid 'strategies'. Must be one of 'none', 'cddf1', 'cddf2', 'mck1', 'mck2', or 'mck3'.", call. = FALSE)
+  if (any(!(denoising %in% c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3")))) stop("Invalid 'strategies'. Must be one of 'WR', 'HT', or 'AIPW'.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
   if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
   if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)
   if (!is.logical((verbose))) stop("Invalid 'verbose'. This must be either TRUE or FALSE.", call. = FALSE)
   
-  ## 1.) If necessary, estimate nuisance functions using the training sample. Then, estimate AIPW scores in validation sample via cross-fitting. ## CODE ESTIMATION OF REQUIRED NUISANCES!
-  if (verbose) cat("Estimating nuisance functions and AIPW scores; \n")
+  ## 1.) Estimate necessary nuisance functions using the training sample. Propensity score always required.
+  if (verbose) cat("Estimating nuisance functions; \n")
   
   if (is.null(pscore_val)) {
     pscore_forest <- grf::regression_forest(X_tr, D_tr)
     pscore_val <- stats::predict(pscore_forest, X_val)$predictions
   }
   
-  if (is.null(mu_val)) {
-    mu_forest <- grf::regression_forest(X_tr, Y_tr)
-    mu_val <- stats::predict(mu_forest, X_val)$predictions
+  if (any(denoising %in% c("cddf1", "cddf2", "mck2", "mck3"))) {
+    if (is.null(mu0_val)) {
+      mu0_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 0, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 0])
+      mu0_val <- stats::predict(mu0_forest, X_val)$predictions
+    }
+  } 
+  
+  if (any(denoising %in% c("mck2", "mck3"))) {
+    if (is.null(mu1_val)) {
+      mu1_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 1, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 1])
+      mu1_val <- stats::predict(mu1_forest, X_val)$predictions
+    }
+  } 
+  
+  if (any(denoising == "mck1")) {
+    if (is.null(mu_val)) {
+      mu_forest <- grf::regression_forest(X_tr, Y_tr)
+      mu_val <- stats::predict(mu_forest, X_val)$predictions
+    }
   }
   
-  if (is.null(mu0_val)) {
-    mu0_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 0, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 0])
-    mu0_val <- stats::predict(mu0_forest, X_val)$predictions
+  ## 2.) Estimate AIPW scores in validation sample via cross-fitting if necessary. 
+  if (any(strategies == "AIPW")) {
+    if (verbose) cat("Estimating AIPW scores; \n")
+    scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
+  } else {
+    scores_val <- NULL
   }
-  
-  if (is.null(mu1_val)) {
-    mu1_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 1, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 1])
-    mu1_val <- stats::predict(mu1_forest, X_val)$predictions
-  }
-  
-  scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
   
   ## 3.) Estimate BLP, GATES, and RATE in validation sample.
   if (verbose) cat("BLP estimation; \n")
-  blp_results <- blp_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val)
+  blp_results <- blp_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val, strategies, denoising)
   
   if (verbose) cat("GATES estimation; \n")
-  gates_results <- gates_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val, n_groups)
+  gates_results <- gates_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val, n_groups, strategies, denoising)
   
   if (verbose) cat("RATE estimation; \n")
   rate_results <- rate_estimation(cates_val, scores_val, beneficial, n_boot)
   
-  ## Output.
+  ## 4.) Output.
   if (verbose) cat("Output. \n\n")
   out <- list("BLP" = blp_results, "GATES" = gates_results, "RATE" = rate_results)
   class(out) <- "evaluCATE"

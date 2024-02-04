@@ -12,8 +12,8 @@ evaluCATE(
   X_tr,
   X_val,
   cates_val,
-  strategies = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1",
-    "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
+  strategies = c("WR", "HT", "AIPW"),
+  denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
   pscore_val = NULL,
   mu_val = NULL,
   mu0_val = NULL,
@@ -25,9 +25,9 @@ evaluCATE(
 )
 }
 \arguments{
-\item{Y_tr}{Observed outcomes from the training sample.}
+\item{Y_tr}{Observed outcomes for the training sample.}
 
-\item{Y_val}{Observed outcomes from the validation sample.}
+\item{Y_val}{Observed outcomes for the validation sample.}
 
 \item{D_tr}{Treatment indicator for the training sample.}
 
@@ -39,9 +39,11 @@ evaluCATE(
 
 \item{cates_val}{CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
 
-\item{strategies}{Character vector with the names of the strategies to implement. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.}
+\item{strategies}{Character vector controlling the identification strategies to implement for BLP and GATES. Admitted values are \code{"WR"} (weighted residuals), \code{"HT"} (Horwitz-Thompson), and \code{"AIPW"} (augmented inverse-probability weighting).}
 
-\item{pscore_val}{Propensity scores predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).}
+\item{denoising}{Character vector controlling if and which additional covariates to include in the regressions to reduce the variance of the estimation. Admitted values are \code{"none"}, \code{"cddf1"}, \code{"cddf2"}, \code{"mck1"}, \code{"mck2"}, and \code{"mck3"}.}
+
+\item{pscore_val}{Propensity score predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).}
 
 \item{mu_val}{Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
 
@@ -51,7 +53,7 @@ evaluCATE(
 
 \item{n_groups}{Number of groups to be formed for the GATES analysis.}
 
-\item{beneficial}{Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates}.}
+\item{beneficial}{Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates_val} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates_val}.}
 
 \item{n_boot}{Number of bootstrap replications to estimate the standard error of the RATE estimates.}
 
@@ -123,9 +125,14 @@ library(grf)
 forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
 cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
 
-## CATEs evaluation. Estimate all nuisances internally. 
+## CATEs evaluation. Estimate all nuisances internally. Do not use denoising.
+strategies <- c("WR", "HT", "AIPW")
+denoising <- "none"
+
 pscore_val <- rep(0.5, length(Y_val))
-evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
+
+evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
+                        strategies = strategies, denoising = denoising, pscore_val = pscore_val)
 
 ## Generic S3 methods.
 summary(evaluation, target = "BLP")

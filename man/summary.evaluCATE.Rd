@@ -8,8 +8,7 @@
   object,
   target = "BLP",
   latex = FALSE,
-  which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1",
-    "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"),
+  which_models = names(object$target),
   ...
 )
 }
@@ -20,7 +19,7 @@
 
 \item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
 
-\item{which_models}{Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.}
+\item{which_models}{Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

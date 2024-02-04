@@ -5,7 +5,7 @@
 #' @param object An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
-#' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.
+#' @param which_models Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
@@ -65,10 +65,10 @@
 #' 
 #' @export
 summary.evaluCATE <- function(object, target = "BLP", 
-                              latex = FALSE, which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), ...) {
+                              latex = FALSE, which_models = names(object$target), ...) {
   if (!(target %in% c("BLP", "GATES"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
   if (!is.logical(latex)) stop("Invalid 'latex'. This must be either TRUE or FALSE.", call. = FALSE)
-  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
+  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw", "imai_li")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
   if (target == "BLP" & sum(!(which_models %in% names(object$BLP))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
   if (target == "GATES" & sum(!(which_models %in% names(object$GATES))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
   
@@ -301,7 +301,7 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' @param x An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
-#' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}.
+#' @param which_models Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
@@ -357,7 +357,7 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' 
 #' @export
 print.evaluCATE <- function(x, target = "BLP", 
-                            latex = FALSE, which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), ...) {
+                            latex = FALSE, which_models = names(x$target), ...) {
   summary.evaluCATE(x, target, latex, which_models, ...)
 }
 
@@ -368,7 +368,7 @@ print.evaluCATE <- function(x, target = "BLP",
 #'
 #' @param x An \code{evaluCATE} object.
 #' @param target String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATEs"}.
-#' @param which_models Character vector with the names of the models to report. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}. Ignored if \code{target == "TOC"}.
+#' @param which_models Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}. Ignored if \code{target != "GATES"}.
 #' @param gates_hline Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.
 #' @param toc_smoother Integer number, controls the amount of smoothing in the TOC plot. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc.
 #' @param ... Further arguments passed to or from other methods.
@@ -422,12 +422,11 @@ print.evaluCATE <- function(x, target = "BLP",
 #' @author Riccardo Di Francesco
 #'
 #' @export
-plot.evaluCATE <- function(x, target = "GATES", 
-                           which_models = c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw"), 
+plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES), 
                            gates_hline = TRUE, toc_smoother = 1, ...) {
   ## Checks.
   if (!(target %in% c("GATES", "TOC", "RATEs"))) stop("Invalid 'target'. This must be one of 'GATES', 'TOC', or 'RATEs'.", call. = FALSE)
-  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
+  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw", "imai_li")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
   if (!is.logical(gates_hline)) stop("Invalid 'gates_hline'. This must be either 'TRUE' or 'FALSE'.", call. = FALSE)
   if (!is.numeric(toc_smoother) & toc_smoother < 1 & toc_smoother %% 1 != 0) stop("Invalid 'toc_smoother'. This must be an integer greater than or equal to one.", call. = FALSE)
   
@@ -437,6 +436,8 @@ plot.evaluCATE <- function(x, target = "GATES",
   se <- NULL
   strategy <- NULL
   denoise <- NULL
+  value <- NULL
+  variable <- NULL
   
   u <- NULL
   TOC <- NULL
