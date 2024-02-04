@@ -425,6 +425,11 @@ on the validation sample <span class="math inline">\(\hat{\tau} ( X_i
 )\)</span> by using the <code>cates_val</code> argument. Be careful, as
 these predictions must be produced by a model estimated using only the
 training sample.</p>
+<p>The next two arguments allow us to choose our identification and
+estimation strategies for BLP and GATES (RATEs always estimated using
+the same estimator). Here we use all three strategies and do not add any
+denoising covariate. (note als GATES automatically implement
+nonparametric estimator).</p>
 <p>We also have four optional arguments that we can use to supply
 predictins on the validation sample of the nuisance functions <span class="math inline">\(p ( \cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span>. Again, these predictions
 must be produced by models estimated using only the training sample. If
@@ -448,8 +453,12 @@ be beneficial, and we prevent the function from printing the
 progresses.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Call main function.</span></span>
+<span><span class="va">strategies</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"WR"</span>, <span class="st">"HT"</span>, <span class="st">"AIPW"</span><span class="op">)</span></span>
+<span><span class="va">denoising</span> <span class="op">&lt;-</span> <span class="st">"none"</span></span>
+<span></span>
 <span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
-<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, strategies <span class="op">=</span> <span class="va">strategies</span>, denoising <span class="op">=</span> <span class="va">denoising</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Let us have a look at the results. The <code>summary</code> method
 allows us to visualize the results of the BLP and RATE estimation if the
 <code>target</code> argument is set to <code>BLP</code> or the results
@@ -465,18 +474,18 @@ results to display (useful to avoid a lengthy output).</p>
 <span><span class="co">#&gt; BLP and RATEs results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated ATE + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; wr_none :  0.18 [-0.104,  0.457] </span></span>
-<span><span class="co">#&gt; ht_none :  0.18 [-0.104,  0.457] </span></span>
-<span><span class="co">#&gt; aipw    :  0.04 [-0.212,  0.302] </span></span>
+<span><span class="co">#&gt; wr_none:  0.18 [-0.104,  0.457] </span></span>
+<span><span class="co">#&gt; ht_none:  0.18 [-0.104,  0.457] </span></span>
+<span><span class="co">#&gt; aipw   :  0.05 [-0.215,  0.313] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated HET + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; wr_none :  0.27 [-4.626,  5.166] </span></span>
-<span><span class="co">#&gt; ht_none :  0.27 [-4.626,  5.166] </span></span>
-<span><span class="co">#&gt; aipw    :  0.97 [-3.257,  5.203] </span></span>
+<span><span class="co">#&gt; wr_none:  0.27 [-4.626,  5.166] </span></span>
+<span><span class="co">#&gt; ht_none:  0.27 [-4.626,  5.166] </span></span>
+<span><span class="co">#&gt; aipw   :  0.68 [-3.657,  5.025] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; RATEs results + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; AUTOC:  0.13 [-0.118,  0.387] </span></span>
-<span><span class="co">#&gt; QINI:   0.02 [-0.059,  0.098]</span></span></code></pre></div>
+<span><span class="co">#&gt; AUTOC:  0.11 [-0.135,  0.356] </span></span>
+<span><span class="co">#&gt; QINI:   0.01 [-0.065,  0.089]</span></span></code></pre></div>
 <p>The estimated ATEs range between <span class="math inline">\(0.05\)</span> and <span class="math inline">\(0.18\)</span>, with all confidence intervals
 covering the true value computed as <code>mean(mu1 - mu0)</code>.
 Additionally, we always fail to reject the hypothesis <span class="math inline">\(\beta_2 = 0\)</span>, implying that either the
@@ -489,35 +498,35 @@ findings.</p>
 <span><span class="co">#&gt; GATES results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated GATES + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; wr_none : </span></span>
+<span><span class="co">#&gt; wr_none: </span></span>
 <span><span class="co">#&gt;      Group 1 0.38 [-0.401, 1.165] </span></span>
 <span><span class="co">#&gt;      Group 2 0.09 [-0.699, 0.889] </span></span>
 <span><span class="co">#&gt;      Group 3 0.06 [-0.436, 0.565] </span></span>
 <span><span class="co">#&gt;      Group 4 0.26 [-0.359, 0.879] </span></span>
 <span><span class="co">#&gt;      Group 5 0.14 [-0.410, 0.695] </span></span>
-<span><span class="co">#&gt; ht_none : </span></span>
+<span><span class="co">#&gt; ht_none: </span></span>
 <span><span class="co">#&gt;      Group 1 0.38 [-0.401, 1.165] </span></span>
 <span><span class="co">#&gt;      Group 2 0.09 [-0.699, 0.889] </span></span>
 <span><span class="co">#&gt;      Group 3 0.06 [-0.436, 0.565] </span></span>
 <span><span class="co">#&gt;      Group 4 0.26 [-0.359, 0.879] </span></span>
 <span><span class="co">#&gt;      Group 5 0.14 [-0.410, 0.695] </span></span>
-<span><span class="co">#&gt; aipw    : </span></span>
-<span><span class="co">#&gt;     Group 1  0.13 [-0.518, 0.771] </span></span>
-<span><span class="co">#&gt;     Group 2 -0.13 [-0.735, 0.482] </span></span>
-<span><span class="co">#&gt;     Group 3  0.01 [-0.508, 0.525] </span></span>
-<span><span class="co">#&gt;     Group 4  0.15 [-0.458, 0.757] </span></span>
-<span><span class="co">#&gt;     Group 5  0.07 [-0.468, 0.598] </span></span>
+<span><span class="co">#&gt; aipw   : </span></span>
+<span><span class="co">#&gt;     Group 1  0.12 [-0.533, 0.777] </span></span>
+<span><span class="co">#&gt;     Group 2 -0.03 [-0.635, 0.582] </span></span>
+<span><span class="co">#&gt;     Group 3  0.01 [-0.529, 0.554] </span></span>
+<span><span class="co">#&gt;     Group 4  0.11 [-0.490, 0.716] </span></span>
+<span><span class="co">#&gt;     Group 5  0.04 [-0.528, 0.602] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Hypotheses testing results (p-values): </span></span>
-<span><span class="co">#&gt; wr_none : </span></span>
+<span><span class="co">#&gt; wr_none: </span></span>
 <span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
 <span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.623</span></span>
-<span><span class="co">#&gt; ht_none : </span></span>
+<span><span class="co">#&gt; ht_none: </span></span>
 <span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.965</span></span>
 <span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.623</span></span>
-<span><span class="co">#&gt; aipw    : </span></span>
-<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.972</span></span>
-<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.886</span></span></code></pre></div>
+<span><span class="co">#&gt; aipw   : </span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.997</span></span>
+<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.847</span></span></code></pre></div>
 <p>All the GATES confidence intervals include the zero, suggesting that
 no group is affected by the treatment (true in our example!). The <span class="math inline">\(p\)</span>-values attached to testing the
 hypotheses that all the GATES are equal and that the most affected and
