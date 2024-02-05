@@ -10,7 +10,7 @@
 #' @param D_val Treatment indicator for the validation sample.
 #' @param X_tr Covariate matrix for the training sample (no intercept).
 #' @param X_val Covariate matrix for the validation sample (no intercept).
-#' @param cates_val CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.
+#' @param cates_val Named list storing CATE predictions on the validation sample produced by different models. Models must be estimated using only the training sample.
 #' @param strategies Character vector controlling the identification and estimation strategies to implement for BLP and GATES. Admitted values are \code{"WR"}, \code{"HT"}, and \code{"AIPW"}.
 #' @param denoising Character vector controlling if and which additional covariates to include in the regressions for BLP and GATES to reduce the variance of the estimation. Admitted values are \code{"none"}, \code{"cddf1"}, \code{"cddf2"}, \code{"mck1"}, \code{"mck2"}, and \code{"mck3"}.
 #' @param pscore_val Propensity score predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).
@@ -51,18 +51,36 @@
 #' Y_tr <- Y[train_idx]
 #' Y_val <- Y[!train_idx]
 #' 
-#' ## CATEs estimation.
+#' ## CATEs estimation. Models are estimated with training sample.
+#' # Random noise.
+#' cates_val_noise <- rnorm(length(Y_val))
+#' 
+#' # T-learner.
 #' library(grf)
 #' 
-#' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-#' cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
+#' forest_treated <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
+#' forest_control <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
+#' cates_val_t <- predict(forest_treated, X_val)$predictions - 
+#'                predict(forest_control, X_val)$predictions 
 #' 
-#' ## CATEs evaluation. Estimate all nuisances internally. Do not use denoising.
-#' strategies <- c("WR", "HT", "AIPW")
+#' # Grf.
+#' forest_grf <- causal_forest(X_tr, Y_tr, D_tr) 
+#' cates_val_grf <- predict(forest_grf, X_val)$predictions 
+#' 
+#' ## CATEs evaluation. 
+#' # Use all strategies with no denoising.
+#' strategies <- c("WR", "HT")
 #' denoising <- "none"
 #' 
+#' # We know true pscore.
 #' pscore_val <- rep(0.5, length(Y_val))
 #' 
+#' # Construct CATEs list.
+#' cates_val <- list("noise" = cates_val_noise,
+#'                    "T-learner" = cates_val_t,
+#'                   "grf" = cates_val_grf)
+#' 
+#' # Call main function.
 #' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
 #'                         strategies = strategies, denoising = denoising, 
 #'                         pscore_val = pscore_val)
@@ -84,7 +102,8 @@
 #' @md
 #' @details
 #' The user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately
-#' using the first six arguments. The user must also provide CATE predictions on the validation sample obtained from a model estimated using only the training sample.\cr
+#' using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
+#' Be careful, models must be estimated using only the training sample to achieve valid inference.\cr
 #' 
 #' The \code{\link{evaluCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
 #' Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the \code{strategies} argument. This has no impact on RATEs estimation. GATES are also 
@@ -133,7 +152,7 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
   if (any(!(D_val %in% c(0, 1)))) stop("Invalid 'D_val'. Only binary treatments are allowed.", call. = FALSE)
   if (!is.matrix(X_tr) & !is.data.frame(X_tr)) stop("Invalid 'X_tr'. This must be either a matrix or a data frame.", call. = FALSE)
   if (!is.matrix(X_val) & !is.data.frame(X_val)) stop("Invalid 'X_val'. This must be either a matrix or a data frame.", call. = FALSE)
-  if (stats::var(cates_val) == 0) stop("No variation in 'cates_val'.", call. = FALSE)
+  if (any(sapply(cates_val, stats::var) == 0)) stop("No variation in at least one element of 'cates_val'.", call. = FALSE)
   if (any(!(strategies %in% c("WR", "HT", "AIPW")))) stop("Invalid 'strategies'. Must be one of 'none', 'cddf1', 'cddf2', 'mck1', 'mck2', or 'mck3'.", call. = FALSE)
   if (any(!(denoising %in% c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3")))) stop("Invalid 'strategies'. Must be one of 'WR', 'HT', or 'AIPW'.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
@@ -143,6 +162,8 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
   
   ## 1.) Estimate necessary nuisance functions using the training sample. Propensity score always required.
   if (verbose) cat("Estimating nuisance functions; \n")
+  
+  scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
   
   if (is.null(pscore_val)) {
     pscore_forest <- grf::regression_forest(X_tr, D_tr)
@@ -170,24 +191,16 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
     }
   }
   
-  ## 2.) Estimate AIPW scores in validation sample via cross-fitting if necessary. 
-  if (any(strategies == "AIPW")) {
-    if (verbose) cat("Estimating AIPW scores; \n")
-    scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
-  } else {
-    scores_val <- NULL
-  }
-  
   ## 3.) Estimate BLP, GATES, and RATE in validation sample.
   if (verbose) cat("BLP estimation; \n")
-  blp_results <- blp_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val, strategies, denoising)
-  
+  blp_results <- lapply(cates_val, function(x) { blp_estimation(Y_val, D_val, x, pscore_val, mu_val, mu0_val, mu1_val, scores_val, strategies, denoising) })
+    
   if (verbose) cat("GATES estimation; \n")
-  gates_results <- gates_estimation(Y_val, D_val, cates_val, pscore_val, mu_val, mu0_val, mu1_val, scores_val, n_groups, strategies, denoising)
-  
+  gates_results <- lapply(cates_val, function(x) { gates_estimation(Y_val, D_val, x, pscore_val, mu_val, mu0_val, mu1_val, scores_val, n_groups, strategies, denoising) })
+    
   if (verbose) cat("RATE estimation; \n")
-  rate_results <- rate_estimation(cates_val, scores_val, beneficial, n_boot)
-  
+  rate_results <- lapply(cates_val, function(x) { rate_estimation(x, scores_val, beneficial, n_boot) }) 
+    
   ## 4.) Output.
   if (verbose) cat("Output. \n\n")
   out <- list("BLP" = blp_results, "GATES" = gates_results, "RATE" = rate_results)

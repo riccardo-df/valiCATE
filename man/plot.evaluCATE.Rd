@@ -7,7 +7,7 @@
 \method{plot}{evaluCATE}(
   x,
   target = "GATES",
-  which_models = names(x$GATES),
+  which_models = names(x$GATES[[1]]),
   gates_hline = TRUE,
   toc_smoother = 1,
   ...
@@ -18,7 +18,7 @@
 
 \item{target}{String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATE"}.}
 
-\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(x$GATES)}. Ignored if \code{target != "GATES"}.}
+\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(x$GATES[[1]])}. Ignored if \code{target != "GATES"}.}
 
 \item{gates_hline}{Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.}
 

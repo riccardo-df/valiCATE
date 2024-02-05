@@ -37,7 +37,7 @@ evaluCATE(
 
 \item{X_val}{Covariate matrix for the validation sample (no intercept).}
 
-\item{cates_val}{CATE predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
+\item{cates_val}{Named list storing CATE predictions on the validation sample produced by different models. Models must be estimated using only the training sample.}
 
 \item{strategies}{Character vector controlling the identification and estimation strategies to implement for BLP and GATES. Admitted values are \code{"WR"}, \code{"HT"}, and \code{"AIPW"}.}
 
@@ -69,7 +69,8 @@ the estimated CATEs.
 }
 \details{
 The user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately
-using the first six arguments. The user must also provide CATE predictions on the validation sample obtained from a model estimated using only the training sample.\cr
+using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
+Be careful, models must be estimated using only the training sample to achieve valid inference.\cr
 
 The \code{\link{evaluCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
 Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the \code{strategies} argument. This has no impact on RATEs estimation. GATES are also
@@ -126,18 +127,36 @@ D_val <- D[!train_idx]
 Y_tr <- Y[train_idx]
 Y_val <- Y[!train_idx]
 
-## CATEs estimation.
+## CATEs estimation. Models are estimated with training sample.
+# Random noise.
+cates_val_noise <- rnorm(length(Y_val))
+
+# T-learner.
 library(grf)
 
-forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
+forest_treated <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
+forest_control <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
+cates_val_t <- predict(forest_treated, X_val)$predictions - 
+               predict(forest_control, X_val)$predictions 
 
-## CATEs evaluation. Estimate all nuisances internally. Do not use denoising.
-strategies <- c("WR", "HT", "AIPW")
+# Grf.
+forest_grf <- causal_forest(X_tr, Y_tr, D_tr) 
+cates_val_grf <- predict(forest_grf, X_val)$predictions 
+
+## CATEs evaluation. 
+# Use all strategies with no denoising.
+strategies <- c("WR", "HT")
 denoising <- "none"
 
+# We know true pscore.
 pscore_val <- rep(0.5, length(Y_val))
 
+# Construct CATEs list.
+cates_val <- list("noise" = cates_val_noise,
+                   "T-learner" = cates_val_t,
+                  "grf" = cates_val_grf)
+
+# Call main function.
 evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
                         strategies = strategies, denoising = denoising, 
                         pscore_val = pscore_val)

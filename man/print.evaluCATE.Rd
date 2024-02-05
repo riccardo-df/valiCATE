@@ -24,7 +24,7 @@ Prints an \code{\link{evaluCATE}} object.
 Prints an \code{\link{evaluCATE}} object.
 }
 \details{
-Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
+Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}, \code{multirow}.
 }
 \author{
 Riccardo Di Francesco

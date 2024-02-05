@@ -8,7 +8,7 @@
   object,
   target = "BLP",
   latex = FALSE,
-  which_models = names(object$GATES),
+  which_models = names(object$GATES[[1]]),
   ...
 )
 }
@@ -19,7 +19,7 @@
 
 \item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
 
-\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES)}. Ignored if \code{target == "RATE"}.}
+\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES[[1]])}. Ignored if \code{target == "RATE"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -30,7 +30,7 @@ Summarizes an \code{\link{evaluCATE}} object.
 Summarizes an \code{\link{evaluCATE}} object.
 }
 \details{
-Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
+Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}, \code{multirow}.
 }
 \seealso{
 \code{\link{evaluCATE}}

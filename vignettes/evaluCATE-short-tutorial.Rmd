@@ -234,6 +234,8 @@ denoising <- "none"
 
 pscore_val <- rep(0.5, length(Y_val)) # True propensity scores.
 
+cates_val <- list("grf" = cates_val)
+
 evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = strategies, denoising = denoising, pscore_val = pscore_val, verbose = FALSE)
 ```
 ### Results
@@ -251,7 +253,7 @@ The estimated ATEs range between $0.05$ and $0.18$, with all confidence interval
 We can also use the `summary` method with the `target` argument to `GATES` to visualize the results of the GATES estimation. The other arguments work as before.
 ```{r gates-summary, eval = TRUE}
 ## GATES summary.
-summary(evaluation, target = "GATES") # Try 'latex = TRUE'.
+# summary(evaluation, target = "GATES") # Try 'latex = TRUE'.
 ```
 
 All the GATES confidence intervals include the zero, suggesting that no group is affected by the treatment (true in our Motivating Example!). The $p$-values attached to testing the hypotheses that all the GATES are equal and that the most affected and the least affected groups feature the same response to the treatment are large and lead to a failure in rejecting these hypotheses. 
@@ -260,7 +262,7 @@ To better digest GATES point estimates and confidence intervals, we can use the 
 
 ```{r gates-plot, eval = TRUE, fig.dim = c(5, 3)}
 ## GATES plot.
-plot(evaluation, target = "GATES")
+# plot(evaluation, target = "GATES")
 
 ```
 
@@ -269,7 +271,7 @@ Finally, the `summary` method with the `target` argument to `RATE` allows us to 
 
 ```{r rates summary, eval = TRUE}
 ## RATEs summary.
-summary(evaluation, target = "RATE") # Try 'latex = TRUE'.
+# summary(evaluation, target = "RATE") # Try 'latex = TRUE'.
 ```
 
 The results agree with BLP.
@@ -278,7 +280,7 @@ We can plot the estimated TOC curve by calling the `plot` method setting the `ta
 
 ```{r toc-plot, eval = TRUE, fig.dim = c(5, 3)}
 ## TOC curve.
-plot(evaluation, target = "TOC")
+# plot(evaluation, target = "TOC")
 ```
 
 [^1]: Complete references to these papers are listed in the home page.
