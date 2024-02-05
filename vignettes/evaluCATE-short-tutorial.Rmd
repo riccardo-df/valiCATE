@@ -20,7 +20,7 @@ library(ggplot2)
 library(reshape2)
 ```
 
-In this tutorial, we show how to use the `evaluCATE` package to evaluate your conditional average treatment effect (CATE) estimates. Before diving in the technical details, we need to define notation:
+In this tutorial, we show how to use the `evaluCATE` package to evaluate your conditional average treatment effect (CATE) predictions. Before diving in the technical details, we need to define notation:
 
 - $Y_i$ &rarr; Observed outcome;
 - $D_i \in \{ 0, 1\}$ &rarr; Treatment indicator;
@@ -30,7 +30,7 @@ In this tutorial, we show how to use the `evaluCATE` package to evaluate your co
 - $p ( X_i ) := \mathbb{P} [ D_i = 1 | X_i ]$ &rarr; Propensity score;
 - $w ( X_i ) := \frac{1}{p ( X_i ) [ 1 - p ( X_i )]}$ &rarr; Propensity score weights;
 - $H_i := w ( X_i ) [ D_i - p (X_i) ]$ &rarr; Horvitz-Thompson operator;
-- $\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}$  &rarr; Doubly-robust score;
+- $\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}$  &rarr; Doubly-robust (or AIPW) score;
 - $\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ]$ &rarr; Average treatment effect (ATE);
 - $\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATE.
 
@@ -39,13 +39,13 @@ Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g.,
 ## Motivating Example
 We illustrate the usage of the `evaluCATE` package with simulated data:
 
-- $X_{i} \sim \mathcal{U} ( 0, 1 )$ single uniformly distributed covariate
+- $X_{i} \sim \mathcal{U} ( 0, 1 )$ single uniformly distributed covariate;
 
-- $D_i \sim Bernoulli(1/2)$ randomly assigned treatment
+- $D_i \sim Bernoulli(1/2)$ randomly assigned treatment;
 
-- $Y_i = X_i + 0 \times D_i + \varepsilon_i$ with $\varepsilon_i \sim \mathcal{N} ( 0, 1 )$
+- $Y_i = X_i + 0 \times D_i + \varepsilon_i$ with $\varepsilon_i \sim \mathcal{N} ( 0, 1 )$;
 
-This implies a homogeneous zero effect, i.e. $\tau ( X_i ) = 0$
+This implies a homogeneous zero effect, i.e. $\tau ( X_i ) = 0$.
 
 ```{r generate-data, eval = TRUE}
 ## Generate data.
@@ -64,7 +64,7 @@ Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
 
 We now proceed to estimate the CATEs using the causal forest estimator. We divide our data set into two subsamples: 
 
-1. a training sample for estimation of CATEs, and
+1. a training sample for estimation of the CATEs, and
 
 2. a validation sample to evaluate the estimated heterogeneity.
 
@@ -118,7 +118,7 @@ It is thus crucial to rely on appropriate procedures to evaluate the quality of 
 The quality evaluation of the estimated CATEs is performed by targeting three key features of the CATEs:
 
 - Best Linear Predictor (BLP) of the actual CATEs using the estimated CATEs;
-- Sorted Group Average Treatment Effects (GATES).
+- Sorted Group Average Treatment Effects (GATES);
 - Rank-Weighted Average Treatment Effects (RATEs) induced by the estimated CATEs.
 
 This section provides an overview of these targets. The discussion is loosely based on Chernozhukov et al. (2017), Yadlowsky et al. (2021), and Imai and Li (2022).[^1]
@@ -135,7 +135,7 @@ We are interested in the estimation of the BLP for two main reasons:
 - $\hat{\beta}_1$ provides an estimate of the ATE;
 - $\beta_2 = 0$ if either the effects are homogeneous or our CATE estimates are "bad." Thus, rejecting the hypothesis $\beta_2 = 0$ would imply that both the effects are heterogeneous and our CATE estimates are reliable.[^2]
 
-The `evaluCATE` package estimates the BLP using three different strategies, each involving fitting a suitable regression model.[^3] To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the BLP is performed in the validation sample.[^4] We consider three alternatives to estimate BLP:
+The `evaluCATE` package estimates the BLP using three different strategies, each involving fitting a suitable regression model.[^3] To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the BLP is performed in the validation sample. We consider three alternatives to estimate BLP:[^4]
 
 ##### BLP - **Weighted Residuals**:
 
@@ -164,7 +164,7 @@ We are interested in the estimation of the GATES for two main reasons:
 - They quantify the extent to which the effects differ across groups;
 - They allow us to assess whether we detect systematic heterogeneity or just estimation noise by testing a set of hypotheses (check the [hypotheses testing vignette](https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html) for details).
 
-The `evaluCATE` package estimates the GATES using four different strategies: three of them involve fitting a suitable linear model, while the fourth hinges on a nonparametric estimator. To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the GATES is performed using only the validation sample.[^5] We consider four alternatives to estimate GATES:
+The `evaluCATE` package estimates the GATES using four different strategies: three of them involve fitting a suitable linear model, while the fourth hinges on a nonparametric estimator. To achieve valid inference, we require a training-validation sample split, as we did in the Motivating Example section. Then, estimation of the GATES is performed using only the validation sample. We consider four alternatives to estimate GATES:[^5]
 
 ##### GATES - **Weighted Residuals**
 
@@ -216,11 +216,14 @@ where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$
 The half-sample bootstrap procedure is used to estimate the standard error of $\hat{\theta}_{\alpha} ( \cdot )$. In particular, the standard deviation of the bootstrap estimates can be used as an estimator of the standard error of $\hat{\theta}_{\alpha} ( \cdot )$.
 
 ## Code
-The BLP, GATES, and RATEs can be estimated by calling the `evaluCATE` function. When calling this function, we need to supply our sample using the first six arguments: `Y_tr`, `Y_val`, `D_tr`, `D_val`, `X_tr`, and `X_val`, corresponding to $Y_i$, $D_i$, and $X_i$ separately for the training and validation subsamples. Additionally, we must supply our CATE predictions on the validation sample $\hat{\tau} ( X_i )$ by using the `cates_val` argument. Be careful, as these predictions must be produced by a model estimated using only the training sample.
+### Calling the Main Function
+The BLP, GATES, and RATEs can be estimated by calling the `evaluCATE` function. When calling this function, we need to supply our sample using the first six arguments: `Y_tr`, `Y_val`, `D_tr`, `D_val`, `X_tr`, and `X_val`, corresponding to $Y_i$, $D_i$, and $X_i$ separately for the training and validation subsamples. Additionally, we must supply our CATE predictions on the validation sample $\hat{\tau} ( X_i )$ by using the `cates_val` argument. Be careful, as these predictions must be produced by a model estimated using only the training sample, as we did in the Motivating Example section.
 
-The next two arguments allow us to choose our identification and estimation strategies for BLP and GATES (RATEs always estimated using the same estimator). Here we use all three strategies and do not add any denoising covariate. (note als GATES automatically implement nonparametric estimator).
+The `evaluCATE` function is able to implement all the BLP and GATES identification and estimation strategies outlined in the Quality Evaluation section. The user can choose their preferred strategies by controlling the `strategies` argument. This has no impact on RATEs estimation, which are always estimated using the sample-averaging estimators discussed above. Moreover, the nonparametric strategy for GATES estimation is always implemented. Here we decide to implement all the three possible strategies.
 
-We also have four optional arguments that we can use to supply predictins on the validation sample of the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. Again, these predictions must be produced by models estimated using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units. We supply these values in the call below and let the function estimate the other nuisances internally.[^9] 
+As discussed in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html), we can add various sets of constructed covariates in our regressions to reduce the variance of the estimation. The user can choose whether to add these additional covariates by controlling the `denoising` argument. This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy. Here we decide not to add constructed covariates.
+
+The constructed covariates depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome. The user can supply predictions on the validation sample of $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$ by using the optional arguments `pscore_val`, `mu_val`, `mu0_val`, and `mu1_val`, respectively. Be careful, as these predictions must be produced by models estimated using only the training sample. If not provided by the user, these functions are estimated internally via honest regression forests using only the training sample. In our Motivating Example, we have knowledge of the actual propensity score, which equals $0.5$ for all units.[^9] We supply these values in the call below and let the function estimate the other nuisances internally (in this case, the function will skip the nuisance estimation as this is not required by our choice of the `denoising` argument).
 
 Finally, we have four additional optional arguments. The first of these arguments controls the number of groups to be formed for the GATES analysis, with the default number equal to five. The second of these arguments controls the number of bootstrap replications used to estimate the standard error of the estimated RATEs. The third of these arguments controls how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). The fourth of these arguments controls whether the `evaluCATE` function should print the status of progress on the console. We use the default of 5 groups, 200 bootstrap replications, the treatment is considered to be beneficial, and we prevent the function from printing the progresses.  
 
@@ -233,31 +236,45 @@ pscore_val <- rep(0.5, length(Y_val)) # True propensity scores.
 
 evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = strategies, denoising = denoising, pscore_val = pscore_val, verbose = FALSE)
 ```
+### Results
+##### **BLP**
+Let us have a look at the results. The `summary` method allows us to visualize the results of the BLP estimation if we set the `target` argument to `BLP`. The `latex` argument controls whether the raw results or LATEX code for a table will be displayed in the console. We could also use the `which_models` argument to choose which results to display (useful to avoid a lengthy output). Because we have estimated a small number of models, we leave the deafult option and show everything.
 
-Let us have a look at the results. The `summary` method allows us to visualize the results of the BLP and RATE estimation if the `target` argument is set to `BLP` or the results of the GATES estimation if the `target` argument is set to `GATES`. The `latex` argument controls whether the raw results or LATEX code for a table will be displayed in the console. We also use the `which_models` argument to choose which results to display (useful to avoid a lengthy output).
-
-```{r blp-rates summary, eval = TRUE}
+```{r blp summary, eval = TRUE}
 ## BLP summary.
-which_models <- c("wr_none", "ht_none", "aipw")
-summary(evaluation, target = "BLP", which_models = which_models) # Try 'latex = TRUE'.
+summary(evaluation, target = "BLP") # Try 'latex = TRUE'.
 ```
 
-The estimated ATEs range between $0.05$ and $0.18$, with all confidence intervals covering the true value computed as `mean(mu1 - mu0)`. Additionally, we always fail to reject the hypothesis $\beta_2 = 0$, implying that either the effects are homogeneous or our CATE estimates are unreliable (we know both to be true in our example). The estimated RATEs agree with these findings.
+The estimated ATEs range between $0.05$ and $0.18$, with all confidence intervals covering the true value of zero. Additionally, we always fail to reject the hypothesis $\beta_2 = 0$, implying that either the effects are homogeneous or our CATE estimates are unreliable (we know both to be true in our Motivating Example).
 
+##### **GATES**
+We can also use the `summary` method with the `target` argument to `GATES` to visualize the results of the GATES estimation. The other arguments work as before.
 ```{r gates-summary, eval = TRUE}
 ## GATES summary.
-summary(evaluation, target = "GATES", which_models = which_models) # Try 'latex = TRUE'.
+summary(evaluation, target = "GATES") # Try 'latex = TRUE'.
 ```
 
-All the GATES confidence intervals include the zero, suggesting that no group is affected by the treatment (true in our example!). The $p$-values attached to testing the hypotheses that all the GATES are equal and that the most affected and the least affected groups feature the same response to the treatment are large and lead to a failure in rejecting these hypotheses. To better digest GATES point estimates and confidence intervals, we can use the `plot` method setting the `target` argument to `"GATES"`.
+All the GATES confidence intervals include the zero, suggesting that no group is affected by the treatment (true in our Motivating Example!). The $p$-values attached to testing the hypotheses that all the GATES are equal and that the most affected and the least affected groups feature the same response to the treatment are large and lead to a failure in rejecting these hypotheses. 
+
+To better digest GATES point estimates and confidence intervals, we can use the `plot` method setting the `target` argument to `"GATES"`. As for the `summary` method, we could use the `which_models` argument to choose which results to display (not needed here).
 
 ```{r gates-plot, eval = TRUE, fig.dim = c(5, 3)}
 ## GATES plot.
-plot(evaluation, target = "GATES", which_models = which_models)
+plot(evaluation, target = "GATES")
 
 ```
 
-Finally, we can look at the estimated TOC curve by calling the `plot` method setting the `target` argument to `"TOC"`. 
+##### **RATEs**
+Finally, the `summary` method with the `target` argument to `RATE` allows us to visualize the results of the RATE estimation.
+
+```{r rates summary, eval = TRUE}
+## RATEs summary.
+summary(evaluation, target = "RATE") # Try 'latex = TRUE'.
+```
+
+The results agree with BLP.
+
+We can plot the estimated TOC curve by calling the `plot` method setting the `target` argument to `"TOC"`. 
 
 ```{r toc-plot, eval = TRUE, fig.dim = c(5, 3)}
 ## TOC curve.
@@ -267,7 +284,7 @@ plot(evaluation, target = "TOC")
 [^1]: Complete references to these papers are listed in the home page.
 [^2]: Failing to reject this hypothesis means that either there is no heterogeneity or our CATE estimates are not reliable. Without additional evidence, we are not able to disentangle this. Check the [hypotheses testing vignette](https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html) for more details. 
 [^3]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs.
-[^4]: Additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
+[^4]: For each of these alternatives, additional constructed covariates which are not necessary for identifying the targets but can significantly reduce the variance of the estimation can be included in the regressions. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
 [^5]: See footnotes 3 and 4.
 [^6]: If the treatment is harmful, we prioritize units with the lowest estimated CATEs.
 [^7]: Prioritization rules can be derived from other approaches, e.g., risk-based rules. Here we focus on CATE-based rules as we aim to use the RATEs to evaluate the quality of our estimated CATEs.

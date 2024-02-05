@@ -8,73 +8,29 @@
   object,
   target = "BLP",
   latex = FALSE,
-  which_models = names(object$target),
+  which_models = names(object$GATES),
   ...
 )
 }
 \arguments{
-\item{object}{An \code{evaluCATE} object.}
+\item{object}{An \code{\link{evaluCATE}} object.}
 
-\item{target}{String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.}
+\item{target}{String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.}
 
 \item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
 
-\item{which_models}{Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}.}
+\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES)}. Ignored if \code{target == "RATE"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Summarizes an \code{evaluCATE} object.
+Summarizes an \code{\link{evaluCATE}} object.
 }
 \description{
-Summarizes an \code{evaluCATE} object.
+Summarizes an \code{\link{evaluCATE}} object.
 }
 \details{
 Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
-}
-\examples{
-\donttest{## Generate data.
-set.seed(1986)
-
-n <- 1000
-k <- 2
-
-X <- matrix(rnorm(n * k), ncol = k)
-colnames(X) <- paste0("x", seq_len(k))
-D <- rbinom(n, size = 1, prob = 0.5)
-mu0 <- 0.5 * X[, 1]
-mu1 <- 0.5 * X[, 1] + X[, 2]
-Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-
-## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-
-X_tr <- X[train_idx, ]
-X_val <- X[!train_idx, ]
-
-D_tr <- D[train_idx]
-D_val <- D[!train_idx]
-
-Y_tr <- Y[train_idx]
-Y_val <- Y[!train_idx]
-
-## CATEs estimation.
-library(grf)
-
-forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
-
-## CATEs evaluation. Estimate all nuisances internally. 
-pscore_val <- rep(0.5, length(Y_val))
-evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
-
-## Summary.
-summary(evaluation, target = "BLP")
-summary(evaluation, target = "BLP", latex = TRUE)
-
-summary(evaluation, target = "GATES")
-summary(evaluation, target = "GATES", latex = TRUE)}
-
 }
 \seealso{
 \code{\link{evaluCATE}}

@@ -1,58 +1,15 @@
 #' Summary Method for evaluCATE Objects
 #'
-#' Summarizes an \code{evaluCATE} object.
+#' Summarizes an \code{\link{evaluCATE}} object.
 #'
-#' @param object An \code{evaluCATE} object.
-#' @param target String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.
+#' @param object An \code{\link{evaluCATE}} object.
+#' @param target String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
-#' @param which_models Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}.
+#' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES)}. Ignored if \code{target == "RATE"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
-#' Summarizes an \code{evaluCATE} object.
-#' 
-#' @examples 
-#' \donttest{## Generate data.
-#' set.seed(1986)
-#' 
-#' n <- 1000
-#' k <- 2
-#' 
-#' X <- matrix(rnorm(n * k), ncol = k)
-#' colnames(X) <- paste0("x", seq_len(k))
-#' D <- rbinom(n, size = 1, prob = 0.5)
-#' mu0 <- 0.5 * X[, 1]
-#' mu1 <- 0.5 * X[, 1] + X[, 2]
-#' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-#' 
-#' ## Sample split.
-#' train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-#' 
-#' X_tr <- X[train_idx, ]
-#' X_val <- X[!train_idx, ]
-#' 
-#' D_tr <- D[train_idx]
-#' D_val <- D[!train_idx]
-#' 
-#' Y_tr <- Y[train_idx]
-#' Y_val <- Y[!train_idx]
-#' 
-#' ## CATEs estimation.
-#' library(grf)
-#' 
-#' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-#' cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
-#' 
-#' ## CATEs evaluation. Estimate all nuisances internally. 
-#' pscore_val <- rep(0.5, length(Y_val))
-#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
-#' 
-#' ## Summary.
-#' summary(evaluation, target = "BLP")
-#' summary(evaluation, target = "BLP", latex = TRUE)
-#' 
-#' summary(evaluation, target = "GATES")
-#' summary(evaluation, target = "GATES", latex = TRUE)}
+#' Summarizes an \code{\link{evaluCATE}} object.
 #' 
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
@@ -65,13 +22,11 @@
 #' 
 #' @export
 summary.evaluCATE <- function(object, target = "BLP", 
-                              latex = FALSE, which_models = names(object$target), ...) {
-  if (!(target %in% c("BLP", "GATES"))) stop("Invalid 'target'. This must be either 'GATES' or 'TOC'", call. = FALSE)
+                              latex = FALSE, which_models = names(object$GATES), ...) {
+  if (!(target %in% c("BLP", "GATES", "RATE"))) stop("Invalid 'target'. This must be one of 'BLP', 'GATES', 'RATE'", call. = FALSE)
   if (!is.logical(latex)) stop("Invalid 'latex'. This must be either TRUE or FALSE.", call. = FALSE)
-  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw", "imai_li")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
-  if (target == "BLP" & sum(!(which_models %in% names(object$BLP))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
-  if (target == "GATES" & sum(!(which_models %in% names(object$GATES))) > 0) stop("Invalid 'which_models'. This must be a character vector with one or more names from 'names(object$target)'.", call. = FALSE)
-  
+  if (any(!(which_models %in% names(object$GATES)))) stop("Invalid 'which_models'. Admitted values are those stored in 'names(object$GATES)'.", call. = FALSE)
+
   n_models_blp <- length(object$BLP)
   n_models_gates <- length(object$GATES)
   n_groups <- length(object$GATES$wr_none$coefficients)
@@ -80,7 +35,7 @@ summary.evaluCATE <- function(object, target = "BLP",
     if (target == "BLP") {
       max_chars <- max(sapply(names(object$BLP), nchar))
       
-      cat("BLP and RATEs results \n\n")
+      cat("BLP results \n\n")
       
       cat("Estimated ATE + 95% confidence intervals: \n")
       
@@ -113,22 +68,6 @@ summary.evaluCATE <- function(object, target = "BLP",
         upper_ci <- format(round(model$conf.high["beta2"], 3), nsmall = 3)
         cat(model_name_space, if (estimated_het < 0) ": " else ":  ", estimated_het, if (lower_ci < 0) " [" else " [ ", lower_ci, if (upper_ci < 0) ", " else ",  ", upper_ci, "] \n", sep = "")
       }
-      
-      cat("\n")
-      
-      cat("RATEs results + 95% confidence intervals: \n")
-      
-      autoc <- format(round(object$RATE$rate_results$AUTOC$rate, 2), nsmall = 2)
-      autoc_lower_ci <- format(round(object$RATE$rate_results$AUTOC$rate - 1.96 * object$RATE$rate_results$AUTOC$se, 3), nsmall = 3)
-      autoc_upper_ci <- format(round(object$RATE$rate_results$AUTOC$rate + 1.96 * object$RATE$rate_results$AUTOC$se, 3), nsmall = 3)
-      
-      qini <- format(round(object$RATE$rate_results$QINI$rate, 2), nsmall = 2)
-      qini_lower_ci <- format(round(object$RATE$rate_results$QINI$rate - 1.96 * object$RATE$rate_results$QINI$se, 3), nsmall = 3)
-      qini_upper_ci <- format(round(object$RATE$rate_results$QINI$rate + 1.96 * object$RATE$rate_results$QINI$se, 3), nsmall = 3)
-      
-      
-      cat(if (autoc < 0) "AUTOC: " else "AUTOC:  ", autoc, if (autoc_lower_ci < 0) " [" else "[ ", autoc_lower_ci, if (autoc_upper_ci < 0) ", " else ",  ", autoc_upper_ci, "] \n",
-          if (qini < 0) "QINI:  " else "QINI:   ", qini, if (qini_lower_ci < 0) " [" else "[ ", qini_lower_ci, if (qini_upper_ci < 0) ", " else ",  ", qini_upper_ci, "] \n", sep = "")
     } else if (target == "GATES") {
       max_chars <- max(sapply(names(object$GATES), nchar))
       
@@ -162,7 +101,11 @@ summary.evaluCATE <- function(object, target = "BLP",
           lower_ci <- format(round(as.numeric(estimated_gates) - 1.96 * as.numeric(estimated_ses), 3), nsmall = 3)
           upper_ci <- format(round(as.numeric(estimated_gates) + 1.96 * as.numeric(estimated_ses), 3), nsmall = 3)
           
-          cat(if (estimated_gates[k] < 0) "    Group " else "     Group ", k, " ", estimated_gates[k], " [", lower_ci[k], ", ", upper_ci[k], "] \n", sep = "")          
+          cat(model_name_space, ": \n", sep = "") 
+          
+          for (k in seq_len(n_groups)) {
+            cat(if (estimated_gates[k] < 0) "    Group " else "     Group ", k, " ", estimated_gates[k], " [", lower_ci[k], ", ", upper_ci[k], "] \n", sep = "")   
+          }
         }
       }
       
@@ -194,6 +137,20 @@ summary.evaluCATE <- function(object, target = "BLP",
     GATES_K = GATES_1                 : ",  gates_largest_diff, "\n", sep = "")          
         }
       }
+    } else if (target == "RATE") {
+      cat("RATEs + 95% confidence intervals: \n")
+      
+      autoc <- format(round(object$RATE$rate_results$AUTOC$rate, 2), nsmall = 2)
+      autoc_lower_ci <- format(round(object$RATE$rate_results$AUTOC$rate - 1.96 * object$RATE$rate_results$AUTOC$se, 3), nsmall = 3)
+      autoc_upper_ci <- format(round(object$RATE$rate_results$AUTOC$rate + 1.96 * object$RATE$rate_results$AUTOC$se, 3), nsmall = 3)
+      
+      qini <- format(round(object$RATE$rate_results$QINI$rate, 2), nsmall = 2)
+      qini_lower_ci <- format(round(object$RATE$rate_results$QINI$rate - 1.96 * object$RATE$rate_results$QINI$se, 3), nsmall = 3)
+      qini_upper_ci <- format(round(object$RATE$rate_results$QINI$rate + 1.96 * object$RATE$rate_results$QINI$se, 3), nsmall = 3)
+      
+      
+      cat(if (autoc < 0) "AUTOC: " else "AUTOC:  ", autoc, if (autoc_lower_ci < 0) " [" else "[ ", autoc_lower_ci, if (autoc_upper_ci < 0) ", " else ",  ", autoc_upper_ci, "] \n",
+          if (qini < 0) "QINI:  " else "QINI:   ", qini, if (qini_lower_ci < 0) " [" else "[ ", qini_lower_ci, if (qini_upper_ci < 0) ", " else ",  ", qini_upper_ci, "] \n", sep = "")
     }
   } else if (latex) {
     if (target == "BLP") {
@@ -289,6 +246,9 @@ summary.evaluCATE <- function(object, target = "BLP",
       \\label{table_blp_results}
     \\end{table}
 \\endgroup")
+    } else if (target == "RATE") {
+      cat("YET TO BE IMPLEMENTED, SORRY :( \n")
+      cat("WE APPRECIATE ANY SUGGESTIONS ON THE FORMAT.")
     }
   } 
 }
@@ -296,59 +256,16 @@ summary.evaluCATE <- function(object, target = "BLP",
 
 #' Print Method for evaluCATE Objects
 #'
-#' Prints an \code{evaluCATE} object.
+#' Prints an \code{\link{evaluCATE}} object.
 #'
-#' @param x An \code{evaluCATE} object.
-#' @param target String controlling which plot to display. Must be either \code{"BLP"} or \code{"GATES"}.
+#' @param x An \code{\link{evaluCATE}} object.
+#' @param target String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
-#' @param which_models Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}.
+#' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES)}. Ignored if \code{target == "RATE"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
-#' Prints an \code{evaluCATE} object.
-#' 
-#' @examples 
-#' \donttest{## Generate data.
-#' set.seed(1986)
-#' 
-#' n <- 1000
-#' k <- 2
-#' 
-#' X <- matrix(rnorm(n * k), ncol = k)
-#' colnames(X) <- paste0("x", seq_len(k))
-#' D <- rbinom(n, size = 1, prob = 0.5)
-#' mu0 <- 0.5 * X[, 1]
-#' mu1 <- 0.5 * X[, 1] + X[, 2]
-#' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-#' 
-#' ## Sample split.
-#' train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-#' 
-#' X_tr <- X[train_idx, ]
-#' X_val <- X[!train_idx, ]
-#' 
-#' D_tr <- D[train_idx]
-#' D_val <- D[!train_idx]
-#' 
-#' Y_tr <- Y[train_idx]
-#' Y_val <- Y[!train_idx]
-#' 
-#' ## CATEs estimation.
-#' library(grf)
-#' 
-#' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-#' cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
-#' 
-#' ## CATEs evaluation. Estimate all nuisances internally. 
-#' pscore_val <- rep(0.5, length(Y_val))
-#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
-#' 
-#' ## Print.
-#' print(evaluation, target = "BLP")
-#' print(evaluation, target = "BLP", latex = TRUE)
-#' 
-#' print(evaluation, target = "GATES")
-#' print(evaluation, target = "GATES", latex = TRUE)}
+#' Prints an \code{\link{evaluCATE}} object.
 #' 
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
@@ -357,64 +274,28 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' 
 #' @export
 print.evaluCATE <- function(x, target = "BLP", 
-                            latex = FALSE, which_models = names(x$target), ...) {
+                            latex = FALSE, which_models = names(x$GATES), ...) {
   summary.evaluCATE(x, target, latex, which_models, ...)
 }
 
 
 #' Plot Method for evaluCATE Objects
 #'
-#' Plots an \code{evaluCATE} object.
+#' Plots an \code{\link{evaluCATE}} object.
 #'
-#' @param x An \code{evaluCATE} object.
-#' @param target String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATEs"}.
-#' @param which_models Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}. Ignored if \code{target != "GATES"}.
+#' @param x An \code{\link{evaluCATE}} object.
+#' @param target String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATE"}.
+#' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(x$GATES)}. Ignored if \code{target != "GATES"}.
 #' @param gates_hline Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.
-#' @param toc_smoother Integer number, controls the amount of smoothing in the TOC plot. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc.
+#' @param toc_smoother Integer number, controls the amount of smoothing in the \code{TOC} and \code{RATE} plots. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc. Ignored if \code{target == "GATES"}.
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return
-#' Plots an \code{evaluCATE} object.
-#'
-#' @examples
-#' \donttest{## Generate data.
-#' set.seed(1986)
+#' Plots an \code{\link{evaluCATE}} object.
 #' 
-#' n <- 1000
-#' k <- 2
+#' @details
+#' Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/more-on-plotting.html}{plotting vignette} for details.
 #' 
-#' X <- matrix(rnorm(n * k), ncol = k)
-#' colnames(X) <- paste0("x", seq_len(k))
-#' D <- rbinom(n, size = 1, prob = 0.5)
-#' mu0 <- 0.5 * X[, 1]
-#' mu1 <- 0.5 * X[, 1] + X[, 2]
-#' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-#' 
-#' ## Sample split.
-#' train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-#' 
-#' X_tr <- X[train_idx, ]
-#' X_val <- X[!train_idx, ]
-#' 
-#' D_tr <- D[train_idx]
-#' D_val <- D[!train_idx]
-#' 
-#' Y_tr <- Y[train_idx]
-#' Y_val <- Y[!train_idx]
-#' 
-#' ## CATEs estimation.
-#' library(grf)
-#' 
-#' forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-#' cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
-#' 
-#' ## CATEs evaluation. Estimate all nuisances internally. 
-#' pscore_val <- rep(0.5, length(Y_val))
-#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
-#' 
-#' ## Plot.
-#' plot(evaluation, target = "GATES")
-#' plot(evaluation, target = "TOC")}
 #'
 #' @import dplyr ggplot2 ggsci
 #' @importFrom stats coef
@@ -425,8 +306,8 @@ print.evaluCATE <- function(x, target = "BLP",
 plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES), 
                            gates_hline = TRUE, toc_smoother = 1, ...) {
   ## Checks.
-  if (!(target %in% c("GATES", "TOC", "RATEs"))) stop("Invalid 'target'. This must be one of 'GATES', 'TOC', or 'RATEs'.", call. = FALSE)
-  if (any(!(which_models %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1", "ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3", "aipw", "imai_li")))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
+  if (!(target %in% c("GATES", "TOC", "RATE"))) stop("Invalid 'target'. This must be one of 'GATES', 'TOC', or 'RATE'.", call. = FALSE)
+  if (any(!(which_models %in% names(x$GATES)))) stop("Invalid 'which_models'. Check the documentation for admitted values.", call. = FALSE)
   if (!is.logical(gates_hline)) stop("Invalid 'gates_hline'. This must be either 'TRUE' or 'FALSE'.", call. = FALSE)
   if (!is.numeric(toc_smoother) & toc_smoother < 1 & toc_smoother %% 1 != 0) stop("Invalid 'toc_smoother'. This must be an integer greater than or equal to one.", call. = FALSE)
   
@@ -465,9 +346,10 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES),
     plot_dta$strategy[plot_dta$estimator %in% c("wr_none", "wr_cddf1", "wr_cddf2", "wr_mck1")] <- "WR"
     plot_dta$strategy[plot_dta$estimator %in% c("ht_none", "ht_cddf1", "ht_cddf2", "ht_mck1", "ht_mck2", "ht_mck3")] <- "HT"
     plot_dta$strategy[plot_dta$estimator == "aipw"] <- "AIPW"
+    plot_dta$strategy[plot_dta$estimator == "imai_li"] <- "Nonparametric"
     
     plot_dta$denoise <- NA
-    plot_dta$denoise[plot_dta$estimator %in% c("wr_none", "ht_none", "aipw")] <- "None"
+    plot_dta$denoise[plot_dta$estimator %in% c("wr_none", "ht_none", "aipw", "imai_li")] <- "None"
     plot_dta$denoise[plot_dta$estimator %in% c("wr_cddf1", "ht_cddf1")] <- "cddf1"
     plot_dta$denoise[plot_dta$estimator %in% c("wr_cddf2", "ht_cddf2")] <- "cddf2"
     plot_dta$denoise[plot_dta$estimator %in% c("wr_mck1", "ht_mck1")] <- "mck1"
@@ -480,7 +362,7 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES),
       ggplot2::geom_point() + 
       ggplot2::geom_hline(yintercept = if (gates_hline) 0 else NULL, linetype = "dashed") + 
       ggplot2::geom_errorbar(aes(x = group, ymin = estimated_gate - 1.96 * se, ymax = estimated_gate + 1.96 * se)) +
-      ggplot2::facet_grid(cols = vars(factor(strategy, levels = c("WR", "HT", "AIPW"))), rows = if (facet_condition) vars(factor(denoise, levels = c("None", "cddf1", "cddf2", "mck1", "mck2", "mck3"))) else NULL, scales = "fixed") +
+      ggplot2::facet_grid(cols = vars(factor(strategy, levels = c("WR", "HT", "AIPW", "Nonparametric"))), rows = if (facet_condition) vars(factor(denoise, levels = c("None", "cddf1", "cddf2", "mck1", "mck2", "mck3"))) else NULL, scales = "fixed") +
       ggplot2::xlab("Group") + ggplot2::ylab("GATES") + ggplot2::labs(colour = "Estimator") +
       ggplot2::theme_bw() + 
       ggplot2::theme(strip.text.x = ggplot2::element_text(size = 10, face = "italic"), strip.text.y = ggplot2::element_text(size = 10, face = "italic"), legend.position = "none")
@@ -503,16 +385,32 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES),
         ggplot2::xlab("Fraction treated") +ggplot2:: ylab("TOC") +
         ggplot2::theme_bw()
     }
-  } else if (target == "RATEs") {
-    plot_dta %>%
-      dplyr::mutate(TOCu = TOC * unit) %>% 
-      reshape2::melt(id.vars = c("unit"), measure.vars = c("TOC", "TOCu")) %>%
-      ggplot2::ggplot(ggplot2::aes(x = unit, y = value, group = variable, colour = variable)) +
-      ggplot2::geom_line(linewidth = 1.5) +
-      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
-      ggplot2::scale_color_hue(labels = c(expression("TOC"), expression("u" %*% "TOC"))) +
-      ggplot2::xlab("Fraction treated") +ggplot2:: ylab("") +
-      ggplot2::theme_bw() +
-      ggplot2::theme(legend.position = c(0.9, 0.9), legend.title = ggplot2::element_blank(), legend.direction = "vertical", legend.text = element_text(size = 7))
+  } else if (target == "RATE") {
+    plot_dta <- data.frame("unit" = (1:length(x$RATE$toc_results) / length(x$RATE$toc_results)), "TOC" = x$RATE$toc_results)
+    
+    if (toc_smoother == 1) {
+      plot_dta %>%
+        dplyr::mutate(TOCu = TOC * unit) %>% 
+        reshape2::melt(id.vars = c("unit"), measure.vars = c("TOC", "TOCu")) %>%
+        ggplot2::ggplot(ggplot2::aes(x = unit, y = value, group = variable, colour = variable)) +
+        ggplot2::geom_line(linewidth = 1.5) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+        ggplot2::scale_color_hue(labels = c(expression("TOC"), expression("u" %*% "TOC"))) +
+        ggplot2::xlab("Fraction treated") +ggplot2:: ylab("") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(legend.position = c(0.9, 0.9), legend.title = ggplot2::element_blank(), legend.direction = "vertical", legend.text = element_text(size = 7))
+    } else {
+      plot_dta %>%
+        dplyr::mutate(TOCu = TOC * unit) %>% 
+        dplyr::slice(which(row_number() %% toc_smoother == 1)) %>%
+        reshape2::melt(id.vars = c("unit"), measure.vars = c("TOC", "TOCu")) %>%
+        ggplot2::ggplot(ggplot2::aes(x = unit, y = value, group = variable, colour = variable)) +
+        ggplot2::geom_line(linewidth = 1.5) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+        ggplot2::scale_color_hue(labels = c(expression("TOC"), expression("u" %*% "TOC"))) +
+        ggplot2::xlab("Fraction treated") +ggplot2:: ylab("") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(legend.position = c(0.9, 0.9), legend.title = ggplot2::element_blank(), legend.direction = "vertical", legend.text = element_text(size = 7))
+    }
   }
 }

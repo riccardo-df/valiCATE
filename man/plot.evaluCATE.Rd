@@ -14,64 +14,26 @@
 )
 }
 \arguments{
-\item{x}{An \code{evaluCATE} object.}
+\item{x}{An \code{\link{evaluCATE}} object.}
 
-\item{target}{String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATEs"}.}
+\item{target}{String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATE"}.}
 
-\item{which_models}{Character vector controlling which results to display. Admitted values are \code{"wr_none"}, \code{"wr_cddf1"}, \code{"wr_cddf2"}, \code{"wr_mck1"}, \code{"ht_none"}, \code{"ht_cddf1"}, \code{"ht_cddf2"}, \code{"ht_mck1"}, \code{"ht_mck2"}, \code{"ht_mck3"}, \code{"aipw"}, \code{"imai_li"}. Ignored if \code{target != "GATES"}.}
+\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(x$GATES)}. Ignored if \code{target != "GATES"}.}
 
 \item{gates_hline}{Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.}
 
-\item{toc_smoother}{Integer number, controls the amount of smoothing in the TOC plot. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc.}
+\item{toc_smoother}{Integer number, controls the amount of smoothing in the \code{TOC} and \code{RATE} plots. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc. Ignored if \code{target == "GATES"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Plots an \code{evaluCATE} object.
+Plots an \code{\link{evaluCATE}} object.
 }
 \description{
-Plots an \code{evaluCATE} object.
+Plots an \code{\link{evaluCATE}} object.
 }
-\examples{
-\donttest{## Generate data.
-set.seed(1986)
-
-n <- 1000
-k <- 2
-
-X <- matrix(rnorm(n * k), ncol = k)
-colnames(X) <- paste0("x", seq_len(k))
-D <- rbinom(n, size = 1, prob = 0.5)
-mu0 <- 0.5 * X[, 1]
-mu1 <- 0.5 * X[, 1] + X[, 2]
-Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
-
-## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
-
-X_tr <- X[train_idx, ]
-X_val <- X[!train_idx, ]
-
-D_tr <- D[train_idx]
-D_val <- D[!train_idx]
-
-Y_tr <- Y[train_idx]
-Y_val <- Y[!train_idx]
-
-## CATEs estimation.
-library(grf)
-
-forest <- causal_forest(X_tr, Y_tr, D_tr) # We use only the training sample.
-cates_val <- predict(forest, X_val)$predictions # We predict on the validation sample.
-
-## CATEs evaluation. Estimate all nuisances internally. 
-pscore_val <- rep(0.5, length(Y_val))
-evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, pscore_val = pscore_val)
-
-## Plot.
-plot(evaluation, target = "GATES")
-plot(evaluation, target = "TOC")}
-
+\details{
+Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/more-on-plotting.html}{plotting vignette} for details.
 }
 \author{
 Riccardo Di Francesco
