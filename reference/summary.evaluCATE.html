@@ -64,7 +64,7 @@
 <span>  <span class="va">object</span>,</span>
 <span>  target <span class="op">=</span> <span class="st">"BLP"</span>,</span>
 <span>  latex <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">object</span><span class="op">$</span><span class="va">GATES</span><span class="op">)</span>,</span>
+<span>  which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">object</span><span class="op">$</span><span class="va">GATES</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -84,7 +84,7 @@
 
 
 <dt>which_models</dt>
-<dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(object$GATES)</code>. Ignored if <code>target == "RATE"</code>.</p></dd>
+<dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(object$GATES[[1]])</code>. Ignored if <code>target == "RATE"</code>.</p></dd>
 
 
 <dt>...</dt>
@@ -99,7 +99,7 @@
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>Compilation of the LATEX code requires the following packages: <code>booktabs</code>, <code>float</code>, <code>adjustbox</code>.</p>
+    <p>Compilation of the LATEX code requires the following packages: <code>booktabs</code>, <code>float</code>, <code>adjustbox</code>, <code>multirow</code>.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>

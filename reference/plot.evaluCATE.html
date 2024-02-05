@@ -63,7 +63,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  target <span class="op">=</span> <span class="st">"GATES"</span>,</span>
-<span>  which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">GATES</span><span class="op">)</span>,</span>
+<span>  which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">GATES</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>  gates_hline <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  toc_smoother <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -81,7 +81,7 @@
 
 
 <dt>which_models</dt>
-<dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(x$GATES)</code>. Ignored if <code>target != "GATES"</code>.</p></dd>
+<dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(x$GATES[[1]])</code>. Ignored if <code>target != "GATES"</code>.</p></dd>
 
 
 <dt>gates_hline</dt>
