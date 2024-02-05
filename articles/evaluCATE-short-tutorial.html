@@ -91,7 +91,7 @@
     
 <p>In this tutorial, we show how to use the <code>evaluCATE</code>
 package to evaluate your conditional average treatment effect (CATE)
-estimates. Before diving in the technical details, we need to define
+predictions. Before diving in the technical details, we need to define
 notation:</p>
 <ul>
 <li>
@@ -119,7 +119,7 @@ D_i = d ]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</sp
 <li>
 <span class="math inline">\(\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i
 ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [
-Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}\)</span> → Doubly-robust
+Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}\)</span> → Doubly-robust (or AIPW)
 score;</li>
 <li>
 <span class="math inline">\(\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0
@@ -137,14 +137,14 @@ unconfoundedness (e.g., Imbens and Rubin, 2015).</p>
 simulated data:</p>
 <ul>
 <li><p><span class="math inline">\(X_{i} \sim \mathcal{U} ( 0, 1
-)\)</span> single uniformly distributed covariate</p></li>
+)\)</span> single uniformly distributed covariate;</p></li>
 <li><p><span class="math inline">\(D_i \sim Bernoulli(1/2)\)</span>
-randomly assigned treatment</p></li>
+randomly assigned treatment;</p></li>
 <li><p><span class="math inline">\(Y_i = X_i + 0 \times D_i +
 \varepsilon_i\)</span> with <span class="math inline">\(\varepsilon_i
-\sim \mathcal{N} ( 0, 1 )\)</span></p></li>
+\sim \mathcal{N} ( 0, 1 )\)</span>;</p></li>
 </ul>
-<p>This implies a homogeneous zero effect, i.e. <span class="math inline">\(\tau ( X_i ) = 0\)</span></p>
+<p>This implies a homogeneous zero effect, i.e. <span class="math inline">\(\tau ( X_i ) = 0\)</span>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Generate data.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1986</span><span class="op">)</span></span>
@@ -161,7 +161,7 @@ randomly assigned treatment</p></li>
 <p>We now proceed to estimate the CATEs using the causal forest
 estimator. We divide our data set into two subsamples:</p>
 <ol style="list-style-type: decimal">
-<li><p>a training sample for estimation of CATEs, and</p></li>
+<li><p>a training sample for estimation of the CATEs, and</p></li>
 <li><p>a validation sample to evaluate the estimated
 heterogeneity.</p></li>
 </ol>
@@ -224,7 +224,7 @@ targeting three key features of the CATEs:</p>
 <ul>
 <li>Best Linear Predictor (BLP) of the actual CATEs using the estimated
 CATEs;</li>
-<li>Sorted Group Average Treatment Effects (GATES).</li>
+<li>Sorted Group Average Treatment Effects (GATES);</li>
 <li>Rank-Weighted Average Treatment Effects (RATEs) induced by the
 estimated CATEs.</li>
 </ul>
@@ -263,8 +263,8 @@ different strategies, each involving fitting a suitable regression
 model.<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>
 To achieve valid inference, we require a training-validation sample
 split, as we did in the Motivating Example section. Then, estimation of
-the BLP is performed in the validation sample.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> We consider three
-alternatives to estimate BLP:</p>
+the BLP is performed in the validation sample. We consider three
+alternatives to estimate BLP:<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a></p>
 <div class="section level5">
 <h5 id="blp---weighted-residuals">BLP - <strong>Weighted Residuals</strong>:<a class="anchor" aria-label="anchor" href="#blp---weighted-residuals"></a>
 </h5>
@@ -315,8 +315,8 @@ different strategies: three of them involve fitting a suitable linear
 model, while the fourth hinges on a nonparametric estimator. To achieve
 valid inference, we require a training-validation sample split, as we
 did in the Motivating Example section. Then, estimation of the GATES is
-performed using only the validation sample.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> We consider four
-alternatives to estimate GATES:</p>
+performed using only the validation sample. We consider four
+alternatives to estimate GATES:<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a></p>
 <div class="section level5">
 <h5 id="gates---weighted-residuals">GATES - <strong>Weighted Residuals</strong><a class="anchor" aria-label="anchor" href="#gates---weighted-residuals"></a>
 </h5>
@@ -415,6 +415,9 @@ estimates can be used as an estimator of the standard error of <span class="math
 <div class="section level2">
 <h2 id="code">Code<a class="anchor" aria-label="anchor" href="#code"></a>
 </h2>
+<div class="section level3">
+<h3 id="calling-the-main-function">Calling the Main Function<a class="anchor" aria-label="anchor" href="#calling-the-main-function"></a>
+</h3>
 <p>The BLP, GATES, and RATEs can be estimated by calling the
 <code>evaluCATE</code> function. When calling this function, we need to
 supply our sample using the first six arguments: <code>Y_tr</code>,
@@ -424,21 +427,36 @@ validation subsamples. Additionally, we must supply our CATE predictions
 on the validation sample <span class="math inline">\(\hat{\tau} ( X_i
 )\)</span> by using the <code>cates_val</code> argument. Be careful, as
 these predictions must be produced by a model estimated using only the
-training sample.</p>
-<p>The next two arguments allow us to choose our identification and
-estimation strategies for BLP and GATES (RATEs always estimated using
-the same estimator). Here we use all three strategies and do not add any
-denoising covariate. (note als GATES automatically implement
-nonparametric estimator).</p>
-<p>We also have four optional arguments that we can use to supply
-predictins on the validation sample of the nuisance functions <span class="math inline">\(p ( \cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span>. Again, these predictions
-must be produced by models estimated using only the training sample. If
-not provided by the user, these functions are estimated internally via
-honest regression forests using only the training sample. In our
-Motivating Example, we have knowledge of the actual propensity score,
-which equals <span class="math inline">\(0.5\)</span> for all units. We
-supply these values in the call below and let the function estimate the
-other nuisances internally.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a></p>
+training sample, as we did in the Motivating Example section.</p>
+<p>The <code>evaluCATE</code> function is able to implement all the BLP
+and GATES identification and estimation strategies outlined in the
+Quality Evaluation section. The user can choose their preferred
+strategies by controlling the <code>strategies</code> argument. This has
+no impact on RATEs estimation, which are always estimated using the
+sample-averaging estimators discussed above. Moreover, the nonparametric
+strategy for GATES estimation is always implemented. Here we decide to
+implement all the three possible strategies.</p>
+<p>As discussed in the <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising
+vignette</a>, we can add various sets of constructed covariates in our
+regressions to reduce the variance of the estimation. The user can
+choose whether to add these additional covariates by controlling the
+<code>denoising</code> argument. This has no impact on RATEs estimation
+and on the results from the nonparametric GATES estimation strategy.
+Here we decide not to add constructed covariates.</p>
+<p>The constructed covariates depend on particular nuisance functions,
+e.g., propensity score and conditional mean of the outcome. The user can
+supply predictions on the validation sample of <span class="math inline">\(p ( \cdot )\)</span>, <span class="math inline">\(\mu ( \cdot )\)</span>, <span class="math inline">\(\mu_0 ( \cdot )\)</span>, and <span class="math inline">\(\mu_1 ( \cdot )\)</span> by using the optional
+arguments <code>pscore_val</code>, <code>mu_val</code>,
+<code>mu0_val</code>, and <code>mu1_val</code>, respectively. Be
+careful, as these predictions must be produced by models estimated using
+only the training sample. If not provided by the user, these functions
+are estimated internally via honest regression forests using only the
+training sample. In our Motivating Example, we have knowledge of the
+actual propensity score, which equals <span class="math inline">\(0.5\)</span> for all units.<a href="#fn9" class="footnote-ref" id="fnref9"><sup>9</sup></a> We supply these values
+in the call below and let the function estimate the other nuisances
+internally (in this case, the function will skip the nuisance estimation
+as this is not required by our choice of the <code>denoising</code>
+argument).</p>
 <p>Finally, we have four additional optional arguments. The first of
 these arguments controls the number of groups to be formed for the GATES
 analysis, with the default number equal to five. The second of these
@@ -459,19 +477,26 @@ progresses.</p>
 <span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
 <span></span>
 <span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, strategies <span class="op">=</span> <span class="va">strategies</span>, denoising <span class="op">=</span> <span class="va">denoising</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
+</h3>
+<div class="section level5">
+<h5 id="blp">
+<strong>BLP</strong><a class="anchor" aria-label="anchor" href="#blp"></a>
+</h5>
 <p>Let us have a look at the results. The <code>summary</code> method
-allows us to visualize the results of the BLP and RATE estimation if the
-<code>target</code> argument is set to <code>BLP</code> or the results
-of the GATES estimation if the <code>target</code> argument is set to
-<code>GATES</code>. The <code>latex</code> argument controls whether the
-raw results or LATEX code for a table will be displayed in the console.
-We also use the <code>which_models</code> argument to choose which
-results to display (useful to avoid a lengthy output).</p>
+allows us to visualize the results of the BLP estimation if we set the
+<code>target</code> argument to <code>BLP</code>. The <code>latex</code>
+argument controls whether the raw results or LATEX code for a table will
+be displayed in the console. We could also use the
+<code>which_models</code> argument to choose which results to display
+(useful to avoid a lengthy output). Because we have estimated a small
+number of models, we leave the deafult option and show everything.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## BLP summary.</span></span>
-<span><span class="va">which_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wr_none"</span>, <span class="st">"ht_none"</span>, <span class="st">"aipw"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, which_models <span class="op">=</span> <span class="va">which_models</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
-<span><span class="co">#&gt; BLP and RATEs results </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
+<span><span class="co">#&gt; BLP results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated ATE + 95% confidence intervals: </span></span>
 <span><span class="co">#&gt; wr_none:  0.18 [-0.104,  0.457] </span></span>
@@ -481,20 +506,23 @@ results to display (useful to avoid a lengthy output).</p>
 <span><span class="co">#&gt; Estimated HET + 95% confidence intervals: </span></span>
 <span><span class="co">#&gt; wr_none:  0.27 [-4.626,  5.166] </span></span>
 <span><span class="co">#&gt; ht_none:  0.27 [-4.626,  5.166] </span></span>
-<span><span class="co">#&gt; aipw   :  0.68 [-3.657,  5.025] </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; RATEs results + 95% confidence intervals: </span></span>
-<span><span class="co">#&gt; AUTOC:  0.11 [-0.135,  0.356] </span></span>
-<span><span class="co">#&gt; QINI:   0.01 [-0.065,  0.089]</span></span></code></pre></div>
+<span><span class="co">#&gt; aipw   :  0.68 [-3.657,  5.025]</span></span></code></pre></div>
 <p>The estimated ATEs range between <span class="math inline">\(0.05\)</span> and <span class="math inline">\(0.18\)</span>, with all confidence intervals
-covering the true value computed as <code>mean(mu1 - mu0)</code>.
-Additionally, we always fail to reject the hypothesis <span class="math inline">\(\beta_2 = 0\)</span>, implying that either the
-effects are homogeneous or our CATE estimates are unreliable (we know
-both to be true in our example). The estimated RATEs agree with these
-findings.</p>
+covering the true value of zero. Additionally, we always fail to reject
+the hypothesis <span class="math inline">\(\beta_2 = 0\)</span>,
+implying that either the effects are homogeneous or our CATE estimates
+are unreliable (we know both to be true in our Motivating Example).</p>
+</div>
+<div class="section level5">
+<h5 id="gates">
+<strong>GATES</strong><a class="anchor" aria-label="anchor" href="#gates"></a>
+</h5>
+<p>We can also use the <code>summary</code> method with the
+<code>target</code> argument to <code>GATES</code> to visualize the
+results of the GATES estimation. The other arguments work as before.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES summary.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, which_models <span class="op">=</span> <span class="va">which_models</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
 <span><span class="co">#&gt; GATES results </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Estimated GATES + 95% confidence intervals: </span></span>
@@ -516,6 +544,12 @@ findings.</p>
 <span><span class="co">#&gt;     Group 3  0.01 [-0.529, 0.554] </span></span>
 <span><span class="co">#&gt;     Group 4  0.11 [-0.490, 0.716] </span></span>
 <span><span class="co">#&gt;     Group 5  0.04 [-0.528, 0.602] </span></span>
+<span><span class="co">#&gt; imai_li: </span></span>
+<span><span class="co">#&gt;     Group 1 -0.08 [-0.786, 0.626] </span></span>
+<span><span class="co">#&gt;     Group 2  0.13 [-0.497, 0.757] </span></span>
+<span><span class="co">#&gt;     Group 3  0.05 [-0.518, 0.618] </span></span>
+<span><span class="co">#&gt;     Group 4  0.15 [-0.418, 0.718] </span></span>
+<span><span class="co">#&gt;     Group 5  0.09 [-0.459, 0.639] </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Hypotheses testing results (p-values): </span></span>
 <span><span class="co">#&gt; wr_none: </span></span>
@@ -526,26 +560,49 @@ findings.</p>
 <span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.623</span></span>
 <span><span class="co">#&gt; aipw   : </span></span>
 <span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.997</span></span>
-<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.847</span></span></code></pre></div>
+<span><span class="co">#&gt;     GATES_K = GATES_1                 : 0.847</span></span>
+<span><span class="co">#&gt; imai_li: </span></span>
+<span><span class="co">#&gt;     GATES_1 = GATES_2 = ... = GATES_K : 0.998</span></span>
+<span><span class="co">#&gt;     GATES_K = GATES_1                 : NA</span></span></code></pre></div>
 <p>All the GATES confidence intervals include the zero, suggesting that
-no group is affected by the treatment (true in our example!). The <span class="math inline">\(p\)</span>-values attached to testing the
-hypotheses that all the GATES are equal and that the most affected and
-the least affected groups feature the same response to the treatment are
-large and lead to a failure in rejecting these hypotheses. To better
-digest GATES point estimates and confidence intervals, we can use the
-<code>plot</code> method setting the <code>target</code> argument to
-<code>"GATES"</code>.</p>
+no group is affected by the treatment (true in our Motivating Example!).
+The <span class="math inline">\(p\)</span>-values attached to testing
+the hypotheses that all the GATES are equal and that the most affected
+and the least affected groups feature the same response to the treatment
+are large and lead to a failure in rejecting these hypotheses.</p>
+<p>To better digest GATES point estimates and confidence intervals, we
+can use the <code>plot</code> method setting the <code>target</code>
+argument to <code>"GATES"</code>. As for the <code>summary</code>
+method, we could use the <code>which_models</code> argument to choose
+which results to display (not needed here).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES plot.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, which_models <span class="op">=</span> <span class="va">which_models</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evaluCATE-short-tutorial_files/figure-html/gates-plot-1.png" width="480"></p>
-<p>Finally, we can look at the estimated TOC curve by calling the
-<code>plot</code> method setting the <code>target</code> argument to
-<code>"TOC"</code>.</p>
+</div>
+<div class="section level5">
+<h5 id="rates">
+<strong>RATEs</strong><a class="anchor" aria-label="anchor" href="#rates"></a>
+</h5>
+<p>Finally, the <code>summary</code> method with the <code>target</code>
+argument to <code>RATE</code> allows us to visualize the results of the
+RATE estimation.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## RATEs summary.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
+<span><span class="co">#&gt; RATEs + 95% confidence intervals: </span></span>
+<span><span class="co">#&gt; AUTOC:  0.11 [-0.135,  0.356] </span></span>
+<span><span class="co">#&gt; QINI:   0.01 [-0.065,  0.089]</span></span></code></pre></div>
+<p>The results agree with BLP.</p>
+<p>We can plot the estimated TOC curve by calling the <code>plot</code>
+method setting the <code>target</code> argument to
+<code>"TOC"</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## TOC curve.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"TOC"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evaluCATE-short-tutorial_files/figure-html/toc-plot-1.png" width="480"></p>
+</div>
+</div>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr>
@@ -561,10 +618,10 @@ testing vignette</a> for more details.<a href="#fnref2" class="footnote-back">�
 The identification hinges on linear projections defined at the
 population level, with the linear regressions constituting their sample
 analogs.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
-<li id="fn4"><p>Additional constructed covariates which are not
-necessary for identifying the targets but can significantly reduce the
-variance of the estimation can be included in the regressions. Details
-can be found in the <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising
+<li id="fn4"><p>For each of these alternatives, additional constructed
+covariates which are not necessary for identifying the targets but can
+significantly reduce the variance of the estimation can be included in
+the regressions. Details can be found in the <a href="https://riccardo-df.github.io/evaluCATE/articles/denoising.html">denoising
 vignette</a>.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 <li id="fn5"><p>See footnotes 3 and 4.<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
 <li id="fn6"><p>If the treatment is harmful, we prioritize units with

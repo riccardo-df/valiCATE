@@ -55,22 +55,22 @@
     </div>
 
     <div class="ref-description">
-    <p>Prints an <code>evaluCATE</code> object.</p>
+    <p>Prints an <code><a href="evaluCATE.html">evaluCATE</a></code> object.</p>
     </div>
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for evaluCATE</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, latex <span class="op">=</span> <span class="cn">FALSE</span>, which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">target</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, latex <span class="op">=</span> <span class="cn">FALSE</span>, which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">GATES</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>x</dt>
-<dd><p>An <code>evaluCATE</code> object.</p></dd>
+<dd><p>An <code><a href="evaluCATE.html">evaluCATE</a></code> object.</p></dd>
 
 
 <dt>target</dt>
-<dd><p>String controlling which plot to display. Must be either <code>"BLP"</code> or <code>"GATES"</code>.</p></dd>
+<dd><p>String controlling which parameters we are interested in. Must be one of <code>"BLP"</code>, <code>"GATES"</code>, <code>"RATE"</code>.</p></dd>
 
 
 <dt>latex</dt>
@@ -78,7 +78,7 @@
 
 
 <dt>which_models</dt>
-<dd><p>Character vector controlling which results to display. Admitted values are <code>"wr_none"</code>, <code>"wr_cddf1"</code>, <code>"wr_cddf2"</code>, <code>"wr_mck1"</code>, <code>"ht_none"</code>, <code>"ht_cddf1"</code>, <code>"ht_cddf2"</code>, <code>"ht_mck1"</code>, <code>"ht_mck2"</code>, <code>"ht_mck3"</code>, <code>"aipw"</code>, <code>"imai_li"</code>.</p></dd>
+<dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(object$GATES)</code>. Ignored if <code>target == "RATE"</code>.</p></dd>
 
 
 <dt>...</dt>
@@ -89,7 +89,7 @@
     <h2>Value</h2>
     
 
-<p>Prints an <code>evaluCATE</code> object.</p>
+<p>Prints an <code><a href="evaluCATE.html">evaluCATE</a></code> object.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -100,143 +100,6 @@
     <p>Riccardo Di Francesco</p>
     </div>
 
-    <div id="ref-examples">
-    <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Generate data.</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1986</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span></span>
-<span class="r-in"><span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">2</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">k</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">mu0</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">mu0</span> <span class="op">+</span> <span class="va">D</span> <span class="op">*</span> <span class="op">(</span><span class="va">mu1</span> <span class="op">-</span> <span class="va">mu0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Sample split.</span></span></span>
-<span class="r-in"><span><span class="va">train_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">X_tr</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="va">train_idx</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">X_val</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span>, <span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">D_tr</span> <span class="op">&lt;-</span> <span class="va">D</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">D_val</span> <span class="op">&lt;-</span> <span class="va">D</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">Y_tr</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">Y_val</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">[</span><span class="op">!</span><span class="va">train_idx</span><span class="op">]</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## CATEs estimation.</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X_tr</span>, <span class="va">Y_tr</span>, <span class="va">D_tr</span><span class="op">)</span> <span class="co"># We use only the training sample.</span></span></span>
-<span class="r-in"><span><span class="va">cates_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">forest</span>, <span class="va">X_val</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span> <span class="co"># We predict on the validation sample.</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## CATEs evaluation. Estimate all nuisances internally. </span></span></span>
-<span class="r-in"><span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions; </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimating AIPW scores; </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATES estimation; </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RATE estimation; </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Output. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co">## Print.</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BLP and RATEs results </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimated ATE + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimated HET + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RATEs results + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> AUTOC:  0.87[ 0.694,  1.051] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> QINI:   0.28[ 0.222,  0.332] </span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span>, latex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \setlength{\tabcolsep}{8pt}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \renewcommand{\arraystretch}{1.1}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \begin{table}[H]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \centering</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{adjustbox}{width = 1\textwidth}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{tabular}{@{\extracolsep{5pt}}l c c c c c c c c c c c}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp; ATE ($\beta_1$) &amp; HET ($\beta_2$)  \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[2pt]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{tabular}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{adjustbox}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \caption{BLP results. $95\%$ confidence intervals are displayed in brackets under each point estimate.}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \label{table_blp_results}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \end{table}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> \endgroup</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> GATES results </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimated GATES + 95% confidence intervals: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Hypotheses testing results (p-values): </span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, latex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \setlength{\tabcolsep}{8pt}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \renewcommand{\arraystretch}{1.1}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \begin{table}[H]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \centering</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{adjustbox}{width = 1\textwidth}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{tabular}{@{\extracolsep{5pt}}l c c c c c}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp; \textit{Group 1} &amp; \textit{Group 2} &amp; \textit{Group 3} &amp; \textit{Group 4} &amp; \textit{Group 5} \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[2pt]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex] </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_none  &amp;  -1.44 &amp;  -0.48 &amp;  -0.27 &amp;   0.52 &amp;   1.35\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.928, -0.952] &amp; [-0.915, -0.045] &amp; [-0.713,  0.173] &amp; [ 0.067,  0.973] &amp; [ 0.825,  1.875] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_cddf1  &amp;  -1.57 &amp;  -0.42 &amp;  -0.38 &amp;   0.47 &amp;   1.36\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-2.036, -1.104] &amp; [-0.839, -0.001] &amp; [-0.782,  0.022] &amp; [ 0.041,  0.899] &amp; [ 0.862,  1.858] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_cddf2  &amp;  -1.55 &amp;  -0.40 &amp;  -0.36 &amp;   0.53 &amp;   1.41\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.932, -1.168] &amp; [-0.816,  0.016] &amp; [-0.764,  0.044] &amp; [ 0.132,  0.928] &amp; [ 1.016,  1.804] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        wr\_mck1  &amp;  -1.55 &amp;  -0.39 &amp;  -0.35 &amp;   0.49 &amp;   1.38\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.928, -1.172] &amp; [-0.800,  0.020] &amp; [-0.758,  0.058] &amp; [ 0.086,  0.894] &amp; [ 0.996,  1.764] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_none  &amp;  -1.44 &amp;  -0.48 &amp;  -0.27 &amp;   0.52 &amp;   1.35\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.928, -0.952] &amp; [-0.915, -0.045] &amp; [-0.713,  0.173] &amp; [ 0.067,  0.973] &amp; [ 0.825,  1.875] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_cddf1  &amp;  -1.57 &amp;  -0.42 &amp;  -0.38 &amp;   0.47 &amp;   1.36\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-2.036, -1.104] &amp; [-0.839, -0.001] &amp; [-0.782,  0.022] &amp; [ 0.041,  0.899] &amp; [ 0.862,  1.858] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_cddf2  &amp;  -1.55 &amp;  -0.40 &amp;  -0.36 &amp;   0.53 &amp;   1.41\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.932, -1.168] &amp; [-0.816,  0.016] &amp; [-0.764,  0.044] &amp; [ 0.132,  0.928] &amp; [ 1.016,  1.804] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_mck1  &amp;  -1.54 &amp;  -0.37 &amp;  -0.37 &amp;   0.51 &amp;   1.41\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.918, -1.162] &amp; [-0.789,  0.049] &amp; [-0.778,  0.038] &amp; [ 0.120,  0.900] &amp; [ 1.022,  1.798] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_mck2  &amp;  -1.52 &amp;  -0.39 &amp;  -0.35 &amp;   0.52 &amp;   1.40\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.898, -1.142] &amp; [-0.802,  0.022] &amp; [-0.752,  0.052] &amp; [ 0.130,  0.910] &amp; [ 1.012,  1.788] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ht\_mck3  &amp;  -1.51 &amp;  -0.39 &amp;  -0.34 &amp;   0.52 &amp;   1.40\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.884, -1.136] &amp; [-0.800,  0.020] &amp; [-0.742,  0.062] &amp; [ 0.130,  0.910] &amp; [ 1.010,  1.790] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        aipw  &amp;  -1.50 &amp;  -0.38 &amp;  -0.32 &amp;   0.55 &amp;   1.43\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.892, -1.108] &amp; [-0.813,  0.053] &amp; [-0.753,  0.113] &amp; [ 0.142,  0.958] &amp; [ 1.014,  1.846] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        imai\_li  &amp;  -1.47 &amp;  -0.49 &amp;  -0.26 &amp;   0.53 &amp;   1.38\\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &amp;  [-1.944, -0.996] &amp; [-0.927, -0.053] &amp; [-0.701,  0.181] &amp; [ 0.083,  0.977] &amp; [ 0.872,  1.888] \\ </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{tabular}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{adjustbox}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \caption{GATES results. $95\%$ confidence intervals are displayed in brackets under each point estimate.}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       \label{table_blp_results}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     \end{table}</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> \endgroup</span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
