@@ -17,6 +17,7 @@
 #' @seealso \code{\link{evaluCATE}}
 #' 
 #' @importFrom stats coef
+#' @importFrom stringr str_sub
 #' 
 #' @author Riccardo Di Francesco
 #' 
@@ -27,8 +28,10 @@ summary.evaluCATE <- function(object, target = "BLP",
   if (!is.logical(latex)) stop("Invalid 'latex'. This must be either TRUE or FALSE.", call. = FALSE)
   if (any(!(which_models %in% names(object$GATES)))) stop("Invalid 'which_models'. Admitted values are those stored in 'names(object$GATES)'.", call. = FALSE)
 
-  n_models_blp <- length(object$BLP)
-  n_models_gates <- length(object$GATES)
+  which_models_blp <- setdiff(which_models, "imai_li")
+  
+  n_models_blp <- length(which_models_blp)
+  n_models_gates <- length(which_models)
   n_groups <- length(object$GATES$wr_none$coefficients)
   
   if (!latex) {
@@ -43,7 +46,7 @@ summary.evaluCATE <- function(object, target = "BLP",
         model <- object$BLP[[i]]
         model_name <- names(object$BLP)[i]
         
-        if (!(model_name %in% which_models)) next
+        if (!(model_name %in% which_models_blp)) next
         
         model_name_space <- paste0(model_name, strrep(" ", max_chars - nchar(model_name)))
         estimated_ate <- format(round(stats::coef(model)[names(stats::coef(model)) == "beta1"], 2), nsmall = 2)
@@ -60,7 +63,7 @@ summary.evaluCATE <- function(object, target = "BLP",
         model <- object$BLP[[i]]
         model_name <- names(object$BLP)[i]
         
-        if (!(model_name %in% which_models)) next
+        if (!(model_name %in% which_models_blp)) next
         
         model_name_space <- paste0(model_name, strrep(" ", max_chars - nchar(model_name)))
         estimated_het <- format(round(stats::coef(model)[names(stats::coef(model)) == "beta2"], 2), nsmall = 2)
@@ -164,13 +167,28 @@ summary.evaluCATE <- function(object, target = "BLP",
       
       names(estimated_ates) <- names(estimated_ates_lower_ci) <- names (estimated_ates_upper_ci) <- names(estimated_hets) <- names(estimated_hets_lower_ci) <- names(estimated_hets_upper_ci) <- unlist(strsplit(names(estimated_ates), ".beta1"))
       
-      estimated_ates <- estimated_ates[which_models]
-      estimated_ates_lower_ci <- estimated_ates_lower_ci[which_models]
-      estimated_ates_upper_ci <- estimated_ates_upper_ci[which_models]
+      which_models_blp <- setdiff(which_models, "imai_li")
+      
+      estimated_ates <- estimated_ates[which_models_blp]
+      estimated_ates_lower_ci <- estimated_ates_lower_ci[which_models_blp]
+      estimated_ates_upper_ci <- estimated_ates_upper_ci[which_models_blp]
 
-      estimated_hets <- estimated_hets[which_models]
-      estimated_hets_lower_ci <- estimated_hets_lower_ci[which_models]
-      estimated_hets_upper_ci <- estimated_hets_upper_ci[which_models]   
+      estimated_hets <- estimated_hets[which_models_blp]
+      estimated_hets_lower_ci <- estimated_hets_lower_ci[which_models_blp]
+      estimated_hets_upper_ci <- estimated_hets_upper_ci[which_models_blp]   
+      
+      model_names_print <- rep(NA, length(which_models_blp))
+      model_names_print[which_models_blp == "wr_none"] <- "WR"
+      model_names_print[which_models_blp == "wr_cddf1"] <- "WR\\_{cddf1}"
+      model_names_print[which_models_blp == "wr_cddf2"] <- "WR\\_{cddf2}"
+      model_names_print[which_models_blp == "wr_mck1"] <- "WR\\_{mck1}"
+      model_names_print[which_models_blp == "ht_none"] <- "HT"
+      model_names_print[which_models_blp == "ht_cddf1"] <- "HT\\_{cddf1}"
+      model_names_print[which_models_blp == "ht_cddf2"] <- "HT\\_{cddf2}"
+      model_names_print[which_models_blp == "ht_mck1"] <- "HT\\_{mck1}"
+      model_names_print[which_models_blp == "ht_mck2"] <- "HT\\_{mck2}"
+      model_names_print[which_models_blp == "ht_mck3"] <- "HT\\_{mck3}"
+      model_names_print[which_models_blp == "aipw"] <- "AIPW"
       
       cat("\\begingroup
     \\setlength{\\tabcolsep}{8pt}
@@ -181,15 +199,15 @@ summary.evaluCATE <- function(object, target = "BLP",
       \\begin{tabular}{@{\\extracolsep{5pt}}l", rep(" c", n_models_blp), "}
       \\\\[-1.8ex]\\hline
       \\hline \\\\[-1.8ex]
-      & ATE ($\\beta_1$) & HET ($\\beta_2$)  \\\\
+      & ", stringr::str_sub(paste(paste0("\\textit{", model_names_print, "} & ")), end = -3), "\\\\
       \\addlinespace[2pt]
       \\hline \\\\[-1.8ex] \n\n", sep = "")
       
-      for (i in seq_len(length(estimated_ates))) {
-        cat("      ", rename_latex(names(estimated_ates)[i]), " & ", estimated_ates[i], " & ", estimated_hets[i], " \\\\ \n", sep = "")
-        cat("                &  ", paste0("[", estimated_ates_lower_ci[i], ", ", estimated_ates_upper_ci[i],  "] & "), paste0("[", estimated_hets_lower_ci[i], ", ", estimated_hets_upper_ci[i],  "]"), " \\\\ \n", sep = "")
-        
-      } ## ADD RATES
+      cat("      ATE ($\\beta_1$) & ", stringr::str_sub(paste(paste0(estimated_ates, " & ")), end = -3), "\\\\ \n", sep = "")
+      cat("      & ", stringr::str_sub(paste0("[", estimated_ates_lower_ci, ", ", estimated_ates_upper_ci,  "] & "), end = -3), "\\\\ \n", sep = "")
+      
+      cat("      HET ($\\beta_2$) & ", stringr::str_sub(paste0(estimated_hets, " & "), end = - 3), "\\\\ \n", sep = "")
+      cat("      & ", stringr::str_sub(paste0("[", estimated_hets_lower_ci, ", ", estimated_hets_upper_ci,  "] & "), end = -3), "\\\\ \n", sep = "")
       
       cat("\n      \\addlinespace[3pt]
       \\\\[-1.8ex]\\hline
