@@ -21,6 +21,33 @@ library(gridExtra)
 library(reshape2)
 ```
 
+In this tutorial, we show how to use the `evaluCATE` package to evaluate your conditional average treatment effect (CATE) predictions. Before diving in the technical details, we need to define notation:
+
+- $Y_i$ &rarr; Observed outcome;
+- $D_i \in \{ 0, 1\}$ &rarr; Treatment indicator;
+- $X_i$ &rarr; Covariate vector;
+- $\mu ( X_i ) := \mathbb{E} [ Y_i | X_i ]$ &rarr; Conditional mean of $Y_i$ given $X_i$;
+- $\mu (d, X_i ) := \mathbb{E} [ Y_i | X_i, D_i = d ]$ &rarr; Conditional mean of $Y_i$ given $X_i$ for subgroup $D_i = d$;
+- $p ( X_i ) := \mathbb{P} [ D_i = 1 | X_i ]$ &rarr; Propensity score;
+- $w ( X_i ) := \frac{1}{p ( X_i ) [ 1 - p ( X_i )]}$ &rarr; Propensity score weights;
+- $H_i := w ( X_i ) [ D_i - p (X_i) ]$ &rarr; Horvitz-Thompson operator;
+- $\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i ) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [ Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}$  &rarr; Doubly-robust (or AIPW) score;
+- $\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ]$ &rarr; Average treatment effect (ATE);
+- $\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATE.
+
+Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
+
+## Motivating Example
+We illustrate the usage of the `evaluCATE` package with simulated data:
+
+- $X_{i} \sim \mathcal{U} ( 0, 1 )$ single uniformly distributed covariate;
+
+- $D_i \sim Bernoulli(1/2)$ randomly assigned treatment;
+
+- $Y_i = X_i + 0 \times D_i + \varepsilon_i$ with $\varepsilon_i \sim \mathcal{N} ( 0, 1 )$;
+
+This implies a homogeneous zero effect, i.e. $\tau ( X_i ) = 0$.
+
 ```{r generate-data, eval = TRUE}
 ## Generate data.
 set.seed(1986)
