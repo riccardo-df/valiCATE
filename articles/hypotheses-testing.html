@@ -89,11 +89,11 @@
 
     
     
-<p>As described in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
-tutorial</a>, we can test particular hypotheses about the BLP, GATES,
-and RATEs to assess whether we detect systematic heterogeneity or just
-estimation noise. In this article, we discuss these hypotheses and their
-implications.</p>
+<p>As outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
+tutorial</a>, we can test specific hypotheses regarding the BLP, GATES,
+and RATEs to evaluate whether we observe systematic heterogeneity or
+merely estimation noise. This article explores these hypotheses and
+their implications.</p>
 <p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html">short
 tutorial</a>.</p>
 <div class="section level3">
@@ -104,7 +104,7 @@ tutorial</a>.</p>
 0\)</span> in two cases:</p>
 <ul>
 <li>If <span class="math inline">\(\tau ( x) = \tau\)</span> for all
-<span class="math inline">\(x\)</span> (that is, if effects are
+<span class="math inline">\(x\)</span> (that is, if the effects are
 homogeneous);</li>
 <li>If <span class="math inline">\(\hat{\tau} ( \cdot )\)</span> is pure
 noise uncorrelated to <span class="math inline">\(\tau ( \cdot
@@ -117,38 +117,38 @@ the other hand, <span class="math inline">\(Cov [ \tau ( X_i ),
 <span class="math inline">\(x\)</span> (that is, if we have “perfect”
 CATE estimates). Therefore, <span class="math inline">\(\beta_2 \approx
 1\)</span> if our CATE estimates are reliable.</p>
-<p>We can thus consider the hypothesis <span class="math inline">\(\beta_2 = 0\)</span> as an hypothesis for effect
-heterogeneity and reliability of our CATE estimates. If the effects are
-homogeneous, or if our estimates are “bad” (or if both conditions hold),
-then <span class="math inline">\(\beta_2\)</span> is going to be close
-to zero and we should fail to reject our hypothesis. On the other hand,
-if the effects are heterogeneous and our estimates are “good,” then
-<span class="math inline">\(\beta_2\)</span> is going to be close to one
-and we should reject our hypothesis.</p>
+<p>We can thus consider the hypothesis <span class="math inline">\(\beta_2 = 0\)</span> as a test for effect
+heterogeneity and the reliability of our CATE estimates. If the effects
+are homogeneous, or if our estimates are unreliable (or if both
+conditions hold), then <span class="math inline">\(\beta_2\)</span> is
+close to zero, and we should fail to reject our hypothesis. Conversely,
+if the effects are heterogeneous and our estimates are accurate, then
+<span class="math inline">\(\beta_2\)</span> is close to one, and we
+should reject our hypothesis.</p>
 <p>If we estimate the BLP by one of the strategies outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
-tutorial</a> and using only the validation sample, then <span class="math inline">\(\hat{\beta}_2\)</span> features well-behaved
-asymptotic properties conditioned on the training sample, thus allowing
-us to use standard tools for inference (e.g., conventional confidence
-intervals and <span class="math inline">\(p\)</span>-values).</p>
+tutorial</a> and using only the validation sample, then <span class="math inline">\(\hat{\beta}_2\)</span> exhibits well-behaved
+asymptotic properties conditioned on the training sample. This enables
+us to employ standard tools for inference, such as conventional
+confidence intervals and <span class="math inline">\(p\)</span>-values.</p>
 </div>
 <div class="section level3">
 <h3 id="gates">GATES<a class="anchor" aria-label="anchor" href="#gates"></a>
 </h3>
-<p>One could compare the estimated GATES to evaluate how different
-groups respond differently to the treatment. However, discrepancies in
-the point estimates can arise simply due to estimation noise.</p>
-<p>A more proper method for assessing the presence of systematic
-heterogeneity is to test the hypothesis that all GATES are the same,
-that is, <span class="math inline">\(\gamma_1 = \gamma_2 = \dots =
-\gamma_K\)</span>. Alternatively, we can test whether the difference of
+<p>One could compare the estimated GATES to evaluate how various groups
+respond differently to the treatment. However, disparities in the point
+estimates can emerge merely due to estimation noise.</p>
+<p>A more appropriate method for assessing the presence of systematic
+heterogeneity is to test the hypothesis that all GATES are identical,
+namely <span class="math inline">\(\gamma_1 = \gamma_2 = \dots =
+\gamma_K\)</span>. Alternatively, we can test whether the difference in
 the GATES for the most and least affected groups is statistically
 significant, that is, <span class="math inline">\(\gamma_K =
 \gamma_1\)</span>.</p>
 <p>If we estimate the GATES by one of the strategies outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
-tutorial</a> and using only the validation sample, then <span class="math inline">\(\hat{\gamma}_k\)</span> features well-behaved
-asymptotic properties conditioned on the training sample, thus allowing
-us to use standard tools for inference (e.g., conventional confidence
-intervals and <span class="math inline">\(p\)</span>-values).</p>
+tutorial</a> and using only the validation sample, then <span class="math inline">\(\hat{\gamma}_k\)</span> exhibits well-behaved
+asymptotic properties conditioned on the training sample. This enables
+us to employ standard tools for inference, such as conventional
+confidence intervals and <span class="math inline">\(p\)</span>-values.</p>
 </div>
 <div class="section level3">
 <h3 id="rate">RATE<a class="anchor" aria-label="anchor" href="#rate"></a>
@@ -158,7 +158,7 @@ intervals and <span class="math inline">\(p\)</span>-values).</p>
 two cases:</p>
 <ul>
 <li>If <span class="math inline">\(\tau ( x) = \tau\)</span> for all
-<span class="math inline">\(x\)</span> (that is, if effects are
+<span class="math inline">\(x\)</span> (that is, if the effects are
 homogeneous);</li>
 <li>If <span class="math inline">\(\hat{\tau} ( \cdot )\)</span> is pure
 noise uncorrelated to <span class="math inline">\(\tau ( \cdot
@@ -166,20 +166,19 @@ noise uncorrelated to <span class="math inline">\(\tau ( \cdot
 </ul>
 <p>Consequently, <span class="math inline">\(\theta_{\alpha} (
 \hat{\tau} ) = 0\)</span> either if the effects are homogeneous or our
-CATE estimates are unreliable. We can thus consider the hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau} ) = 0\)</span> as an
-hypothesis for effect heterogeneity and reliability of our CATE
-estimates. If the effects are homogeneous, or if our estimates are “bad”
-(or if both conditions hold), then <span class="math inline">\(\theta_{\alpha} ( \hat{\tau} )\)</span> is going
-to be close to zero and we should fail to reject our hypothesis. On the
-other hand, if the effects are heterogeneous and our estimates are
-“good,” then <span class="math inline">\(\theta_{\alpha} ( \hat{\tau}
-)\)</span> is going to be large enough and we should reject our
-hypothesis.</p>
+CATE estimates are unreliable.</p>
+<p>We can thus consider the hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau} ) = 0\)</span> as a
+test for effect heterogeneity and the reliability of our CATE estimates.
+If the effects are homogeneous, or if our estimates are unreliable (or
+if both conditions hold), then <span class="math inline">\(\theta_{\alpha} ( \hat{\tau} )\)</span> is close
+to zero, and we should fail to reject our hypothesis. Conversely, if the
+effects are heterogeneous and our estimates are accurate, then <span class="math inline">\(\theta_{\alpha} ( \hat{\tau} )\)</span> is large
+enough so that should reject our hypothesis.</p>
 <p>If we estimate the RATE by the strategy outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html">short
 tutorial</a> and using only the validation sample, then <span class="math inline">\(\hat{\theta}_{\alpha} ( \hat{\tau} )\)</span>
-features well-behaved asymptotic properties conditioned on the training
-sample, thus allowing us to use standard tools for inference (e.g.,
-conventional confidence intervals and <span class="math inline">\(p\)</span>-values).</p>
+exhibits well-behaved asymptotic properties conditioned on the training
+sample. This enables us to employ standard tools for inference, such as
+conventional confidence intervals and <span class="math inline">\(p\)</span>-values.</p>
 </div>
   </div>
 
