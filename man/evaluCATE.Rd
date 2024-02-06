@@ -128,9 +128,6 @@ Y_tr <- Y[train_idx]
 Y_val <- Y[!train_idx]
 
 ## CATEs estimation. Models are estimated with training sample.
-# Random noise.
-cates_val_noise <- rnorm(length(Y_val))
-
 # T-learner.
 library(grf)
 
@@ -152,8 +149,7 @@ denoising <- "none"
 pscore_val <- rep(0.5, length(Y_val))
 
 # Construct CATEs list.
-cates_val <- list("noise" = cates_val_noise,
-                   "T-learner" = cates_val_t,
+cates_val <- list("T-learner" = cates_val_t,
                   "grf" = cates_val_grf)
 
 # Call main function.

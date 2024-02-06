@@ -52,9 +52,6 @@
 #' Y_val <- Y[!train_idx]
 #' 
 #' ## CATEs estimation. Models are estimated with training sample.
-#' # Random noise.
-#' cates_val_noise <- rnorm(length(Y_val))
-#' 
 #' # T-learner.
 #' library(grf)
 #' 
@@ -76,8 +73,7 @@
 #' pscore_val <- rep(0.5, length(Y_val))
 #' 
 #' # Construct CATEs list.
-#' cates_val <- list("noise" = cates_val_noise,
-#'                    "T-learner" = cates_val_t,
+#' cates_val <- list("T-learner" = cates_val_t,
 #'                   "grf" = cates_val_grf)
 #' 
 #' # Call main function.
@@ -153,8 +149,8 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
   if (!is.matrix(X_tr) & !is.data.frame(X_tr)) stop("Invalid 'X_tr'. This must be either a matrix or a data frame.", call. = FALSE)
   if (!is.matrix(X_val) & !is.data.frame(X_val)) stop("Invalid 'X_val'. This must be either a matrix or a data frame.", call. = FALSE)
   if (any(sapply(cates_val, stats::var) == 0)) stop("No variation in at least one element of 'cates_val'.", call. = FALSE)
-  if (any(!(strategies %in% c("WR", "HT", "AIPW")))) stop("Invalid 'strategies'. Must be one of 'none', 'cddf1', 'cddf2', 'mck1', 'mck2', or 'mck3'.", call. = FALSE)
-  if (any(!(denoising %in% c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3")))) stop("Invalid 'strategies'. Must be one of 'WR', 'HT', or 'AIPW'.", call. = FALSE)
+  if (any(!(strategies %in% c("WR", "HT", "AIPW")))) stop("Invalid 'strategies'. Must be one of 'WR', 'HT', 'AIPW'.", call. = FALSE)
+  if (any(!(denoising %in% c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3")))) stop("Invalid 'denoising'. Must be one of 'none', 'cddf1', 'cddf2', 'mck1', 'mck2', 'mck3'.", call. = FALSE)
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
   if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
   if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)

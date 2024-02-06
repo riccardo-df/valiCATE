@@ -187,6 +187,8 @@ summary.evaluCATE <- function(object, target = "BLP",
       
       cli::cli_h1("")
       
+      cat("\n")
+      
       cli::cli_h1("HYPOTHESIS TESTING RESULTS (p-values)")
 
       for (j in seq_len(length(cate_models))) {
@@ -596,7 +598,7 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES[[1]
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
         ggplot2::scale_color_hue(labels = c(expression("TOC"), expression("u" %*% "TOC"))) +
         ggplot2::facet_grid(cols = vars(factor(CATE_estimator, levels = cate_models))) +
-        ggplot2::xlab("Fraction treated") +ggplot2:: ylab("") +
+        ggplot2::xlab("Fraction treated") + ggplot2:: ylab("") +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = c(0.9, 0.9), legend.title = ggplot2::element_blank(), legend.direction = "vertical", legend.text = element_text(size = 7),
                        strip.text.x = ggplot2::element_text(size = 10, face = "italic"), strip.text.y = ggplot2::element_text(size = 10, face = "italic"))
@@ -610,7 +612,7 @@ plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES[[1]
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
         ggplot2::scale_color_hue(labels = c(expression("TOC"), expression("u" %*% "TOC"))) +
         ggplot2::facet_grid(cols = vars(factor(CATE_estimator, levels = cate_models))) +
-        ggplot2::xlab("Fraction treated") +ggplot2:: ylab("") +
+        ggplot2::xlab("Fraction treated") + ggplot2:: ylab("") +
         ggplot2::theme_bw() +
         ggplot2::theme(legend.position = c(0.9, 0.9), legend.title = ggplot2::element_blank(), legend.direction = "vertical", legend.text = element_text(size = 7),
                        strip.text.x = ggplot2::element_text(size = 10, face = "italic"), strip.text.y = ggplot2::element_text(size = 10, face = "italic"))

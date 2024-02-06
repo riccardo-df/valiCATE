@@ -1,10 +1,10 @@
-# Evaluation of CATE Estimates <a href="https://riccardo-df.github.io/evaluCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
+# Evaluating Machine Learning Estimated Conditional Average Treatment Effects in RCTs <a href="https://riccardo-df.github.io/evaluCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/riccardo-df/evaluCATE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/riccardo-df/evaluCATE/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-R package to estimate and make inference about key features of heterogeneous treatment effects.
+Quality evaluation of machine learning estimated conditional average treatment effects (CATEs). The quality is assessed by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs. 
 
 To get started, please check the online [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html).
 
@@ -26,6 +26,16 @@ devtools::install_github("riccardo-df/evaluCATE") # run install.packages("devtoo
 <b>Generic machine learning inference on heterogeneous treatment effects in randomized experiments.</b>
 <i>National Bureau of Economic Research</i>.
 [<a href="https://arxiv.org/abs/1712.04802">paper</a>]
+
+- Athey, S., Tibshirani, J., & Wager, S. (2019).
+<b>Generalized random forests.</b>
+<i>Annals of Statistics</i>.
+[<a href="https://projecteuclid.org/journals/annals-of-statistics/volume-47/issue-2/Generalized-random-forests/10.1214/18-AOS1709.full">paper</a>]
+
+- Künzel, S. R., Sekhon, J. S., Bickel, P. J., & Yu, B. (2019).
+<b>Metalearners for estimating heterogeneous treatment effects using machine learning.</b>
+<i>Proceedings of the National Academy of Sciences</i>.
+[<a href="https://www.pnas.org/doi/abs/10.1073/pnas.1804597116">paper</a>]
 
 - Imai, K., & Li, M. (2021).
 <b>Statistical inference for heterogeneous treatment effects discovered by generic machine learning in randomized experiments.</b>
