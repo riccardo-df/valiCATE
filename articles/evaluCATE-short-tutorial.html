@@ -89,6 +89,62 @@
 
     
     
+<p>In this tutorial, we show how to use the <code>evaluCATE</code>
+package to evaluate your conditional average treatment effect (CATE)
+predictions. Before diving in the technical details, we need to define
+notation:</p>
+<ul>
+<li>
+<span class="math inline">\(Y_i\)</span> → Observed outcome;</li>
+<li>
+<span class="math inline">\(D_i \in \{ 0, 1\}\)</span> → Treatment
+indicator;</li>
+<li>
+<span class="math inline">\(X_i\)</span> → Covariate vector;</li>
+<li>
+<span class="math inline">\(\mu ( X_i ) := \mathbb{E} [ Y_i | X_i
+]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</span> given <span class="math inline">\(X_i\)</span>;</li>
+<li>
+<span class="math inline">\(\mu (d, X_i ) := \mathbb{E} [ Y_i | X_i,
+D_i = d ]\)</span> → Conditional mean of <span class="math inline">\(Y_i\)</span> given <span class="math inline">\(X_i\)</span> for subgroup <span class="math inline">\(D_i = d\)</span>;</li>
+<li>
+<span class="math inline">\(p ( X_i ) := \mathbb{P} [ D_i = 1 | X_i
+]\)</span> → Propensity score;</li>
+<li>
+<span class="math inline">\(w ( X_i ) := \frac{1}{p ( X_i ) [ 1 - p
+( X_i )]}\)</span> → Propensity score weights;</li>
+<li>
+<span class="math inline">\(H_i := w ( X_i ) [ D_i - p (X_i)
+]\)</span> → Horvitz-Thompson operator;</li>
+<li>
+<span class="math inline">\(\Gamma_i := \mu_1 ( X_i ) - \mu_0 ( X_i
+) + \frac{D_i [ Y_i - \mu_1 ( X_i ) ]}{p ( X_i )} - \frac{[ 1 - D_i ] [
+Y_i - \mu_0 ( X_i ) ]}{1 - p ( X_i )}\)</span> → Doubly-robust (or AIPW)
+score;</li>
+<li>
+<span class="math inline">\(\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0
+) ]\)</span> → Average treatment effect (ATE);</li>
+<li>
+<span class="math inline">\(\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) -
+Y_i ( 0 ) | X_i ]\)</span> → CATE.</li>
+</ul>
+<p>Throughout the rest of the tutorial, we assume SUTVA and
+unconfoundedness (e.g., Imbens and Rubin, 2015).</p>
+<div class="section level2">
+<h2 id="motivating-example">Motivating Example<a class="anchor" aria-label="anchor" href="#motivating-example"></a>
+</h2>
+<p>We illustrate the usage of the <code>evaluCATE</code> package with
+simulated data:</p>
+<ul>
+<li><p><span class="math inline">\(X_{i} \sim \mathcal{U} ( 0, 1
+)\)</span> single uniformly distributed covariate;</p></li>
+<li><p><span class="math inline">\(D_i \sim Bernoulli(1/2)\)</span>
+randomly assigned treatment;</p></li>
+<li><p><span class="math inline">\(Y_i = X_i + 0 \times D_i +
+\varepsilon_i\)</span> with <span class="math inline">\(\varepsilon_i
+\sim \mathcal{N} ( 0, 1 )\)</span>;</p></li>
+</ul>
+<p>This implies a homogeneous zero effect, i.e. <span class="math inline">\(\tau ( X_i ) = 0\)</span>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Generate data.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1986</span><span class="op">)</span></span>
@@ -172,6 +228,7 @@ purpose of the <code>evaluCATE</code> package.</p>
 <span><span class="co">## Grid.</span></span>
 <span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">p1</span>, <span class="va">p2</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="evaluCATE-short-tutorial_files/figure-html/cates-plot-1.png" width="672"></p>
+</div>
 <div class="section level2">
 <h2 id="quality-evaluation">Quality Evaluation<a class="anchor" aria-label="anchor" href="#quality-evaluation"></a>
 </h2>
