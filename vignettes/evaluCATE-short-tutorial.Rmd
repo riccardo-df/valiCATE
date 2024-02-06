@@ -21,7 +21,9 @@ library(gridExtra)
 library(reshape2)
 ```
 
-In this tutorial, we show how to use the `evaluCATE` package to evaluate your conditional average treatment effect (CATE) predictions. Before diving in the technical details, we need to define notation:
+In this tutorial, we show how to use the `evaluCATE` package to evaluate machine learning estimated conditional average treatment effects (CATEs). 
+
+Before diving in the technical details, we need to define notation:
 
 - $Y_i$ &rarr; Observed outcome;
 - $D_i \in \{ 0, 1\}$ &rarr; Treatment indicator;
@@ -35,7 +37,7 @@ In this tutorial, we show how to use the `evaluCATE` package to evaluate your co
 - $\tau := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) ]$ &rarr; Average treatment effect (ATE);
 - $\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) - Y_i ( 0 ) | X_i ]$ &rarr; CATE.
 
-Throughout the rest of the tutorial, we assume SUTVA and unconfoundedness (e.g., Imbens and Rubin, 2015).
+Throughout the rest of the tutorial, we assume SUTVA and a randomized treatment assignment.
 
 ## Motivating Example
 We illustrate the usage of the `evaluCATE` package with simulated data:
