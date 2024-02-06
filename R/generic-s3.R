@@ -119,76 +119,76 @@ summary.evaluCATE <- function(object, target = "BLP",
       cli::cli_h1("")
     } else if (target == "GATES") {
       limits_table <- 6
-      cli::cli_h1("GATES RESULTS")
-
-      for (j in seq_len(length(cate_models))) {
-        cli::cli_h2(cate_models[j])
-
-        group_string <- paste0(strrep(" ", limits_table), "GROUP", 1:n_groups, paste0(strrep(" ", limits_table)), "|")
-      
-        cat(paste0(strrep(" ", limits_table), "MODEL", paste0(strrep(" ", limits_table))), "|", group_string, "\n")
-        cat(strrep("-", limits_table * 2 + nchar("MODEL ")), "|", strrep(paste0(strrep("-", limits_table * 2 + nchar("groupk ")), "|"), n_groups), "\n", sep = "")
-        
-        for (i in seq_len(n_models_gates)) {
-          model <- object$GATES[[j]][[i]]
-          model_name <- names(object$GATES[[j]])[i]
-          
-          if (!(model_name %in% which_models)) next
-          
-          if (model_name != "imai_li") {
-            estimated_gates <- format(round(stats::coef(model)[grepl("group", names(stats::coef(model)))], 2), nsmall = 2)
-            lower_ci <- format(round(model$conf.low[grepl("group", names(stats::coef(model)))], 3), nsmall = 3)
-            upper_ci <- format(round(model$conf.high[grepl("group", names(stats::coef(model)))], 3), nsmall = 3)
-          } else if (model_name == "imai_li") {
-            estimated_gates <- format(round(model$GATE, 2), nsmall = 2)
-            estimated_ses <- format(round(model$SE, 2), nsmall = 3)
-            
-            lower_ci <- format(round(as.numeric(estimated_gates) - 1.96 * as.numeric(estimated_ses), 3), nsmall = 3)
-            upper_ci <- format(round(as.numeric(estimated_gates) + 1.96 * as.numeric(estimated_ses), 3), nsmall = 3)
-          }
-          
-          cis_print <- paste0("[", lower_ci, ", ", upper_ci, "]")
-
-          fill_model <- limits_table * 2 + (nchar("MODEL") - nchar(model_name))
-          fill_gates <- (limits_table * 2 + (nchar("groupk") - nchar(estimated_gates)))[1]
-          fill_cis <- (limits_table * 2 + (nchar("groupk") - nchar(cis_print)))[1]
-          
-          if (fill_model %% 2 == 0) {
-            fill_model_left <- fill_model / 2 
-            fill_model_right <- fill_model / 2 
-          } else {
-            fill_model_left <- (fill_model + 1) / 2 
-            fill_model_right <- (fill_model - 1) / 2 
-          }
-          
-          if (fill_gates %% 2 == 0) {
-            fill_gates_left <- fill_gates / 2 
-            fill_gates_right <- fill_gates / 2 
-          } else {
-            fill_gates_left <- (fill_gates + 1) / 2 
-            fill_gates_right <- (fill_gates - 1) / 2 
-          }
-          
-          if (fill_cis %% 2 == 0) {
-            fill_cis_left <- fill_cis / 2 
-            fill_cis_right <- fill_cis / 2 
-          } else {
-            fill_cis_left <- (fill_cis + 1) / 2 
-            fill_cis_right <- (fill_cis - 1) / 2 
-          }
-          
-          gates_string <- paste0(strrep(" ", fill_gates_left), estimated_gates, paste0(strrep(" ", fill_gates_right)), "|")
-          cis_string <- paste0(strrep(" ", fill_cis_left), cis_print, paste0(strrep(" ", fill_cis_right)), "|")
-          
-          cat(paste0(strrep(" ", fill_model_left), model_name, paste0(strrep(" ", fill_model_right))), "|", gates_string, "\n")
-          cat(strrep(" ", limits_table * 2 + nchar("MODEL")), "|", cis_string, " \n")    
-        }
-      }
-      
-      cli::cli_h1("")
-      
-      cat("\n")
-      
+      # cli::cli_h1("GATES RESULTS")
+      # 
+      # for (j in seq_len(length(cate_models))) {
+      #   cli::cli_h2(cate_models[j])
+      # 
+      #   group_string <- paste0(strrep(" ", limits_table), "GROUP", 1:n_groups, paste0(strrep(" ", limits_table)), "|")
+      # 
+      #   cat(paste0(strrep(" ", limits_table), "MODEL", paste0(strrep(" ", limits_table))), "|", group_string, "\n")
+      #   cat(strrep("-", limits_table * 2 + nchar("MODEL ")), "|", strrep(paste0(strrep("-", limits_table * 2 + nchar("groupk ")), "|"), n_groups), "\n", sep = "")
+      #   
+      #   for (i in seq_len(n_models_gates)) {
+      #     model <- object$GATES[[j]][[i]]
+      #     model_name <- names(object$GATES[[j]])[i]
+      #     
+      #     if (!(model_name %in% which_models)) next
+      #     
+      #     if (model_name != "imai_li") {
+      #       estimated_gates <- format(round(stats::coef(model)[grepl("group", names(stats::coef(model)))], 2), nsmall = 2)
+      #       lower_ci <- format(round(model$conf.low[grepl("group", names(stats::coef(model)))], 3), nsmall = 3)
+      #       upper_ci <- format(round(model$conf.high[grepl("group", names(stats::coef(model)))], 3), nsmall = 3)
+      #     } else if (model_name == "imai_li") {
+      #       estimated_gates <- format(round(model$GATE, 2), nsmall = 2)
+      #       estimated_ses <- format(round(model$SE, 2), nsmall = 3)
+      #       
+      #       lower_ci <- format(round(as.numeric(estimated_gates) - 1.96 * as.numeric(estimated_ses), 3), nsmall = 3)
+      #       upper_ci <- format(round(as.numeric(estimated_gates) + 1.96 * as.numeric(estimated_ses), 3), nsmall = 3)
+      #     }
+      #     
+      #     cis_print <- paste0("[", lower_ci, ", ", upper_ci, "]")
+      # 
+      #     fill_model <- limits_table * 2 + (nchar("MODEL") - nchar(model_name))
+      #     fill_gates <- (limits_table * 2 + (nchar("groupk") - nchar(estimated_gates)))[1]
+      #     fill_cis <- (limits_table * 2 + (nchar("groupk") - nchar(cis_print)))[1]
+      #     
+      #     if (fill_model %% 2 == 0) {
+      #       fill_model_left <- fill_model / 2 
+      #       fill_model_right <- fill_model / 2 
+      #     } else {
+      #       fill_model_left <- (fill_model + 1) / 2 
+      #       fill_model_right <- (fill_model - 1) / 2 
+      #     }
+      #     
+      #     if (fill_gates %% 2 == 0) {
+      #       fill_gates_left <- fill_gates / 2 
+      #       fill_gates_right <- fill_gates / 2 
+      #     } else {
+      #       fill_gates_left <- (fill_gates + 1) / 2 
+      #       fill_gates_right <- (fill_gates - 1) / 2 
+      #     }
+      #     
+      #     if (fill_cis %% 2 == 0) {
+      #       fill_cis_left <- fill_cis / 2 
+      #       fill_cis_right <- fill_cis / 2 
+      #     } else {
+      #       fill_cis_left <- (fill_cis + 1) / 2 
+      #       fill_cis_right <- (fill_cis - 1) / 2 
+      #     }
+      #     
+      #     gates_string <- paste0(strrep(" ", fill_gates_left), estimated_gates, paste0(strrep(" ", fill_gates_right)), "|")
+      #     cis_string <- paste0(strrep(" ", fill_cis_left), cis_print, paste0(strrep(" ", fill_cis_right)), "|")
+      #     
+      #     cat(paste0(strrep(" ", fill_model_left), model_name, paste0(strrep(" ", fill_model_right))), "|", gates_string, "\n")
+      #     cat(strrep(" ", limits_table * 2 + nchar("MODEL")), "|", cis_string, " \n")    
+      #   }
+      # }
+      # 
+      # cli::cli_h1("")
+      # 
+      # cat("\n")
+      # 
       cli::cli_h1("HYPOTHESIS TESTING RESULTS (p-values)")
 
       for (j in seq_len(length(cate_models))) {

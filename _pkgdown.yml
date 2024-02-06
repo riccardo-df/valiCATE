@@ -12,6 +12,8 @@ navbar:
     href: articles/denoising.html
   - text: "Hypotheses Testing"
     href: articles/hypotheses-testing.html
+  - text: "More on Plotting"
+    href: articles/more-on-plotting.html
   - text: "Reference"
     href: reference/index.html
   right:
