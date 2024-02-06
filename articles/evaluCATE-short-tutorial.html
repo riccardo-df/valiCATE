@@ -93,8 +93,9 @@
     
     
 <p>In this tutorial, we show how to use the <code>evaluCATE</code>
-package to evaluate your conditional average treatment effect (CATE)
-predictions. Before diving in the technical details, we need to define
+package to evaluate machine learning estimated conditional average
+treatment effects (CATEs).</p>
+<p>Before diving in the technical details, we need to define
 notation:</p>
 <ul>
 <li>
@@ -131,8 +132,8 @@ score;</li>
 <span class="math inline">\(\tau ( X_i ) := \mathbb{E} [ Y_i ( 1 ) -
 Y_i ( 0 ) | X_i ]\)</span> → CATE.</li>
 </ul>
-<p>Throughout the rest of the tutorial, we assume SUTVA and
-unconfoundedness (e.g., Imbens and Rubin, 2015).</p>
+<p>Throughout the rest of the tutorial, we assume SUTVA and a randomized
+treatment assignment.</p>
 <div class="section level2">
 <h2 id="motivating-example">Motivating Example<a class="anchor" aria-label="anchor" href="#motivating-example"></a>
 </h2>
