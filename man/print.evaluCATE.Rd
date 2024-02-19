@@ -4,7 +4,13 @@
 \alias{print.evaluCATE}
 \title{Print Method for evaluCATE Objects}
 \usage{
-\method{print}{evaluCATE}(x, target = "BLP", latex = FALSE, which_models = names(x$GATES), ...)
+\method{print}{evaluCATE}(
+  x,
+  target = "BLP",
+  latex = FALSE,
+  which_models = names(x$GATES[[1]]),
+  ...
+)
 }
 \arguments{
 \item{x}{An \code{\link{evaluCATE}} object.}
