@@ -482,12 +482,10 @@ default option and display all results.</p>
 <p>We consistently fail to reject the hypothesis <span class="math inline">\(\beta_2 = 0\)</span>, suggesting that either the
 effects are homogeneous or our CATE estimates are unreliable (both are
 true in our Motivating Example). Given our knowledge of the DGP, the
-results indicate that both models produce unreliable estimates, with the
-causal forest estimator performing somewhat better (although we cannot
-(yet) formally test whether <span class="math inline">\(\beta_2^{CF}
-&gt; \beta_2^{T}\)</span>). Overall, the BLP analysis suggests that the
-heterogeneity implied by the distribution of the estimated CATEs might
-be merely estimation noise.</p>
+results indicate that both models produce unreliable estimates. Overall,
+the BLP analysis suggests that the heterogeneity implied by the
+distribution of the estimated CATEs might be merely estimation
+noise.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## BLP summary.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"BLP"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
@@ -518,8 +516,8 @@ can call the <code>plot</code> method and set the <code>target</code>
 argument to GATES. Similarly to the <code>summary</code> method, we
 could utilize the <code>which_models</code> argument to select which
 results to display, although it is not necessary in this context.</p>
-<p>All GATES confidence intervals encompass zero, indicating that no
-group is affected by the treatment (true in our Motivating Example!).
+<p>Almost all GATES confidence intervals encompass zero, indicating that
+no group is affected by the treatment (true in our Motivating Example!).
 The estimated <span class="math inline">\(p\)</span>-values for testing
 the hypotheses that all GATES are equal and that the most and least
 affected groups exhibit the same response to treatment are large,
@@ -560,10 +558,7 @@ curve <span class="math inline">\(u \times TOC (u;
 consistently fail to reject the hypothesis <span class="math inline">\(\theta_{\alpha} ( \hat{\tau} ) = 0\)</span>,
 suggesting that either the effects are homogeneous or our CATE estimates
 are unreliable. Given our knowledge of the DGP, the results indicate
-that both models produce unreliable estimates, with the causal forest
-estimator performing somewhat better (although we cannot (yet) formally
-test whether <span class="math inline">\(\theta_{\alpha}^{CF} &gt;
-\theta_{\alpha}^{T}\)</span>).</p>
+that both models produce unreliable estimates.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## RATEs summary.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span><span class="op">)</span> <span class="co"># Try 'latex = TRUE'.</span></span>
