@@ -425,7 +425,7 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' 
 #' @export
 print.evaluCATE <- function(x, target = "BLP", 
-                            latex = FALSE, which_models = names(x$GATES), ...) {
+                            latex = FALSE, which_models = names(x$GATES[[1]]), ...) {
   summary.evaluCATE(x, target, latex, which_models, ...)
 }
 
