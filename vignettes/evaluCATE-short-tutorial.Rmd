@@ -251,7 +251,7 @@ evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strate
 ### Results
 The `summary` method enables us to visualize the results of the BLP estimation when we set the `target` argument to BLP. The `latex` argument determines whether the raw results or LATEX code for a table will be displayed in the console. Additionally, we can use the `which_models` argument to select which results to display, which is useful to avoid a lengthy output. Since we have estimated a small number of models, we opt for the default option and display all results.
 
-We consistently fail to reject the hypothesis $\beta_2 = 0$, suggesting that either the effects are homogeneous or our CATE estimates are unreliable (both are true in our Motivating Example). Given our knowledge of the DGP, the results indicate that both models produce unreliable estimates, with the causal forest estimator performing somewhat better (although we cannot (yet) formally test whether $\beta_2^{CF} > \beta_2^{T}$). Overall, the BLP analysis suggests that the heterogeneity implied by the distribution of the estimated CATEs might be merely estimation noise.
+We consistently fail to reject the hypothesis $\beta_2 = 0$, suggesting that either the effects are homogeneous or our CATE estimates are unreliable (both are true in our Motivating Example). Given our knowledge of the DGP, the results indicate that both models produce unreliable estimates. Overall, the BLP analysis suggests that the heterogeneity implied by the distribution of the estimated CATEs might be merely estimation noise.
 
 ```{r blp-results, eval = TRUE}
 ## BLP summary.
@@ -260,7 +260,7 @@ summary(evaluation, target = "BLP") # Try 'latex = TRUE'.
 
 We can call the `summary` method with the `target` argument set to GATES to visualize the results of the GATES hypotheses testing, with the other arguments functioning as before. To visualize GATES point estimates and confidence intervals, we can call the `plot` method and set the `target` argument to GATES. Similarly to the `summary` method, we could utilize the `which_models` argument to select which results to display, although it is not necessary in this context.
 
-All GATES confidence intervals encompass zero, indicating that no group is affected by the treatment (true in our Motivating Example!). The estimated $p$-values for testing the hypotheses that all GATES are equal and that the most and least affected groups exhibit the same response to treatment are large, resulting in a failure to reject these hypotheses. This GATES analysis offers additional evidence that the effects are not heterogeneous.
+Almost all GATES confidence intervals encompass zero, indicating that no group is affected by the treatment (true in our Motivating Example!). The estimated $p$-values for testing the hypotheses that all GATES are equal and that the most and least affected groups exhibit the same response to treatment are large, resulting in a failure to reject these hypotheses. This GATES analysis offers additional evidence that the effects are not heterogeneous.
 
 ```{r gates-results, eval = TRUE, fig.dim = c(5, 5)}
 ## GATES summary.
@@ -271,7 +271,7 @@ plot(evaluation, target = "GATES")
 
 Lastly, calling the `summary` method with the `target` argument set to RATE enables us to visualize the results of the RATE estimation. To plot the estimated TOC curve, we can call the `plot` method and set the `target` argument to TOC. The AUTOC coefficient corresponds to the area under the TOC curve, while the QINI coefficient corresponds to the area under the curve $u \times TOC (u; \hat{\tau})$.
 
-Overall, the results align with those of the BLP analysis. We consistently fail to reject the hypothesis $\theta_{\alpha} ( \hat{\tau} ) = 0$, suggesting that either the effects are homogeneous or our CATE estimates are unreliable. Given our knowledge of the DGP, the results indicate that both models produce unreliable estimates, with the causal forest estimator performing somewhat better (although we cannot (yet) formally test whether $\theta_{\alpha}^{CF} > \theta_{\alpha}^{T}$).
+Overall, the results align with those of the BLP analysis. We consistently fail to reject the hypothesis $\theta_{\alpha} ( \hat{\tau} ) = 0$, suggesting that either the effects are homogeneous or our CATE estimates are unreliable. Given our knowledge of the DGP, the results indicate that both models produce unreliable estimates.
 
 ```{r rates-results, eval = TRUE, fig.dim = c(5, 3)}
 ## RATEs summary.
