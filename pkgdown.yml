@@ -1,4 +1,4 @@
-pandoc: 2.19.2
+pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
@@ -6,7 +6,7 @@ articles:
   evaluCATE-short-tutorial: evaluCATE-short-tutorial.html
   hypotheses-testing: hypotheses-testing.html
   more-on-plotting: more-on-plotting.html
-last_built: 2024-02-19T10:33Z
+last_built: 2024-04-09T14:41Z
 urls:
   reference: https://riccardo-df.github.io/evaluCATE/reference
   article: https://riccardo-df.github.io/evaluCATE/articles
