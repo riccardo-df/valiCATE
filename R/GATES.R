@@ -222,10 +222,47 @@ gates_estimation <- function(Y, D, cates, pscore, mu, mu0, mu1, scores, n_groups
   }
   
   if (any(strategies == "AIPW")) {
-    aipw_dta <- data.frame("aipw" = scores, group_indicators)
-    model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
-    names(model_list)[[counter]] <- "aipw"  
-    counter <- counter + 1
+    if (any(denoising == "none")) {
+      aipw_dta <- data.frame("aipw" = scores, group_indicators)
+      model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "aipw_none"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "cddf1")) {
+      aipw_cddf1_dta <- data.frame("aipw" = scores, group_indicators, "H.mu0" = Hmu0)
+      model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_cddf1_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "aipw_cddf1"  
+      counter <- counter + 1
+    }
+    
+    if (any(denoising == "cddf2")) {
+      aipw_cddf2_dta <- data.frame("aipw" = scores, group_indicators, "H.mu0" = Hmu0, Hpscore_interaction)
+      model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_cddf2_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "aipw_cddf2"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "mck1")) {
+      aipw_mck1_dta <- data.frame("aipw" = scores, group_indicators, "H.mu0" = Hmu0, "H.1-pscore.tauhat" = new_mck_covariate)
+      model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_mck1_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "aipw_mck1"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "mck2")) {
+      aipw_mck2_dta <- data.frame("aipw" = scores, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore" = Hmu0_pscore, "H.mu1.1_pscore" = Hmu1_pscore)
+      model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_mck2_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "aipw_mck2"  
+      counter <- counter + 1
+    } 
+    
+    if (any(denoising == "mck3")) {
+      aipw_mck3_dta <- data.frame("aipw" = scores, group_indicators, "H.pscore" = Hpscore, "H.mu0.pscore+H.mu1.1_pscore" = Hmu0_pscore_mu1_pscore)
+      model_list[[counter]] <- estimatr::lm_robust(aipw ~ 0 + ., aipw_mck3_dta, se_type = "HC1") 
+      names(model_list)[[counter]] <- "aipw_mck3"  
+      counter <- counter + 1
+    } 
   } 
   
   ## 4.) Nonparametric estimator.

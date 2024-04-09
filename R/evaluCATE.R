@@ -199,7 +199,7 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
     
   ## 4.) Output.
   if (verbose) cat("Output. \n\n")
-  out <- list("BLP" = blp_results, "GATES" = gates_results, "RATE" = rate_results)
+  out <- list("BLP" = blp_results, "GATES" = gates_results, "RATE" = rate_results, "scores" = scores_val)
   class(out) <- "evaluCATE"
   return(out)
 }
