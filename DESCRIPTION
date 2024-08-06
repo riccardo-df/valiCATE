@@ -32,3 +32,4 @@ Imports:
     gridExtra,
     stringr
 URL: https://riccardo-df.github.io/evalueCATE/
+BugReports: https://github.com/riccardo-df/evaluCATE/issues
