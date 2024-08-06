@@ -1,66 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/404.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/articles/denoising.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/articles/more-on-plotting.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/index.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/blp_estimation.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/evaluCATE.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/gates_estimation.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/plot.evaluCATE.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/print.evaluCATE.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/rate_estimation.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/rename_latex.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/summary.evaluCATE.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/test_parametric_gates.html</loc>
-  </url>
-  <url>
-    <loc>https://riccardo-df.github.io/evaluCATE/reference/toc_estimation.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://riccardo-df.github.io/evaluCATE/404.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/LICENSE-text.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/LICENSE.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/articles/denoising.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/articles/index.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/articles/more-on-plotting.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/authors.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/index.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/blp_estimation.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/evaluCATE.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/gates_estimation.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/index.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/plot.evaluCATE.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/print.evaluCATE.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/rate_estimation.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/rename_latex.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/summary.evaluCATE.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/test_parametric_gates.html</loc></url>
+<url><loc>https://riccardo-df.github.io/evaluCATE/reference/toc_estimation.html</loc></url>
 </urlset>
+
