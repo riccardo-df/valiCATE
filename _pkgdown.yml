@@ -7,7 +7,7 @@ navbar:
   type: default
   left:
   - text: "Short Tutorial"
-    href: articles/evaluCATE-short-tutorial.html
+    href: articles/valiCATE-short-tutorial.html
   - text: "Denoising"
     href: articles/denoising.html
   - text: "Hypotheses Testing"
@@ -18,15 +18,15 @@ navbar:
     href: reference/index.html
   right:
   - icon: fa-github fa-lg
-    href: https://github.com/riccardo-df/evaluCATE
+    href: https://github.com/riccardo-df/valiCATE
 
 reference:
   - title: Core function
     contents:
-      - evaluCATE
+      - valiCATE
 
   - title: Generic S3
     contents:
-      - plot.evaluCATE
-      - summary.evaluCATE
-      - print.evaluCATE
+      - plot.valiCATE
+      - summary.valiCATE
+      - print.valiCATE
