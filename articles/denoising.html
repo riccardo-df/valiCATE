@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Denoise Terms • evaluCATE</title>
+<title>Denoise Terms • valiCATE</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -31,7 +31,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">evaluCATE</a>
+        <a class="navbar-link" href="../index.html">valiCATE</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
       </span>
     </div>
@@ -39,7 +39,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../articles/evaluCATE-short-tutorial.html">Short Tutorial</a>
+  <a href="../articles/valiCATE-short-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../articles/denoising.html">Denoising</a>
@@ -56,7 +56,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/riccardo-df/evaluCATE" class="external-link">
+  <a href="https://github.com/riccardo-df/valiCATE" class="external-link">
     <span class="fa fa-github fa-lg"></span>
 
   </a>
@@ -84,19 +84,19 @@
 
     
     
-<p>As described in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+<p>As described in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>, certain estimation strategies for the BLP and the GATES
 entail fitting appropriate linear models. These regressions enable the
 inclusion of optional constructed covariates that are not necessary for
 identifying the targets but can reduce the variance of the estimation.
 In this article, we explore which covariates can be integrated into the
 regressions.</p>
-<p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+<p>The notation is the same as in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>.</p>
 <p>There are various sets of constructed covariates that one can
 incorporate into the regressions to mitigate the variance of the
 estimation. Some of these sets have been suggested by Chernozukov et
-al. (2017), while others are novel. The <code>evaluCATE</code> function
+al. (2017), while others are novel. The <code>valiCATE</code> function
 allows the users to choose which sets to incorporate by controlling the
 <code>denoising</code> argument.</p>
 <p>The optional constructed covariates depend on the nuisance functions
@@ -105,18 +105,18 @@ allows the users to choose which sets to incorporate by controlling the
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_0 ( \cdot )</annotation></semantics></math>,
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mo>⋅</mo><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_1 ( \cdot )</annotation></semantics></math>.
-The <code>evaluCATE</code> function offers four optional arguments that
+The <code>valiCATE</code> function offers four optional arguments that
 we can utilize to provide predictions of these nuisance parameters on
 the validation sample. It’s important to note that these estimates must
 be produced by models estimated using only the training sample. If not
 supplied by the user, these functions are internally estimated via
 honest regression forests using only the training sample.</p>
-<p>Suppose that we assign the results of the <code>evaluCATE</code>
-function call to a variable called <code>evaluation</code>.</p>
+<p>Suppose that we assign the results of the <code>valiCATE</code>
+function call to a variable called <code>validation</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/valiCATE.html">valiCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span><span class="op">)</span></span></code></pre></div>
 <p>In the following, we list the additional covariates that are included
-in the fitted models returned by the <code>evaluCATE</code> function (if
+in the fitted models returned by the <code>valiCATE</code> function (if
 included in the <code>denoising</code> argument).</p>
 <div class="section level3">
 <h3 id="weighted-residual">Weighted Residual<a class="anchor" aria-label="anchor" href="#weighted-residual"></a>
@@ -126,15 +126,15 @@ included in the <code>denoising</code> argument).</p>
 <p>BLP:</p>
 <ul>
 <li>
-<code>evaluation$BLP$wr_none</code> → None;</li>
+<code>validation$BLP$wr_none</code> → None;</li>
 <li>
-<code>evaluation$BLP$wr_cddf1</code> →
+<code>validation$BLP$wr_cddf1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mu}_0 ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$BLP$wr_cddf2</code> →
+<code>validation$BLP$wr_cddf2</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>,</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">1, \hat{\mu}_0 ( X_i ), p ( X_i ), p ( X_i ) \cdot \hat{\tau} ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$BLP$wr_mck1</code> →
+<code>validation$BLP$wr_mck1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mu} ( X_i )</annotation></semantics></math>.</li>
 </ul>
 </li>
@@ -142,15 +142,15 @@ included in the <code>denoising</code> argument).</p>
 <p>GATES:</p>
 <ul>
 <li>
-<code>evaluation$GATES$wr_none</code> → None;</li>
+<code>validation$GATES$wr_none</code> → None;</li>
 <li>
-<code>evaluation$GATES$wr_cddf1</code> →
+<code>validation$GATES$wr_cddf1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mu}_0 ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$GATES$wr_cddf2</code> →
+<code>validation$GATES$wr_cddf2</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>G</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>G</mi><mi>K</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mu}_0 ( X_i ), p ( X_i ) \cdot \mathbb{1} (G_1), \dots, p ( X_i ) \cdot \mathbb{1} (G_K)</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$GATES$wr_mck1</code> →
+<code>validation$GATES$wr_mck1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\mu} ( X_i )</annotation></semantics></math>.</li>
 </ul>
 </li>
@@ -163,42 +163,42 @@ included in the <code>denoising</code> argument).</p>
 <li>BLP:
 <ul>
 <li>
-<code>evaluation$BLP$ht_none</code> → None;</li>
+<code>validation$BLP$ht_none</code> → None;</li>
 <li>
-<code>evaluation$BLP$ht_cddf1</code> →
+<code>validation$BLP$ht_cddf1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot \hat{\mu}_0 ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$BLP$ht_cddf2</code> →
+<code>validation$BLP$ht_cddf2</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$BLP$ht_mck1</code> →
+<code>validation$BLP$ht_mck1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>⋅</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$BLP$ht_mck2</code> →
+<code>validation$BLP$ht_mck2</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$BLP$ht_mck3</code> →
+<code>validation$BLP$ht_mck3</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}</annotation></semantics></math>.</li>
 </ul>
 </li>
 <li>GATES:
 <ul>
 <li>
-<code>evaluation$GATES$ht_none</code> → None;</li>
+<code>validation$GATES$ht_none</code> → None;</li>
 <li>
-<code>evaluation$GATES$ht_cddf1</code> →
+<code>validation$GATES$ht_cddf1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot \hat{\mu}_0 ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$GATES$ht_cddf2</code> →
+<code>validation$GATES$ht_cddf2</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>G</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>G</mi><mi>K</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_K)</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$GATES$ht_mck1</code> →
+<code>validation$GATES$ht_mck1</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>⋅</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$GATES$ht_mck2</code> →
+<code>validation$GATES$ht_mck2</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )</annotation></semantics></math>;</li>
 <li>
-<code>evaluation$GATES$ht_mck3</code> →
+<code>validation$GATES$ht_mck3</code> →
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>0</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>H</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo>⋅</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mn>1</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}</annotation></semantics></math>.</li>
 </ul>
 </li>
@@ -211,13 +211,13 @@ included in the <code>denoising</code> argument).</p>
 <li>BLP:
 <ul>
 <li>
-<code>evaluation$BLP$aipw</code> → None.</li>
+<code>validation$BLP$aipw</code> → None.</li>
 </ul>
 </li>
 <li>GATES:
 <ul>
 <li>
-<code>evaluation$GATES$aipw</code> → None.</li>
+<code>validation$GATES$aipw</code> → None.</li>
 </ul>
 </li>
 </ul>

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>More on Plotting • evaluCATE</title>
+<title>More on Plotting • valiCATE</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -31,7 +31,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">evaluCATE</a>
+        <a class="navbar-link" href="../index.html">valiCATE</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
       </span>
     </div>
@@ -39,7 +39,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../articles/evaluCATE-short-tutorial.html">Short Tutorial</a>
+  <a href="../articles/valiCATE-short-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../articles/denoising.html">Denoising</a>
@@ -56,7 +56,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/riccardo-df/evaluCATE" class="external-link">
+  <a href="https://github.com/riccardo-df/valiCATE" class="external-link">
     <span class="fa fa-github fa-lg"></span>
 
   </a>
@@ -86,7 +86,7 @@
     
 <p>This article demonstrates how users can experiment with the plotting
 options to enhance the reporting of their results.</p>
-<p>For illustration, we utilize the same Motivating Example as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+<p>For illustration, we utilize the same Motivating Example as in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>. The only distinction is that we employ several denoising
 strategies here.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -135,11 +135,11 @@ strategies here.</p>
 <span><span class="va">pscore_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Y_val</span><span class="op">)</span><span class="op">)</span> <span class="co"># True propensity scores.</span></span>
 <span></span>
 <span><span class="co">## Call main function.</span></span>
-<span><span class="va">evaluation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/evaluCATE.html">evaluCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, strategies <span class="op">=</span> <span class="va">strategies</span>, denoising <span class="op">=</span> <span class="va">denoising</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/valiCATE.html">valiCATE</a></span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, strategies <span class="op">=</span> <span class="va">strategies</span>, denoising <span class="op">=</span> <span class="va">denoising</span>, pscore_val <span class="op">=</span> <span class="va">pscore_val</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="gates">GATES<a class="anchor" aria-label="anchor" href="#gates"></a>
 </h3>
-<p>As explained in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+<p>As explained in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>, we can call the <code>plot</code> method and set the
 <code>target</code> argument to GATES to display GATES point estimates
 and 95% confidence intervals. However, due to the relatively large
@@ -147,7 +147,7 @@ number of models we estimated above, the results may be difficult to
 interpret.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES plot - default.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"GATES"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/gates-results-default-1.png" width="480"></p>
 <p>Fortunately, the results are quite robust across models. Therefore,
 it’s reasonable to display only a subset of them and possibly relegate
@@ -156,7 +156,7 @@ the remaining ones to an appendix. We can achieve this by using the
 those models that do not utilize any denoising strategy.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES plot - Subset models.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, </span>
 <span>     which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wr_none"</span>, <span class="st">"ht_none"</span>, <span class="st">"imai_li"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/gates-results-subset-1.png" width="480"></p>
 <p>Finally, we can set the <code>gates_hline</code> argument to
@@ -165,7 +165,7 @@ necessarily need this option here, it’s useful to know that it’s
 available.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## GATES plot - drop zero line.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"GATES"</span>, </span>
 <span>     which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wr_none"</span>, <span class="st">"ht_none"</span>, <span class="st">"imai_li"</span><span class="op">)</span>, </span>
 <span>     gates_hline <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/gates-results-drop-1.png" width="480"></p>
@@ -173,7 +173,7 @@ available.</p>
 <div class="section level3">
 <h3 id="rates">RATEs<a class="anchor" aria-label="anchor" href="#rates"></a>
 </h3>
-<p>As explained in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+<p>As explained in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>, we can plot the estimated TOC curve by calling the
 <code>plot</code> method and setting the <code>target</code> argument to
 TOC. However, the displayed curve can be quite jumpy, especially for low
@@ -181,7 +181,7 @@ fractions of treated units where the variance of estimation is
 larger.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## TOC plot - default.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"TOC"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"TOC"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/toc-results-default-1.png" width="480"></p>
 <p>We can smooth the curve by adjusting the <code>toc_smoother</code>
 argument. Smoothing is accomplished by displaying the TOC for a subset
@@ -192,13 +192,13 @@ third unit, and so forth.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## TOC plot.</span></span>
 <span><span class="co"># Smooth.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"TOC"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"TOC"</span>, </span>
 <span>     toc_smoother <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/toc-results-smooth-1.png" width="480"></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Smoother.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"TOC"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"TOC"</span>, </span>
 <span>     toc_smoother <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/toc-results-smooth-2.png" width="480"></p>
 <p>Finally, remember that the AUTOC coefficient corresponds to the area
@@ -214,18 +214,18 @@ curves.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## RATEs plot.</span></span>
 <span><span class="co"># Default.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"RATE"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/rates-results-1.png" width="480"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Smooth.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"RATE"</span>, </span>
 <span>     toc_smoother <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/rates-results-2.png" width="480"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Smoother.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">evaluation</span>, target <span class="op">=</span> <span class="st">"RATE"</span>, </span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">validation</span>, target <span class="op">=</span> <span class="st">"RATE"</span>, </span>
 <span>     toc_smoother <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 <p><img src="more-on-plotting_files/figure-html/rates-results-3.png" width="480"></p>
 </div>

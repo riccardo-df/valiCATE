@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hypotheses Testing • evaluCATE</title>
+<title>Hypotheses Testing • valiCATE</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -31,7 +31,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">evaluCATE</a>
+        <a class="navbar-link" href="../index.html">valiCATE</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
       </span>
     </div>
@@ -39,7 +39,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="../articles/evaluCATE-short-tutorial.html">Short Tutorial</a>
+  <a href="../articles/valiCATE-short-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../articles/denoising.html">Denoising</a>
@@ -56,7 +56,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/riccardo-df/evaluCATE" class="external-link">
+  <a href="https://github.com/riccardo-df/valiCATE" class="external-link">
     <span class="fa fa-github fa-lg"></span>
 
   </a>
@@ -84,12 +84,11 @@
 
     
     
-<p>As outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+<p>As outlined in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>, we can test specific hypotheses regarding the BLP, GATES,
-and RATEs to evaluate whether we observe systematic heterogeneity or
-merely estimation noise. This article explores these hypotheses and
-their implications.</p>
-<p>The notation is the same as in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html" class="external-link">short
+and RATEs to validate the estimated heterogeneity. This article explores
+these hypotheses and their implications.</p>
+<p>The notation is the same as in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a>.</p>
 <div class="section level3">
 <h3 id="blp">BLP<a class="anchor" aria-label="anchor" href="#blp"></a>
@@ -134,7 +133,7 @@ Conversely, if the effects are heterogeneous and our estimates are
 accurate, then
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>
 is close to one, and we should reject our hypothesis.</p>
-<p>If we estimate the BLP by one of the strategies outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html" class="external-link">short
+<p>If we estimate the BLP by one of the strategies outlined in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a> and using only the validation sample, then
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>β</mi><mo accent="true">̂</mo></mover><mn>2</mn></msub><annotation encoding="application/x-tex">\hat{\beta}_2</annotation></semantics></math>
 exhibits well-behaved asymptotic properties conditioned on the training
@@ -145,7 +144,7 @@ conventional confidence intervals and
 <div class="section level3">
 <h3 id="gates">GATES<a class="anchor" aria-label="anchor" href="#gates"></a>
 </h3>
-<p>One could compare the estimated GATES to evaluate how various groups
+<p>One could compare the estimated GATES to validate how various groups
 respond differently to the treatment. However, disparities in the point
 estimates can emerge merely due to estimation noise.</p>
 <p>A more appropriate method for assessing the presence of systematic
@@ -155,7 +154,7 @@ namely
 Alternatively, we can test whether the difference in the GATES for the
 most and least affected groups is statistically significant, that is,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mi>K</mi></msub><mo>=</mo><msub><mi>γ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">\gamma_K = \gamma_1</annotation></semantics></math>.</p>
-<p>If we estimate the GATES by one of the strategies outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html" class="external-link">short
+<p>If we estimate the GATES by one of the strategies outlined in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a> and using only the validation sample, then
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>γ</mi><mo accent="true">̂</mo></mover><mi>k</mi></msub><annotation encoding="application/x-tex">\hat{\gamma}_k</annotation></semantics></math>
 exhibits well-behaved asymptotic properties conditioned on the training
@@ -198,7 +197,7 @@ Conversely, if the effects are heterogeneous and our estimates are
 accurate, then
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>α</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\theta_{\alpha} ( \hat{\tau} )</annotation></semantics></math>
 is large enough so that should reject our hypothesis.</p>
-<p>If we estimate the RATE by the strategy outlined in the <a href="https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html" class="external-link">short
+<p>If we estimate the RATE by the strategy outlined in the <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short
 tutorial</a> and using only the validation sample, then
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mi>α</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{\theta}_{\alpha} ( \hat{\tau} )</annotation></semantics></math>
 exhibits well-behaved asymptotic properties conditioned on the training
