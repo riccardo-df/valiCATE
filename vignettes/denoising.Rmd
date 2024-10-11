@@ -14,56 +14,56 @@ knitr::opts_chunk$set(
 )
 ```
 
-As described in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html), certain estimation strategies for the BLP and the GATES entail fitting appropriate linear models. These regressions enable the inclusion of optional constructed covariates that are not necessary for identifying the targets but can reduce the variance of the estimation. In this article, we explore which covariates can be integrated into the regressions.
+As described in the [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html), certain estimation strategies for the BLP and the GATES entail fitting appropriate linear models. These regressions enable the inclusion of optional constructed covariates that are not necessary for identifying the targets but can reduce the variance of the estimation. In this article, we explore which covariates can be integrated into the regressions.
 
-The notation is the same as in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html).
+The notation is the same as in the [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html).
 
-There are various sets of constructed covariates that one can incorporate into the regressions to mitigate the variance of the estimation. Some of these sets have been suggested by Chernozukov et al. (2017), while others are novel. The `evaluCATE` function allows the users to choose which sets to incorporate by controlling the `denoising` argument.
+There are various sets of constructed covariates that one can incorporate into the regressions to mitigate the variance of the estimation. Some of these sets have been suggested by Chernozukov et al. (2017), while others are novel. The `valiCATE` function allows the users to choose which sets to incorporate by controlling the `denoising` argument.
 
-The optional constructed covariates depend on the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. The `evaluCATE` function offers four optional arguments that we can utilize to provide predictions of these nuisance parameters on the validation sample. It's important to note that these estimates must be produced by models estimated using only the training sample. If not supplied by the user, these functions are internally estimated via honest regression forests using only the training sample.
+The optional constructed covariates depend on the nuisance functions $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$. The `valiCATE` function offers four optional arguments that we can utilize to provide predictions of these nuisance parameters on the validation sample. It's important to note that these estimates must be produced by models estimated using only the training sample. If not supplied by the user, these functions are internally estimated via honest regression forests using only the training sample.
 
-Suppose that we assign the results of the `evaluCATE` function call to a variable called `evaluation`.
+Suppose that we assign the results of the `valiCATE` function call to a variable called `validation`.
 
 ```{r call-main, eval = FALSE}
-evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val)
+validation <- valiCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val)
 ```
 
-In the following, we list the additional covariates that are included in the fitted models returned by the `evaluCATE` function (if included in the `denoising` argument). 
+In the following, we list the additional covariates that are included in the fitted models returned by the `valiCATE` function (if included in the `denoising` argument). 
 
 ### Weighted Residual
 - BLP:
 
-  * `evaluation$BLP$wr_none` &rarr; None;
-  * `evaluation$BLP$wr_cddf1` &rarr; $\hat{\mu}_0 ( X_i )$;
-  * `evaluation$BLP$wr_cddf2` &rarr; $1, \hat{\mu}_0 ( X_i ), p ( X_i ), p ( X_i ) \cdot \hat{\tau} ( X_i )$;
-  * `evaluation$BLP$wr_mck1` &rarr; $\hat{\mu} ( X_i )$.
+  * `validation$BLP$wr_none` &rarr; None;
+  * `validation$BLP$wr_cddf1` &rarr; $\hat{\mu}_0 ( X_i )$;
+  * `validation$BLP$wr_cddf2` &rarr; $1, \hat{\mu}_0 ( X_i ), p ( X_i ), p ( X_i ) \cdot \hat{\tau} ( X_i )$;
+  * `validation$BLP$wr_mck1` &rarr; $\hat{\mu} ( X_i )$.
 
 - GATES:
-  * `evaluation$GATES$wr_none` &rarr; None;
-  * `evaluation$GATES$wr_cddf1` &rarr; $\hat{\mu}_0 ( X_i )$; 
-  * `evaluation$GATES$wr_cddf2` &rarr; $\hat{\mu}_0 ( X_i ), p ( X_i ) \cdot \mathbb{1} (G_1), \dots, p ( X_i ) \cdot \mathbb{1} (G_K)$; 
-  * `evaluation$GATES$wr_mck1` &rarr; $\hat{\mu} ( X_i )$.
+  * `validation$GATES$wr_none` &rarr; None;
+  * `validation$GATES$wr_cddf1` &rarr; $\hat{\mu}_0 ( X_i )$; 
+  * `validation$GATES$wr_cddf2` &rarr; $\hat{\mu}_0 ( X_i ), p ( X_i ) \cdot \mathbb{1} (G_1), \dots, p ( X_i ) \cdot \mathbb{1} (G_K)$; 
+  * `validation$GATES$wr_mck1` &rarr; $\hat{\mu} ( X_i )$.
   
 ### Horvitz-Thompson 
 - BLP:
-  * `evaluation$BLP$ht_none` &rarr; None;
-  * `evaluation$BLP$ht_cddf1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i )$;
-  * `evaluation$BLP$ht_cddf2` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i )$;
-  * `evaluation$BLP$ht_mck1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$;
-  * `evaluation$BLP$ht_mck2` &rarr; $H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$;
-  * `evaluation$BLP$ht_mck3` &rarr; $H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$.
+  * `validation$BLP$ht_none` &rarr; None;
+  * `validation$BLP$ht_cddf1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i )$;
+  * `validation$BLP$ht_cddf2` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\tau} ( X_i )$;
+  * `validation$BLP$ht_mck1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$;
+  * `validation$BLP$ht_mck2` &rarr; $H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$;
+  * `validation$BLP$ht_mck3` &rarr; $H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$.
 
 - GATES:
-  * `evaluation$GATES$ht_none` &rarr; None;
-  * `evaluation$GATES$ht_cddf1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i )$; 
-  * `evaluation$GATES$ht_cddf2` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_K)$; 
-  * `evaluation$GATES$ht_mck1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$; 
-  * `evaluation$GATES$ht_mck2` &rarr; $H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$; 
-  * `evaluation$GATES$ht_mck3` &rarr; $H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$. 
+  * `validation$GATES$ht_none` &rarr; None;
+  * `validation$GATES$ht_cddf1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i )$; 
+  * `validation$GATES$ht_cddf2` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_1), \dots, H_i \cdot p ( X_i ) \cdot \mathbb{1} (G_K)$; 
+  * `validation$GATES$ht_mck1` &rarr; $H_i \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\tau} ( X_i )$; 
+  * `validation$GATES$ht_mck2` &rarr; $H_i \cdot p ( X_i ), H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ), H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i )$; 
+  * `validation$GATES$ht_mck3` &rarr; $H_i \cdot p ( X_i ), \{ H_i \cdot p ( X_i ) \cdot \hat{\mu}_0 ( X_i ) + H_i \cdot [ 1 - p ( X_i ) ] \cdot \hat{\mu}_1 ( X_i ) \}$. 
   
 ### AIPW
 - BLP:
-  * `evaluation$BLP$aipw` &rarr; None.
+  * `validation$BLP$aipw` &rarr; None.
   
 - GATES:
-  * `evaluation$GATES$aipw` &rarr; None.
+  * `validation$GATES$aipw` &rarr; None.

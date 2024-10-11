@@ -13,14 +13,14 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(evaluCATE)
+library(valiCATE)
 library(grf)
 ```
 
 This article demonstrates how users can experiment with the plotting options to enhance the reporting of their results.
 
 
-For illustration, we utilize the same Motivating Example as in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html). The only distinction is that we employ several denoising strategies here.
+For illustration, we utilize the same Motivating Example as in the [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html). The only distinction is that we employ several denoising strategies here.
 
 ```{r generate-data, eval = TRUE}
 ## Generate data.
@@ -68,22 +68,22 @@ denoising <- c("none", "cddf2", "mck1")
 pscore_val <- rep(0.5, length(Y_val)) # True propensity scores.
 
 ## Call main function.
-evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = strategies, denoising = denoising, pscore_val = pscore_val, verbose = FALSE)
+validation <- valiCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = strategies, denoising = denoising, pscore_val = pscore_val, verbose = FALSE)
 ```
 
 ### GATES
-As explained in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html), we can call the `plot` method and set the `target` argument to GATES to display GATES point estimates and 95% confidence intervals. However, due to the relatively large number of models we estimated above, the results may be difficult to interpret.
+As explained in the [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html), we can call the `plot` method and set the `target` argument to GATES to display GATES point estimates and 95% confidence intervals. However, due to the relatively large number of models we estimated above, the results may be difficult to interpret.
 
 ```{r gates-results-default, eval = TRUE, fig.dim = c(5, 5)}
 ## GATES plot - default.
-plot(evaluation, target = "GATES")
+plot(validation, target = "GATES")
 ```
 
 Fortunately, the results are quite robust across models. Therefore, it's reasonable to display only a subset of them and possibly relegate the remaining ones to an appendix. We can achieve this by using the `which_models` argument. Here, we choose to display only those models that do not utilize any denoising strategy.
 
 ```{r gates-results-subset, eval = TRUE, fig.dim = c(5, 5)}
 ## GATES plot - Subset models.
-plot(evaluation, target = "GATES", 
+plot(validation, target = "GATES", 
      which_models = c("wr_none", "ht_none", "imai_li"))
 ```
 
@@ -91,17 +91,17 @@ Finally, we can set the `gates_hline` argument to `FALSE` to omit the horizontal
 
 ```{r gates-results-drop, eval = TRUE, fig.dim = c(5, 5)}
 ## GATES plot - drop zero line.
-plot(evaluation, target = "GATES", 
+plot(validation, target = "GATES", 
      which_models = c("wr_none", "ht_none", "imai_li"), 
      gates_hline = FALSE)
 ```
 
 ### RATEs
-As explained in the [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html), we can plot the estimated TOC curve by calling the `plot` method and setting the `target` argument to TOC. However, the displayed curve can be quite jumpy, especially for low fractions of treated units where the variance of estimation is larger.
+As explained in the [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html), we can plot the estimated TOC curve by calling the `plot` method and setting the `target` argument to TOC. However, the displayed curve can be quite jumpy, especially for low fractions of treated units where the variance of estimation is larger.
 
 ```{r toc-results-default, eval = TRUE, fig.dim = c(5, 3)}
 ## TOC plot - default.
-plot(evaluation, target = "TOC")
+plot(validation, target = "TOC")
 ```
 
 We can smooth the curve by adjusting the `toc_smoother` argument. Smoothing is accomplished by displaying the TOC for a subset of units in the validation sample. Specifically, if `toc_smoother` equals 2, we display the TOC of every other unit; if `toc_smoother` equals 3, we display the TOC of every third unit, and so forth.
@@ -109,11 +109,11 @@ We can smooth the curve by adjusting the `toc_smoother` argument. Smoothing is a
 ```{r toc-results-smooth, eval = TRUE, fig.dim = c(5, 3)}
 ## TOC plot.
 # Smooth.
-plot(evaluation, target = "TOC", 
+plot(validation, target = "TOC", 
      toc_smoother = 5)
 
 # Smoother.
-plot(evaluation, target = "TOC", 
+plot(validation, target = "TOC", 
      toc_smoother = 10)
 ```
 
@@ -123,13 +123,13 @@ Finally, remember that the AUTOC coefficient corresponds to the area under the T
 ```{r rates-results, eval = TRUE, fig.dim = c(5, 3)}
 ## RATEs plot.
 # Default.
-plot(evaluation, target = "RATE")
+plot(validation, target = "RATE")
 
 # Smooth.
-plot(evaluation, target = "RATE", 
+plot(validation, target = "RATE", 
      toc_smoother = 5)
 
 # Smoother.
-plot(evaluation, target = "RATE", 
+plot(validation, target = "RATE", 
      toc_smoother = 10)
 ```

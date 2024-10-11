@@ -50,8 +50,8 @@ the validation sample, as well as their estimated cates and nuisance functions. 
 Additionally, the user must provide doubly-robust scores estimated in the validation sample using K-fold cross fitting.\cr
 
 The BLP is estimated using three different strategies, all involving fitting suitable linear models. For each of these strategis, different model specifications are considered that differ in additional and
-optional covariates that can be included in the regressions to reduce the estimation variance. Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html}{short tutorial}
-and \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details.\cr
+optional covariates that can be included in the regressions to reduce the estimation variance. Check the online \href{https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html}{short tutorial}
+and \href{https://riccardo-df.github.io/valiCATE/articles/denoising.html}{denoising vignette} for details.\cr
 
 Standard errors are estimated using the Eicker-Huber-White estimator.
 }

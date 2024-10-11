@@ -1,18 +1,17 @@
-# Evaluating Machine Learning Estimated Conditional Average Treatment Effects in RCTs <a href="https://riccardo-df.github.io/evaluCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
+# Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/riccardo-df/evaluCATE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/riccardo-df/evaluCATE/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/riccardo-df/valiCATE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/riccardo-df/valiCATE/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Quality evaluation of machine learning estimated conditional average treatment effects (CATEs). The quality is assessed by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs. 
-
-To get started, please check the online [short tutorial](https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html).
+Validation of machine learning models for the conditional average treatment effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.
+To get started, please check the online [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html).
 
 ## Installation  
 The current development version of the package can be installed using the `devtools` package:
 
 ```
-devtools::install_github("riccardo-df/evaluCATE") # run install.packages("devtools") if needed.
+devtools::install_github("riccardo-df/valiCATE") # run install.packages("devtools") if needed.
 ```
 
 ## References
@@ -43,6 +42,6 @@ devtools::install_github("riccardo-df/evaluCATE") # run install.packages("devtoo
 [<a href="https://arxiv.org/abs/2203.14511">paper</a>]
 
 - Yadlowsky, S., Fleming, S., Shah, N., Brunskill, E., & Wager, S. (2021).
-<b>Evaluating treatment prioritization rules via rank-weighted average treatment effects.</b>
+<b>valiating treatment prioritization rules via rank-weighted average treatment effects.</b>
 <i>arXiv preprint</i>.
 [<a href="https://arxiv.org/abs/2111.07966">paper</a>]

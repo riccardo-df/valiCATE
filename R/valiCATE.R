@@ -1,6 +1,6 @@
-#' CATEs Evaluation
+#' CATEs Validation
 #'
-#' Evaluates the quality of CATE predictions by estimating the best linear predictor (BLP) of the actual CATEs using the estimated
+#' Validates CATE models by estimating the best linear predictor (BLP) of the actual CATEs using the estimated
 #' CATEs, the sorted group average treatment effects (GATES), and the rank-weighted average treatment effects (RATEs) induced by
 #' the estimated CATEs.
 #'
@@ -23,7 +23,7 @@
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
-#' An \code{evaluCATE} object.
+#' An \code{valiCATE} object.
 #'
 #' @examples
 #' \donttest{## Generate data.
@@ -64,7 +64,7 @@
 #' forest_grf <- causal_forest(X_tr, Y_tr, D_tr) 
 #' cates_val_grf <- predict(forest_grf, X_val)$predictions 
 #' 
-#' ## CATEs evaluation. 
+#' ## CATEs validation. 
 #' # Use all strategies with no denoising.
 #' strategies <- c("WR", "HT")
 #' denoising <- "none"
@@ -77,23 +77,23 @@
 #'                   "grf" = cates_val_grf)
 #' 
 #' # Call main function.
-#' evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
+#' validation <- valiCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
 #'                         strategies = strategies, denoising = denoising, 
 #'                         pscore_val = pscore_val)
 #' 
 #' ## Generic S3 methods.
-#' summary(evaluation, target = "BLP")
-#' summary(evaluation, target = "BLP", latex = TRUE)
+#' summary(validation, target = "BLP")
+#' summary(validation, target = "BLP", latex = TRUE)
 #'
-#' summary(evaluation, target = "GATES")
-#' summary(evaluation, target = "GATES", latex = TRUE)
+#' summary(validation, target = "GATES")
+#' summary(validation, target = "GATES", latex = TRUE)
 #'
-#' summary(evaluation, target = "RATE")
-#' summary(evaluation, target = "RATE", latex = TRUE)
+#' summary(validation, target = "RATE")
+#' summary(validation, target = "RATE", latex = TRUE)
 #'
-#' plot(evaluation, target = "GATES")
-#' plot(evaluation, target = "TOC")
-#' plot(evaluation, target = "RATE")}
+#' plot(validation, target = "GATES")
+#' plot(validation, target = "TOC")
+#' plot(validation, target = "RATE")}
 #'
 #' @md
 #' @details
@@ -101,13 +101,13 @@
 #' using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
 #' Be careful, models must be estimated using only the training sample to achieve valid inference.\cr
 #' 
-#' The \code{\link{evaluCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
+#' The \code{\link{valiCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
 #' Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the \code{strategies} argument. This has no impact on RATEs estimation. GATES are also 
 #' always estimated using a nonparametric approach.\cr
 #' 
 #' Most of the BLP and GATES estimation strategies involve fitting a suitable linear model. For each model, there exist various sets of constructed covariates that one can add to reduce the variance of 
 #' the estimation. The user can choose whether to add these additional covariates by controlling the \code{denoising} argument (check the online 
-#' \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details). This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy. 
+#' \href{https://riccardo-df.github.io/valiCATE/articles/denoising.html}{denoising vignette} for details). This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy. 
 #' 
 #' The constructed covariates depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome. The user can supply predictions on the validation sample of these functions 
 #' by using the  optional arguments \code{pscore_val}, \code{mu_val}, \code{mu0_val}, and \code{mu1_val}. Be careful, as these predictions must be produced by models estimated using only the training sample. If not 
@@ -116,7 +116,7 @@
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. Under our careful sample splitting procedure, these standard errors can then used to test various 
 #' hypotheses of effect heterogeneity. For the GATES, we focus on three distinct hypotheses: whether all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, 
 #' and whether the differences in the GATES across all pairs of groups are zero (for the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of 
-#' the adjusted p-values). The nonparametric  approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} 
+#' the adjusted p-values). The nonparametric  approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} 
 #' for details.\cr
 #' 
 #' To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the 
@@ -125,10 +125,10 @@
 #' Groups for the GATES analysis are constructed by cutting the distribution of \code{cates_val} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, 
 #' the function raises an error. Possible solutions include: a) change your original training-validation sample split; b) increase the fraction of observations allocated to the validation sample.\cr
 #' 
-#' The \code{\link{evaluCATE}} function estimates two different RATEs: AUTOC and QINI coefficients. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap 
+#' The \code{\link{valiCATE}} function estimates two different RATEs: AUTOC and QINI coefficients. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap 
 #' estimates obtained using the half-sample bootstrap.\cr
 #' 
-#' Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html}{short tutorial} for a guided usage of this function.\cr 
+#' Check the online \href{https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html}{short tutorial} for a guided usage of this function.\cr 
 #'
 #' @import grf
 #' @importFrom stats predict
@@ -137,7 +137,7 @@
 #' @author Riccardo Di Francesco
 #'
 #' @export
-evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
+valiCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
                       strategies = c("WR", "HT", "AIPW"), denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
                       pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
                       n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
@@ -200,6 +200,6 @@ evaluCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
   ## 4.) Output.
   if (verbose) cat("Output. \n\n")
   out <- list("BLP" = blp_results, "GATES" = gates_results, "RATE" = rate_results, "scores" = scores_val)
-  class(out) <- "evaluCATE"
+  class(out) <- "valiCATE"
   return(out)
 }

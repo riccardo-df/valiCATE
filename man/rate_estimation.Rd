@@ -27,7 +27,7 @@ To estimate the RATEs induced the estimated CATEs, the user must provide the est
 using the training sample, while the doubly-robust scores must be estimated in the validation sample using K-fold cross fitting (see the example section below).\cr
 
 \code{\link{rate_estimation}} first calls the \code{\link{toc_estimation}} function to estimate the TOCs, and then computes two RATEs, the AUTOC and the QINI coefficient, 
-as weighted averages of the TOCs. Check the \href{https://riccardo-df.github.io/evaluCATE/articles/evalu-cates-short-tutorial.html}{online vignette} 
+as weighted averages of the TOCs. Check the \href{https://riccardo-df.github.io/valiCATE/articles/vali-cates-short-tutorial.html}{online vignette} 
 for details.\cr
 
 Standard errors are estimated using the standard deviation of the bootstrap estimates obtained using the half-sample bootstrap.

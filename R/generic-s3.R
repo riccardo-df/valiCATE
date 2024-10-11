@@ -1,20 +1,20 @@
-#' Summary Method for evaluCATE Objects
+#' Summary Method for valiCATE Objects
 #'
-#' Summarizes an \code{\link{evaluCATE}} object.
+#' Summarizes an \code{\link{valiCATE}} object.
 #'
-#' @param object An \code{\link{evaluCATE}} object.
+#' @param object An \code{\link{valiCATE}} object.
 #' @param target String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
 #' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES[[1]])}. Ignored if \code{target == "RATE"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
-#' Summarizes an \code{\link{evaluCATE}} object.
+#' Summarizes an \code{\link{valiCATE}} object.
 #' 
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}, \code{multirow}.
 #' 
-#' @seealso \code{\link{evaluCATE}}
+#' @seealso \code{\link{valiCATE}}
 #' 
 #' @import cli
 #' @importFrom stats coef
@@ -23,7 +23,7 @@
 #' @author Riccardo Di Francesco
 #' 
 #' @export
-summary.evaluCATE <- function(object, target = "BLP", 
+summary.valiCATE <- function(object, target = "BLP", 
                               latex = FALSE, which_models = names(object$GATES[[1]]), ...) {
   if (!(target %in% c("BLP", "GATES", "RATE"))) stop("Invalid 'target'. This must be one of 'BLP', 'GATES', 'RATE'", call. = FALSE)
   if (!is.logical(latex)) stop("Invalid 'latex'. This must be either TRUE or FALSE.", call. = FALSE)
@@ -405,18 +405,18 @@ summary.evaluCATE <- function(object, target = "BLP",
 }
 
 
-#' Print Method for evaluCATE Objects
+#' Print Method for valiCATE Objects
 #'
-#' Prints an \code{\link{evaluCATE}} object.
+#' Prints an \code{\link{valiCATE}} object.
 #'
-#' @param x An \code{\link{evaluCATE}} object.
+#' @param x An \code{\link{valiCATE}} object.
 #' @param target String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
 #' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES)}. Ignored if \code{target == "RATE"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
-#' Prints an \code{\link{evaluCATE}} object.
+#' Prints an \code{\link{valiCATE}} object.
 #' 
 #' @details 
 #' Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}, \code{multirow}.
@@ -424,17 +424,17 @@ summary.evaluCATE <- function(object, target = "BLP",
 #' @author Riccardo Di Francesco
 #' 
 #' @export
-print.evaluCATE <- function(x, target = "BLP", 
+print.valiCATE <- function(x, target = "BLP", 
                             latex = FALSE, which_models = names(x$GATES[[1]]), ...) {
-  summary.evaluCATE(x, target, latex, which_models, ...)
+  summary.valiCATE(x, target, latex, which_models, ...)
 }
 
 
-#' Plot Method for evaluCATE Objects
+#' Plot Method for valiCATE Objects
 #'
-#' Plots an \code{\link{evaluCATE}} object.
+#' Plots an \code{\link{valiCATE}} object.
 #'
-#' @param x An \code{\link{evaluCATE}} object.
+#' @param x An \code{\link{valiCATE}} object.
 #' @param target String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATE"}.
 #' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(x$GATES[[1]])}. Ignored if \code{target != "GATES"}.
 #' @param gates_hline Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.
@@ -442,10 +442,10 @@ print.evaluCATE <- function(x, target = "BLP",
 #' @param ... Further arguments passed to or from other methods.
 #'
 #' @return
-#' Plots an \code{\link{evaluCATE}} object.
+#' Plots an \code{\link{valiCATE}} object.
 #' 
 #' @details
-#' Check the online \href{https://riccardo-df.github.io/evaluCATE/articles/more-on-plotting.html}{plotting vignette} for details.
+#' Check the online \href{https://riccardo-df.github.io/valiCATE/articles/more-on-plotting.html}{plotting vignette} for details.
 #' 
 #'
 #' @import dplyr ggplot2 ggsci
@@ -455,7 +455,7 @@ print.evaluCATE <- function(x, target = "BLP",
 #' @author Riccardo Di Francesco
 #'
 #' @export
-plot.evaluCATE <- function(x, target = "GATES", which_models = names(x$GATES[[1]]), 
+plot.valiCATE <- function(x, target = "GATES", which_models = names(x$GATES[[1]]), 
                            gates_hline = TRUE, toc_smoother = 1, ...) {
   ## Checks.
   if (!(target %in% c("GATES", "TOC", "RATE"))) stop("Invalid 'target'. This must be one of 'GATES', 'TOC', or 'RATE'.", call. = FALSE)

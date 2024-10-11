@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(evaluCATE)
+library(valiCATE)
 library(dplyr)
 library(grf)
 library(ggplot2)
@@ -21,7 +21,7 @@ library(gridExtra)
 library(reshape2)
 ```
 
-In this tutorial, we show how to use the `evaluCATE` package to evaluate machine learning estimated conditional average treatment effects (CATEs). 
+In this tutorial, we show how to use the `valiCATE` package to validate machine learning models for the conditional average treatment effects (CATEs). 
 
 Before diving in the technical details, we need to define notation:
 
@@ -40,7 +40,7 @@ Before diving in the technical details, we need to define notation:
 Throughout the rest of the tutorial, we assume SUTVA and a randomized treatment assignment.
 
 ## Motivating Example
-We illustrate the usage of the `evaluCATE` package with simulated data:
+We illustrate the usage of the `valiCATE` package with simulated data:
 
 - $X_{i} \sim \mathcal{U} ( 0, 1 )$ single uniformly distributed covariate;
 
@@ -69,7 +69,7 @@ To achieve valid inference, we randomly **partition our data set** into two subs
 
 1. a *training sample* for estimating the CATEs, and
 
-2. a *validation sample* to evaluate the estimated heterogeneity.
+2. a *validation sample* to validate the estimated heterogeneity.
 
 We explore two distinct models for CATE estimation: a T-learner employing honest regression forests as base learners, and an honest causal forest.
 
@@ -99,7 +99,7 @@ cates_val_cf <- predict(forest, X_val)$predictions
 
 Let's display the distribution of the out-of-sample CATE predictions. Observing the histograms below, one might infer the presence of heterogeneity in the treatment effects. However, substantial variation in predictions does not definitively indicate heterogeneous effects, as this variation may be attributed to **estimation noise messing with our results** (precisely what is occurring in our example!). 
 
-These complexities arise because the application of machine learning tools to estimate heterogeneous treatment effects may produce low-quality CATE estimates (see, e.g., the figure below, where we compare true and estimated CATEs). It is therefore crucial to employ appropriate procedures to evaluate the quality of the estimated CATEs and assess whether systematic heterogeneity is detected. This is the purpose of the `evaluCATE` package.
+These complexities arise because the application of machine learning tools to estimate heterogeneous treatment effects may produce low-quality CATE estimates (see, e.g., the figure below, where we compare true and estimated CATEs). It is therefore crucial to employ appropriate procedures to validate the estimated CATE models and assess whether systematic heterogeneity is detected. This is the purpose of the `valiCATE` package.
 
 ```{r cates-plot, eval = TRUE, fig.show = 'hold', fig.dim = c(7, 3)}
 ## Out-of-sample predicted CATEs.
@@ -126,8 +126,8 @@ p2 <- data.frame("x1" = X_val, "true_cates" = mu1[!train_idx] - mu0[!train_idx],
 grid.arrange(p1, p2, ncol = 2)
 ```
 
-## Quality Evaluation
-The evaluation of estimated CATEs focuses on three key targets:
+## Validation
+The validation of the estimated CATE models focuses on three key targets:
 
 - Best Linear Predictor (BLP) of the actual CATEs using the estimated CATEs;
 - Sorted Group Average Treatment Effects (GATES);
@@ -146,7 +146,7 @@ with $\beta_1 = \mathbb{E} [ \tau ( X_i ) ]$ and $\beta_2 = Cov [ \tau ( X_i ), 
 
 Our primary focus is on $\beta_2$. Notice that $\beta_2 = 0$ if either *a)* the effects are homogeneous or *b)* our CATE estimates are unreliable. Therefore, rejecting the hypothesis $\beta_2 = 0$ would suggest both heterogeneous effects and reliable CATE estimates.[^2] As a byproduct, $\beta_1$ identifies the ATE.
 
-The `evaluCATE` package estimates the BLP using three distinct strategies, each entailing the fitting of an appropriate regression model.[^3] [^4] 
+The `valiCATE` package estimates the BLP using three distinct strategies, each entailing the fitting of an appropriate regression model.[^3] [^4] 
 
 - **Weighted Residuals**:
 
@@ -172,7 +172,7 @@ with the groups formed by cutting the distribution of $\hat{\tau} ( \cdot )$ int
 
 Our main objective is to test specific hypotheses regarding the GATES, enabling us to determine whether we detect systematic heterogeneity or merely estimation noise. For example, we can examine whether all GATES are equal ($\gamma_1 = \gamma_2 = \dots = \gamma_K$) or if the difference between the largest and smallest GATES is zero ($\gamma_K = \gamma_1$).[^5] As a byproduct, the GATES quantify the degree to which effects vary across groups, thus offering an immediate visualization of the estimated heterogeneity *although disparities in the point estimates can emerge merely due to estimation noise).
 
-The `evaluCATE` package estimates the GATES using four different strategies, three of which involve fitting an appropriate regression model, while the fourth relies on a nonparametric approach.[^6] [^7]
+The `valiCATE` package estimates the GATES using four different strategies, three of which involve fitting an appropriate regression model, while the fourth relies on a nonparametric approach.[^6] [^7]
 
 **Weighted Residuals**
 
@@ -209,13 +209,13 @@ The RATE offers a measure of how effectively our estimated CATEs prioritize unit
 
 Our primary focus is to test the hypothesis $\theta_{\alpha} ( \hat{\tau} ) = 0$, which holds true if either *a)* the effects are homogeneous or *b)* our CATE estimates are unreliable. Thus, rejecting the hypothesis $\theta_{\alpha} ( \hat{\tau} ) = 0$ would indicate both heterogeneous effects and reliable CATE estimates.[^10]
 
-The `evaluCATE` package estimates the TOCs and the RATE using the following sample-averaging estimators:
+The `valiCATE` package estimates the TOCs and the RATE using the following sample-averaging estimators:
 
 $$ \widehat{TOC} ( u; \hat{\tau} ) = \frac{1}{ \lfloor u n \rfloor } \sum_{j = 1}^{\lfloor u n \rfloor} \hat{\Gamma}_{i ( j )} - \frac{1}{n} \sum_{i = 1}^n \hat{\Gamma}_i $$
 $$ \hat{\theta}_{\alpha} ( \hat{\tau} ) = \frac{1}{n} \sum_{j = 1}^n \alpha \left( \frac{j}{n} \right) \widehat{TOC} \left( \frac{j}{n}; \hat{\tau} \right) $$
 where we let $i ( j )$ be the mapping from rank $j$ to unit $i$ (e.g., $i ( 1 )$ returns the most-prioritized unit, and $i ( n )$ returns the least-prioritized unit) and the doubly-robust scores $\Gamma_i$ are estimated via cross-fitting in the validation sample. 
 
-The `evaluCATE` package considers two distinct weighting functions, each corresponding to a different RATE:
+The `valiCATE` package considers two distinct weighting functions, each corresponding to a different RATE:
 
 - $\alpha ( u ) = 1$ &rarr; Area under the TOC curve (AUTOC)
 - $\alpha ( u ) = u$ &rarr; Qini coefficient (QINI)
@@ -224,15 +224,15 @@ The half-sample bootstrap procedure is employed to estimate the standard error o
 
 ## Code
 ### Calling the Main Function
-To estimate the BLP, GATES, and RATEs, we use the `evaluCATE` function. When calling this function, we must provide our sample using the first six arguments: `Y_tr` and `Y_val` for the observed outcomes, `D_tr` and `D_val` for the treatment assignment, and `X_tr` and `X_val` for the covariates of units in the training and validation subsamples. Furthermore, it is necessary to supply our CATE predictions on the validation sample using the `cates_val` argument. This argument should consist of a named list, with each element storing a vector of CATE predictions produced by a specific model. We can choose our preferred names for the elements, keeping in mind that these names will be used to display and plot the results. We have already defined most of the arguments mentioned in this paragraph in our Motivating Example above. Below, we construct the `cates_val` list that stores the out-of-sample predictions produced by the T-learner and the causal forest.
+To estimate the BLP, GATES, and RATEs, we use the `valiCATE` function. When calling this function, we must provide our sample using the first six arguments: `Y_tr` and `Y_val` for the observed outcomes, `D_tr` and `D_val` for the treatment assignment, and `X_tr` and `X_val` for the covariates of units in the training and validation subsamples. Furthermore, it is necessary to supply our CATE predictions on the validation sample using the `cates_val` argument. This argument should consist of a named list, with each element storing a vector of CATE predictions produced by a specific model. We can choose our preferred names for the elements, keeping in mind that these names will be used to display and plot the results. We have already defined most of the arguments mentioned in this paragraph in our Motivating Example above. Below, we construct the `cates_val` list that stores the out-of-sample predictions produced by the T-learner and the causal forest.
 
-The `evaluCATE` function can implement all the BLP and GATES estimation strategies outlined in the Quality Evaluation section. Users can choose their preferred strategies by controlling the `strategies` argument. However, this choice has no impact on RATEs estimation, which are always estimated using the sample-averaging estimators discussed above. Furthermore, the nonparametric strategy for GATES estimation is always implemented. Below, we opt to implement only the weighted residuals and the horvitz-thompson strategies.
+The `valiCATE` function can implement all the BLP and GATES estimation strategies outlined in the Validation section. Users can choose their preferred strategies by controlling the `strategies` argument. However, this choice has no impact on RATEs estimation, which are always estimated using the sample-averaging estimators discussed above. Furthermore, the nonparametric strategy for GATES estimation is always implemented. Below, we opt to implement only the weighted residuals and the horvitz-thompson strategies.
 
 Users can choose to include the additional constructed covariates discussed in footnotes 4 and 7 by controlling the `denoising` argument. However, this choice does not impact RATEs estimation or the results from the nonparametric GATES estimation strategy. Below, we decide not to include any constructed covariate.
 
-Specific nuisance functions are necessary to conduct the analysis outlined in the Quality Evaluation section. Users can provide predictions on the validation sample of $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$ using the optional arguments `pscore_val`, `mu_val`, `mu0_val`, and `mu1_val`, respectively. It is important to note that these predictions must be generated by models estimated using only the training sample. If not supplied by the user, these functions are internally estimated via honest regression forests using only the training sample. In our Motivating Example, we know the actual propensity score, which is constant at $0.4$ for all units.[^11] We provide these values in the call below and allow the function to internally estimate the other nuisances.
+Specific nuisance functions are necessary to conduct the analysis outlined in the Validation section. Users can provide predictions on the validation sample of $p ( \cdot )$, $\mu ( \cdot )$, $\mu_0 ( \cdot )$, and $\mu_1 ( \cdot )$ using the optional arguments `pscore_val`, `mu_val`, `mu0_val`, and `mu1_val`, respectively. It is important to note that these predictions must be generated by models estimated using only the training sample. If not supplied by the user, these functions are internally estimated via honest regression forests using only the training sample. In our Motivating Example, we know the actual propensity score, which is constant at $0.4$ for all units.[^11] We provide these values in the call below and allow the function to internally estimate the other nuisances.
 
-Finally, we have four additional optional arguments. `n_groups` controls the number of groups formed for the GATES analysis. `beneficial` specifies how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). `n_boot` determines the number of bootstrap replications used to estimate the standard error of the estimated RATEs. `verbose` controls whether the `evaluCATE` function should print progress status on the console. Below, we use the default settings of 5 groups, where the treatment is considered beneficial, and 200 bootstrap replications. We prevent the function from printing progress updates.
+Finally, we have four additional optional arguments. `n_groups` controls the number of groups formed for the GATES analysis. `beneficial` specifies how to rank units for the RATE estimation (according to either increasing or decreasing values of the estimated CATEs). `n_boot` determines the number of bootstrap replications used to estimate the standard error of the estimated RATEs. `verbose` controls whether the `valiCATE` function should print progress status on the console. Below, we use the default settings of 5 groups, where the treatment is considered beneficial, and 200 bootstrap replications. We prevent the function from printing progress updates.
 
 ```{r call-main, eval = TRUE}
 ## Define arguments.
@@ -245,7 +245,7 @@ denoising <- "none"
 pscore_val <- rep(0.4, length(Y_val)) # True propensity scores.
 
 ## Call main function.
-evaluation <- evaluCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = strategies, denoising = denoising, pscore_val = pscore_val, verbose = FALSE)
+validation <- valiCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, strategies = strategies, denoising = denoising, pscore_val = pscore_val, verbose = FALSE)
 ```
 
 ### Results
@@ -255,7 +255,7 @@ We consistently fail to reject the hypothesis $\beta_2 = 0$, suggesting that eit
 
 ```{r blp-results, eval = TRUE}
 ## BLP summary.
-summary(evaluation, target = "BLP") # Try 'latex = TRUE'.
+summary(validation, target = "BLP") # Try 'latex = TRUE'.
 ```
 
 We can call the `summary` method with the `target` argument set to GATES to visualize the results of the GATES hypotheses testing, with the other arguments functioning as before. To visualize GATES point estimates and confidence intervals, we can call the `plot` method and set the `target` argument to GATES. Similarly to the `summary` method, we could utilize the `which_models` argument to select which results to display, although it is not necessary in this context.
@@ -264,9 +264,9 @@ Almost all GATES confidence intervals encompass zero, indicating that no group i
 
 ```{r gates-results, eval = TRUE, fig.dim = c(5, 5)}
 ## GATES summary.
-summary(evaluation, target = "GATES") # Try 'latex = TRUE'.
+summary(validation, target = "GATES") # Try 'latex = TRUE'.
 
-plot(evaluation, target = "GATES")
+plot(validation, target = "GATES")
 ```
 
 Lastly, calling the `summary` method with the `target` argument set to RATE enables us to visualize the results of the RATE estimation. To plot the estimated TOC curve, we can call the `plot` method and set the `target` argument to TOC. The AUTOC coefficient corresponds to the area under the TOC curve, while the QINI coefficient corresponds to the area under the curve $u \times TOC (u; \hat{\tau})$.
@@ -275,19 +275,19 @@ Overall, the results align with those of the BLP analysis. We consistently fail 
 
 ```{r rates-results, eval = TRUE, fig.dim = c(5, 3)}
 ## RATEs summary.
-summary(evaluation, target = "RATE") # Try 'latex = TRUE'.
+summary(validation, target = "RATE") # Try 'latex = TRUE'.
 
-plot(evaluation, target = "TOC")
+plot(validation, target = "TOC")
 ```
 
-[^1]: Complete references to these papers are listed in the [home page](https://riccardo-df.github.io/evaluCATE/).
-[^2]: Failing to reject this hypothesis suggests either there is no heterogeneity or our CATE estimates are not reliable. Without further evidence, we cannot disentangle this ambiguity. Check the [hypotheses testing vignette](https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html) for more details. 
+[^1]: Complete references to these papers are listed in the [home page](https://riccardo-df.github.io/valiCATE/).
+[^2]: Failing to reject this hypothesis suggests either there is no heterogeneity or our CATE estimates are not reliable. Without further evidence, we cannot disentangle this ambiguity. Check the [hypotheses testing vignette](https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html) for more details. 
 [^3]: The linear regressions are used for estimation purposes. The identification hinges on linear projections defined at the population level, with the linear regressions constituting their sample analogs.
-[^4]: For each of these alternatives, additional constructed covariates not necessary for identifying the targets can be included in the regressions to reduce estimation variance. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
-[^5]: Check the [hypotheses testing vignette](https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html) for details.
+[^4]: For each of these alternatives, additional constructed covariates not necessary for identifying the targets can be included in the regressions to reduce estimation variance. Details can be found in the [denoising vignette](https://riccardo-df.github.io/valiCATE/articles/denoising.html).
+[^5]: Check the [hypotheses testing vignette](https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html) for details.
 [^6]: See footnote 3.
-[^7]: For each of the parametric alternatives, additional constructed covariates not necessary for identifying the targets can be included in the regressions to reduce estimation variance. Details can be found in the [denoising vignette](https://riccardo-df.github.io/evaluCATE/articles/denoising.html).
+[^7]: For each of the parametric alternatives, additional constructed covariates not necessary for identifying the targets can be included in the regressions to reduce estimation variance. Details can be found in the [denoising vignette](https://riccardo-df.github.io/valiCATE/articles/denoising.html).
 [^8]: If the treatment is harmful, we prioritize units with the lowest estimated CATEs.
-[^9]:  Prioritization rules can be derived from alternatives approaches, such as risk-based rules. However, our focus here is on CATE-based rules, as we intend to utilize the RATEs to evaluate the quality of our estimated CATEs.
+[^9]: Prioritization rules can be derived from alternatives approaches, such as risk-based rules. However, our focus here is on CATE-based rules, as we intend to utilize the RATEs to valdiate our estimated CATE models.
 [^10]: See footnote 2.
 [^11]: It is important to note that most methodologies implemented here are valid only under randomized experiments, where $p ( \cdot )$ is known. The only exception is the AIPW strategy, which is valid under unconfoundedness.

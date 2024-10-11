@@ -1,4 +1,4 @@
-Package: evaluCATE
+Package: valiCATE
 Type: Package
 Title: Validation of CATE Models
 Version: 0.1.0
@@ -18,7 +18,7 @@ Suggests:
     reshape2,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     aggTrees,
     car,

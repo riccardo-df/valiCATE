@@ -89,16 +89,16 @@ test_parametric_gates <- function(model) {
 #' Groups are constructed by cutting the distribution of \code{cates} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, the function raises an error.\cr
 #' 
 #' The GATES are estimated using four different strategies: three involving fitting suitable linear models, and one nonparametric approach. Check the online 
-#' \href{https://riccardo-df.github.io/evaluCATE/articles/evaluCATE-short-tutorial.html}{short tutorial} for details.\cr
+#' \href{https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html}{short tutorial} for details.\cr
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. These standard errors are then used to test three distinct hypotheses of effect heterogeneity: whether
 #' all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, and whether the differences in the GATES across all pairs of groups are zero.
 #' For the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of the adjusted p-values. The nonparametric approach tests only the first
-#' of these hypotheses. Check \href{https://riccardo-df.github.io/evaluCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} for details.\cr
+#' of these hypotheses. Check \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} for details.\cr
 #' 
 #' Each strategy based on linear models supports different model specifications 
 #' that differ in additional and optional covariates that can be included in the regressions to reduce the estimation variance.
-#' Check \href{https://riccardo-df.github.io/evaluCATE/articles/denoising.html}{denoising vignette} for details.
+#' Check \href{https://riccardo-df.github.io/valiCATE/articles/denoising.html}{denoising vignette} for details.
 #'
 #' @import estimatr GenericML evalITR 
 #' @importFrom stats median
