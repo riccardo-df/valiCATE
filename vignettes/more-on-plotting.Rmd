@@ -111,7 +111,6 @@ We can smooth the curve by adjusting the `toc_smoother` argument. Smoothing is a
 # Smooth.
 plot(validation, target = "TOC", 
      toc_smoother = 5)
-
 # Smoother.
 plot(validation, target = "TOC", 
      toc_smoother = 10)
@@ -124,11 +123,9 @@ Finally, remember that the AUTOC coefficient corresponds to the area under the T
 ## RATEs plot.
 # Default.
 plot(validation, target = "RATE")
-
 # Smooth.
 plot(validation, target = "RATE", 
      toc_smoother = 5)
-
 # Smoother.
 plot(validation, target = "RATE", 
      toc_smoother = 10)

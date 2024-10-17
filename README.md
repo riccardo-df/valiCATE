@@ -5,6 +5,7 @@
 <!-- badges: end -->
 
 Validation of machine learning models for the conditional average treatment effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.
+
 To get started, please check the online [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html).
 
 ## Installation  
@@ -42,6 +43,6 @@ devtools::install_github("riccardo-df/valiCATE") # run install.packages("devtool
 [<a href="https://arxiv.org/abs/2203.14511">paper</a>]
 
 - Yadlowsky, S., Fleming, S., Shah, N., Brunskill, E., & Wager, S. (2021).
-<b>valiating treatment prioritization rules via rank-weighted average treatment effects.</b>
+<b>Evaluating treatment prioritization rules via rank-weighted average treatment effects.</b>
 <i>arXiv preprint</i>.
 [<a href="https://arxiv.org/abs/2111.07966">paper</a>]
