@@ -20,6 +20,7 @@
 #' @param n_groups Number of groups to be formed for the GATES analysis.
 #' @param beneficial Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates_val} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates_val}.
 #' @param n_boot Number of bootstrap replications to estimate the standard error of the RATE estimates.
+#' @param crossfit_dr Logical, whether the doubly-robust scores should be cross-fitted in the validation sample. If \code{FALSE}, the scores are constructed using the out-of-sample predictions from the nuisance models trained in the training sample.
 #' @param verbose Logical, set to FALSE to prevent the function from printing the progresses.
 #'
 #' @return
@@ -99,28 +100,29 @@
 #' @details
 #' The user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately
 #' using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
-#' Be careful, models must be estimated using only the training sample to achieve valid inference.\cr
+#' Be careful, CATE models must be estimated using only the training sample to achieve valid inference.\cr
 #' 
 #' The \code{\link{valiCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
 #' Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the \code{strategies} argument. This has no impact on RATEs estimation. GATES are also 
-#' always estimated using a nonparametric approach.\cr
+#' always estimated using an additional nonparametric approach.\cr
 #' 
 #' Most of the BLP and GATES estimation strategies involve fitting a suitable linear model. For each model, there exist various sets of constructed covariates that one can add to reduce the variance of 
 #' the estimation. The user can choose whether to add these additional covariates by controlling the \code{denoising} argument (check the online 
 #' \href{https://riccardo-df.github.io/valiCATE/articles/denoising.html}{denoising vignette} for details). This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy. 
 #' 
 #' The constructed covariates depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome. The user can supply predictions on the validation sample of these functions 
-#' by using the  optional arguments \code{pscore_val}, \code{mu_val}, \code{mu0_val}, and \code{mu1_val}. Be careful, as these predictions must be produced by models estimated using only the training sample. If not 
-#' provided by the user, these functions are estimated internally  via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
+#' by using the  optional arguments \code{pscore_val}, \code{mu_val}, \code{mu0_val}, and \code{mu1_val}. Be careful, as these predictions must be produced by models fitted using only the training sample. If not 
+#' provided by the user, these functions are estimated internally via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
 #' 
 #' For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. Under our careful sample splitting procedure, these standard errors can then used to test various 
-#' hypotheses of effect heterogeneity. For the GATES, we focus on three distinct hypotheses: whether all GATES are equal to each other, whether the largest and the smallest GATES are different from each other, 
-#' and whether the differences in the GATES across all pairs of groups are zero (for the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of 
-#' the adjusted p-values). The nonparametric  approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} 
+#' hypotheses of effect heterogeneity. For the GATES, we focus on two distinct hypotheses: whether all GATES are equal to each other, and whether the largest and the smallest GATES are different from each other.
+#' The nonparametric approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette} 
 #' for details.\cr
 #' 
-#' To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the 
-#' \code{\link[aggTrees]{dr_scores}} function for details). The same doubly-robust scores are also used to estimate the RATEs.\cr
+#' To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally in one of two ways: if \code{crossfit_dr} is \code{TRUE}, we use 
+#' the validation sample and 5-fold cross fitting with honest regression forests (see the 
+#' \code{\link[aggTrees]{dr_scores}} function for details), while if \code{crossfit_dr} is \code{FALSE}, we use the out-of-sample predictions from the nuisance models trained
+#' using the training sample. The doubly-robust scores are also used to estimate the RATEs.\cr
 #' 
 #' Groups for the GATES analysis are constructed by cutting the distribution of \code{cates_val} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units, 
 #' the function raises an error. Possible solutions include: a) change your original training-validation sample split; b) increase the fraction of observations allocated to the validation sample.\cr
@@ -141,6 +143,7 @@ valiCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
                      strategies = c("WR", "HT", "AIPW"), denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
                      pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
                      n_groups = 5, beneficial = TRUE, n_boot = 200,
+                     crossfit_dr = TRUE,
                      verbose = TRUE) {
   ## 0.) Handling inputs and checks.
   if (is.logical(D_tr)) D_tr <- as.numeric(D_tr)
@@ -155,37 +158,42 @@ valiCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val,
   if (n_groups <= 1 | n_groups %% 1 != 0) stop("Invalid 'n_groups'. This must be an integer greater than 1.", call. = FALSE)
   if (n_boot <= 1 | n_boot %% 1 != 0) stop("Invalid 'n_boot'. This must be an integer greater than 1.", call. = FALSE)
   if (!is.logical((beneficial))) stop("Invalid 'beneficial'. This must be either TRUE or FALSE.", call. = FALSE)
+  if (!is.logical((crossfit_dr))) stop("Invalid 'crossfit_dr'. This must be either TRUE or FALSE.", call. = FALSE)
   if (!is.logical((verbose))) stop("Invalid 'verbose'. This must be either TRUE or FALSE.", call. = FALSE)
   
-  ## 1.) Estimate necessary nuisance functions using the training sample. Propensity score always required.
-  if (verbose) cat("Estimating nuisance functions; \n")
+  ## 1.) Estimate necessary objects.
+  if (verbose) cat("Estimating nuisance functions and DR scores; \n")
   
-  scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val)
-  
-  if (is.null(pscore_val)) {
+  if (is.null(pscore_val)) { # Train propensity score model in training sample and predict in validation sample.
     pscore_forest <- grf::regression_forest(X_tr, D_tr)
     pscore_val <- stats::predict(pscore_forest, X_val)$predictions
   }
   
-  if (any(denoising %in% c("cddf1", "cddf2", "mck2", "mck3"))) {
-    if (is.null(mu0_val)) {
+  if (any(denoising %in% c("cddf1", "cddf2", "mck2", "mck3")) | !crossfit_dr) {
+    if (is.null(mu0_val)) { # Train control conditional mean model in training sample and predict in validation sample.
       mu0_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 0, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 0])
       mu0_val <- stats::predict(mu0_forest, X_val)$predictions
     }
   } 
   
-  if (any(denoising %in% c("mck2", "mck3"))) {
-    if (is.null(mu1_val)) {
+  if (any(denoising %in% c("mck2", "mck3")) | !crossfit_dr) {
+    if (is.null(mu1_val)) { # Train treated conditional mean model in training sample and predict in validation sample.
       mu1_forest <- grf::regression_forest(as.matrix(X_tr[D_tr == 1, ], ncol = dim(X_tr)[2]), Y_tr[D_tr == 1])
       mu1_val <- stats::predict(mu1_forest, X_val)$predictions
     }
   } 
   
-  if (any(denoising == "mck1")) {
-    if (is.null(mu_val)) {
+  if (any(denoising == "mck1") | !crossfit_dr) {
+    if (is.null(mu_val)) { # Train conditional mean model in training sample and predict in validation sample.
       mu_forest <- grf::regression_forest(X_tr, Y_tr)
       mu_val <- stats::predict(mu_forest, X_val)$predictions
     }
+  }
+  
+  if (crossfit_dr) {
+    scores_val <- aggTrees::dr_scores(Y_val, D_val, X_val) # Cross-fit DR scores in validation sample.
+  } else {
+    scores_val <- mu1_val - mu0_val + (D_val * (Y_val - mu1_val)) / (pscore_val) - ((1 - D_val) * (Y_val - mu0_val)) / (1 - pscore_val) # DR scores using predictions from training sample.
   }
   
   ## 3.) Estimate BLP, GATES, and RATE in validation sample.

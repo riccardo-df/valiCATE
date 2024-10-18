@@ -21,6 +21,7 @@ valiCATE(
   n_groups = 5,
   beneficial = TRUE,
   n_boot = 200,
+  crossfit_dr = TRUE,
   verbose = TRUE
 )
 }
@@ -57,6 +58,8 @@ valiCATE(
 
 \item{n_boot}{Number of bootstrap replications to estimate the standard error of the RATE estimates.}
 
+\item{crossfit_dr}{Logical, whether the doubly-robust scores should be cross-fitted in the validation sample. If \code{FALSE}, the scores are constructed using the out-of-sample predictions from the nuisance models trained in the training sample.}
+
 \item{verbose}{Logical, set to FALSE to prevent the function from printing the progresses.}
 }
 \value{
@@ -70,28 +73,29 @@ the estimated CATEs.
 \details{
 The user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately
 using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
-Be careful, models must be estimated using only the training sample to achieve valid inference.\cr
+Be careful, CATE models must be estimated using only the training sample to achieve valid inference.\cr
 
 The \code{\link{valiCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
 Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the \code{strategies} argument. This has no impact on RATEs estimation. GATES are also
-always estimated using a nonparametric approach.\cr
+always estimated using an additional nonparametric approach.\cr
 
 Most of the BLP and GATES estimation strategies involve fitting a suitable linear model. For each model, there exist various sets of constructed covariates that one can add to reduce the variance of
 the estimation. The user can choose whether to add these additional covariates by controlling the \code{denoising} argument (check the online
 \href{https://riccardo-df.github.io/valiCATE/articles/denoising.html}{denoising vignette} for details). This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy.
 
 The constructed covariates depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome. The user can supply predictions on the validation sample of these functions
-by using the  optional arguments \code{pscore_val}, \code{mu_val}, \code{mu0_val}, and \code{mu1_val}. Be careful, as these predictions must be produced by models estimated using only the training sample. If not
-provided by the user, these functions are estimated internally  via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
+by using the  optional arguments \code{pscore_val}, \code{mu_val}, \code{mu0_val}, and \code{mu1_val}. Be careful, as these predictions must be produced by models fitted using only the training sample. If not
+provided by the user, these functions are estimated internally via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
 
 For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. Under our careful sample splitting procedure, these standard errors can then used to test various
-hypotheses of effect heterogeneity. For the GATES, we focus on three distinct hypotheses: whether all GATES are equal to each other, whether the largest and the smallest GATES are different from each other,
-and whether the differences in the GATES across all pairs of groups are zero (for the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of
-the adjusted p-values). The nonparametric  approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette}
+hypotheses of effect heterogeneity. For the GATES, we focus on two distinct hypotheses: whether all GATES are equal to each other, and whether the largest and the smallest GATES are different from each other.
+The nonparametric approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette}
 for details.\cr
 
-To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the
-\code{\link[aggTrees]{dr_scores}} function for details). The same doubly-robust scores are also used to estimate the RATEs.\cr
+To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally in one of two ways: if \code{crossfit_dr} is \code{TRUE}, we use
+the validation sample and 5-fold cross fitting with honest regression forests (see the
+\code{\link[aggTrees]{dr_scores}} function for details), while if \code{crossfit_dr} is \code{FALSE}, we use the out-of-sample predictions from the nuisance models trained
+using the training sample. The doubly-robust scores are also used to estimate the RATEs.\cr
 
 Groups for the GATES analysis are constructed by cutting the distribution of \code{cates_val} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units,
 the function raises an error. Possible solutions include: a) change your original training-validation sample split; b) increase the fraction of observations allocated to the validation sample.\cr
