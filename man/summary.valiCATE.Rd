@@ -9,6 +9,7 @@
   target = "BLP",
   latex = FALSE,
   which_models = names(object$GATES[[1]]),
+  rate_inference = "onesided",
   ...
 )
 }
@@ -20,6 +21,8 @@
 \item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
 
 \item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES[[1]])}. Ignored if \code{target == "RATE"}.}
+
+\item{rate_inference}{String, whether to display \code{"onesided"} (default) or \code{"twosided"} confidence intervals for the estimated RATEs. Ignored if \code{target != "RATE"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }

@@ -34,7 +34,7 @@
 #' 
 #' X <- matrix(rnorm(n * k), ncol = k)
 #' colnames(X) <- paste0("x", seq_len(k))
-#' D <- rbinom(n, size = 1, prob = 0.5)
+#' D <- rbinom(n, size = 1, prob = 0.4)
 #' mu0 <- 0.5 * X[, 1]
 #' mu1 <- 0.5 * X[, 1] + X[, 2]
 #' Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
@@ -70,7 +70,7 @@
 #' denoising <- "none"
 #' 
 #' # We know true pscore.
-#' pscore_val <- rep(0.5, length(Y_val))
+#' pscore_val <- rep(0.4, length(Y_val))
 #' 
 #' # Construct CATEs list.
 #' cates_val <- list("T-learner" = cates_val_t,
@@ -138,9 +138,10 @@
 #'
 #' @export
 valiCATE <- function(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
-                      strategies = c("WR", "HT", "AIPW"), denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
-                      pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
-                      n_groups = 5, beneficial = TRUE, n_boot = 200, verbose = TRUE) {
+                     strategies = c("WR", "HT", "AIPW"), denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
+                     pscore_val = NULL, mu_val = NULL, mu0_val = NULL, mu1_val = NULL,
+                     n_groups = 5, beneficial = TRUE, n_boot = 200,
+                     verbose = TRUE) {
   ## 0.) Handling inputs and checks.
   if (is.logical(D_tr)) D_tr <- as.numeric(D_tr)
   if (is.logical(D_val)) D_val <- as.numeric(D_val)

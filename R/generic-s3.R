@@ -6,6 +6,7 @@
 #' @param target String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.
 #' @param latex Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.
 #' @param which_models Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES[[1]])}. Ignored if \code{target == "RATE"}.
+#' @param rate_inference String, whether to display \code{"onesided"} (default) or \code{"twosided"} confidence intervals for the estimated RATEs. Ignored if \code{target != "RATE"}.
 #' @param ... Further arguments passed to or from other methods.
 #' 
 #' @return 
@@ -24,11 +25,13 @@
 #' 
 #' @export
 summary.valiCATE <- function(object, target = "BLP", 
-                              latex = FALSE, which_models = names(object$GATES[[1]]), ...) {
-  if (!(target %in% c("BLP", "GATES", "RATE"))) stop("Invalid 'target'. This must be one of 'BLP', 'GATES', 'RATE'", call. = FALSE)
+                             latex = FALSE, which_models = names(object$GATES[[1]]),
+                             rate_inference = "onesided", ...) {
+  if (!(target %in% c("BLP", "GATES", "RATE"))) stop("Invalid 'target'. This must be one of 'BLP', 'GATES', 'RATE.'", call. = FALSE)
   if (!is.logical(latex)) stop("Invalid 'latex'. This must be either TRUE or FALSE.", call. = FALSE)
   if (any(!(which_models %in% names(object$GATES[[1]])))) stop("Invalid 'which_models'. Admitted values are those stored in 'names(object$GATES)'.", call. = FALSE)
-
+  if (!(rate_inference %in% c("onesided", "twosided"))) stop("Invalid 'rate_inference'. This must be either 'onesided' or 'twosided'.", call. = FALSE)
+  
   which_models_blp <- setdiff(which_models, "imai_li")
   n_models_blp <- length(which_models_blp)
   n_models_gates <- length(which_models)
@@ -255,15 +258,24 @@ summary.valiCATE <- function(object, target = "BLP",
         cat(strrep("-", limits_table * 2 + nchar("WEIGHT")), "|", strrep("-", limits_table * 2 + nchar("RATE")), "|", " \n")
       
         autoc <- format(round(object$RATE[[cate_models[j]]]$rate_results$AUTOC$rate, 2), nsmall = 2)
-        autoc_lower_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$AUTOC$rate - 1.96 * object$RATE[[cate_models[j]]]$rate_results$AUTOC$se, 3), nsmall = 3)
-        autoc_upper_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$AUTOC$rate + 1.96 * object$RATE[[cate_models[j]]]$rate_results$AUTOC$se, 3), nsmall = 3)
-      
         qini <- format(round(object$RATE[[cate_models[j]]]$rate_results$QINI$rate, 2), nsmall = 2)
-        qini_lower_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$QINI$rate - 1.96 * object$RATE[[cate_models[j]]]$rate_results$QINI$se, 3), nsmall = 3)
-        qini_upper_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$QINI$rate + 1.96 * object$RATE[[cate_models[j]]]$rate_results$QINI$se, 3), nsmall = 3)
-      
-        autoc_ci_print <- paste0("[", autoc_lower_ci, ", ", autoc_upper_ci, "]")
-        qini_ci_print <- paste0("[", qini_lower_ci, ", ", qini_upper_ci, "]")
+        
+        if (rate_inference == "twosided") {
+          autoc_lower_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$AUTOC$rate - 1.96 * object$RATE[[cate_models[j]]]$rate_results$AUTOC$se, 3), nsmall = 3)
+          autoc_upper_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$AUTOC$rate + 1.96 * object$RATE[[cate_models[j]]]$rate_results$AUTOC$se, 3), nsmall = 3)
+          
+          qini_lower_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$QINI$rate - 1.96 * object$RATE[[cate_models[j]]]$rate_results$QINI$se, 3), nsmall = 3)
+          qini_upper_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$QINI$rate + 1.96 * object$RATE[[cate_models[j]]]$rate_results$QINI$se, 3), nsmall = 3)
+          
+          autoc_ci_print <- paste0("[", autoc_lower_ci, ", ", autoc_upper_ci, "]")
+          qini_ci_print <- paste0("[", qini_lower_ci, ", ", qini_upper_ci, "]")
+        } else if (rate_inference == "onesided") {
+          autoc_lower_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$AUTOC$rate - 1.645 * object$RATE[[cate_models[j]]]$rate_results$AUTOC$se, 3), nsmall = 3)
+          qini_lower_ci <- format(round(object$RATE[[cate_models[j]]]$rate_results$QINI$rate - 1.645 * object$RATE[[cate_models[j]]]$rate_results$QINI$se, 3), nsmall = 3)
+          
+          autoc_ci_print <- paste0("[", autoc_lower_ci, ", Infty]")
+          qini_ci_print <- paste0("[", qini_lower_ci, ", Infty]")
+        }
         
         fill_autoc <- limits_table * 2 + (nchar("RATE") - nchar(autoc))
         fill_qini <- limits_table * 2 + (nchar("RATE") - nchar(qini))
@@ -395,11 +407,12 @@ summary.valiCATE <- function(object, target = "BLP",
 \\endgroup")
     } else if (target == "GATES") {
       cat("NOT IMPLEMENTED, AS WE FEEL ANY TABLE WOULD BE MESSY. \n")
-      cat("WE APPRECIATE ANY SUGGESTIONS ON NICE FORMATS YOU WOULD LIKE TO HAVE.")
+      cat("WE APPRECIATE ANY SUGGESTIONS ON NICE FORMATS YOU WOULD LIKE TO HAVE :) \n")
       cat("MAY WE SUGGEST TO USE THE PRINT METHOD TO PRODUCE A NICE PLOT? \n")
     } else if (target == "RATE") {
       cat("YET TO BE IMPLEMENTED, SORRY :( \n")
-      cat("WE APPRECIATE ANY SUGGESTIONS ON THE FORMAT.")
+      cat("WE APPRECIATE ANY SUGGESTIONS ON THE FORMAT. \n")
+      cat("MAY WE SUGGEST TO USE THE PRINT METHOD TO PRODUCE A NICE PLOT FOR THE TOCs?")
     }
   } 
 }

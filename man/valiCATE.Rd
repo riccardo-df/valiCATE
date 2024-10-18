@@ -110,7 +110,7 @@ k <- 2
 
 X <- matrix(rnorm(n * k), ncol = k)
 colnames(X) <- paste0("x", seq_len(k))
-D <- rbinom(n, size = 1, prob = 0.5)
+D <- rbinom(n, size = 1, prob = 0.4)
 mu0 <- 0.5 * X[, 1]
 mu1 <- 0.5 * X[, 1] + X[, 2]
 Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
@@ -146,7 +146,7 @@ strategies <- c("WR", "HT")
 denoising <- "none"
 
 # We know true pscore.
-pscore_val <- rep(0.5, length(Y_val))
+pscore_val <- rep(0.4, length(Y_val))
 
 # Construct CATEs list.
 cates_val <- list("T-learner" = cates_val_t,
