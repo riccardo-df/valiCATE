@@ -83,6 +83,7 @@ the estimated CATEs.</p>
 <span>  n_groups <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  beneficial <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_boot <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  crossfit_dr <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -155,6 +156,10 @@ the estimated CATEs.</p>
 <dd><p>Number of bootstrap replications to estimate the standard error of the RATE estimates.</p></dd>
 
 
+<dt id="arg-crossfit-dr">crossfit_dr<a class="anchor" aria-label="anchor" href="#arg-crossfit-dr"></a></dt>
+<dd><p>Logical, whether the doubly-robust scores should be cross-fitted in the validation sample. If <code>FALSE</code>, the scores are constructed using the out-of-sample predictions from the nuisance models trained in the training sample.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical, set to FALSE to prevent the function from printing the progresses.</p></dd>
 
@@ -167,23 +172,24 @@ the estimated CATEs.</p>
     <h2>Details</h2>
     <p>The user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately
 using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
-Be careful, models must be estimated using only the training sample to achieve valid inference.<br></p>
+Be careful, CATE models must be estimated using only the training sample to achieve valid inference.<br></p>
 <p>The <code>valiCATE</code> function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
 Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the <code>strategies</code> argument. This has no impact on RATEs estimation. GATES are also
-always estimated using a nonparametric approach.<br></p>
+always estimated using an additional nonparametric approach.<br></p>
 <p>Most of the BLP and GATES estimation strategies involve fitting a suitable linear model. For each model, there exist various sets of constructed covariates that one can add to reduce the variance of
 the estimation. The user can choose whether to add these additional covariates by controlling the <code>denoising</code> argument (check the online
 <a href="https://riccardo-df.github.io/valiCATE/articles/denoising.html">denoising vignette</a> for details). This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy.</p>
 <p>The constructed covariates depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome. The user can supply predictions on the validation sample of these functions
-by using the  optional arguments <code>pscore_val</code>, <code>mu_val</code>, <code>mu0_val</code>, and <code>mu1_val</code>. Be careful, as these predictions must be produced by models estimated using only the training sample. If not
-provided by the user, these functions are estimated internally  via honest <code><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" class="external-link">regression_forest</a></code>s using only the training sample. <br></p>
+by using the  optional arguments <code>pscore_val</code>, <code>mu_val</code>, <code>mu0_val</code>, and <code>mu1_val</code>. Be careful, as these predictions must be produced by models fitted using only the training sample. If not
+provided by the user, these functions are estimated internally via honest <code><a href="https://rdrr.io/pkg/grf/man/regression_forest.html" class="external-link">regression_forest</a></code>s using only the training sample. <br></p>
 <p>For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. Under our careful sample splitting procedure, these standard errors can then used to test various
-hypotheses of effect heterogeneity. For the GATES, we focus on three distinct hypotheses: whether all GATES are equal to each other, whether the largest and the smallest GATES are different from each other,
-and whether the differences in the GATES across all pairs of groups are zero (for the last test, we adjust p-values to account for multiple hypotheses testing using Holm's procedure and report the median of
-the adjusted p-values). The nonparametric  approach tests only the first of these hypotheses. Check the <a href="https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html">hypotheses testing vignette</a>
+hypotheses of effect heterogeneity. For the GATES, we focus on two distinct hypotheses: whether all GATES are equal to each other, and whether the largest and the smallest GATES are different from each other.
+The nonparametric approach tests only the first of these hypotheses. Check the <a href="https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html">hypotheses testing vignette</a>
 for details.<br></p>
-<p>To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally using the validation sample via 5-fold cross fitting and honest regression forests (see the
-<code><a href="https://riccardo-df.github.io/aggTrees/reference/dr_scores.html" class="external-link">dr_scores</a></code> function for details). The same doubly-robust scores are also used to estimate the RATEs.<br></p>
+<p>To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally in one of two ways: if <code>crossfit_dr</code> is <code>TRUE</code>, we use
+the validation sample and 5-fold cross fitting with honest regression forests (see the
+<code><a href="https://riccardo-df.github.io/aggTrees/reference/dr_scores.html" class="external-link">dr_scores</a></code> function for details), while if <code>crossfit_dr</code> is <code>FALSE</code>, we use the out-of-sample predictions from the nuisance models trained
+using the training sample. The doubly-robust scores are also used to estimate the RATEs.<br></p>
 <p>Groups for the GATES analysis are constructed by cutting the distribution of <code>cates_val</code> into <code>n_groups</code> quantiles. If this leads to one or more groups composed of only treated or only control units,
 the function raises an error. Possible solutions include: a) change your original training-validation sample split; b) increase the fraction of observations allocated to the validation sample.<br></p>
 <p>The <code>valiCATE</code> function estimates two different RATEs: AUTOC and QINI coefficients. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap
@@ -251,7 +257,7 @@ estimates obtained using the half-sample bootstrap.<br></p>
 <span class="r-in"><span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu">valiCATE</span><span class="op">(</span><span class="va">Y_tr</span>, <span class="va">Y_val</span>, <span class="va">D_tr</span>, <span class="va">D_val</span>, <span class="va">X_tr</span>, <span class="va">X_val</span>, <span class="va">cates_val</span>, </span></span>
 <span class="r-in"><span>                        strategies <span class="op">=</span> <span class="va">strategies</span>, denoising <span class="op">=</span> <span class="va">denoising</span>, </span></span>
 <span class="r-in"><span>                        pscore_val <span class="op">=</span> <span class="va">pscore_val</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions; </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions and DR scores; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BLP estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GATES estimation; </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> RATE estimation; </span>
