@@ -68,6 +68,7 @@
 <span>  target <span class="op">=</span> <span class="st">"BLP"</span>,</span>
 <span>  latex <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">object</span><span class="op">$</span><span class="va">GATES</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  rate_inference <span class="op">=</span> <span class="st">"onesided"</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -90,6 +91,10 @@
 
 <dt id="arg-which-models">which_models<a class="anchor" aria-label="anchor" href="#arg-which-models"></a></dt>
 <dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(object$GATES[[1]])</code>. Ignored if <code>target == "RATE"</code>.</p></dd>
+
+
+<dt id="arg-rate-inference">rate_inference<a class="anchor" aria-label="anchor" href="#arg-rate-inference"></a></dt>
+<dd><p>String, whether to display <code>"onesided"</code> (default) or <code>"twosided"</code> confidence intervals for the estimated RATEs. Ignored if <code>target != "RATE"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
