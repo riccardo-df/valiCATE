@@ -306,7 +306,9 @@ with the model fitted via OLS.</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>Γ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>β</mi><mn>1</mn></msub><mo>+</mo><msub><mi>β</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">{</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>𝔼</mi><mrow><mi>n</mi><mo>,</mo><mi>V</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">[</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="false" form="postfix">}</mo><mo>+</mo><msub><mi>ϵ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex"> \hat{\Gamma}_i = \beta_1 + \beta_2 \{ \hat{\tau} ( X_i ) - \mathbb{E}_{n, V} [ \hat{\tau} ( X_i ) ] \} + \epsilon_i </annotation></semantics></math>
 with the model fitted via OLS and the doubly-robust scores
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Γ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Gamma_i</annotation></semantics></math>
-estimated via cross-fitting in the validation sample.</p>
+constructed either via cross-fitting in the validation sample or using
+the out-of-sample predictions of the nuisance models trained in the
+training sample.</p>
 </div>
 <div class="section level3">
 <h3 id="sorted-group-average-treatment-effects">Sorted Group Average Treatment Effects<a class="anchor" aria-label="anchor" href="#sorted-group-average-treatment-effects"></a>
@@ -344,7 +346,9 @@ regression model, while the fourth relies on a nonparametric approach.<a href="#
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>Γ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><msub><mi>γ</mi><mi>k</mi></msub><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mo>ℓ</mo><mo accent="true">̂</mo></mover><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>≤</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><msub><mover><mo>ℓ</mo><mo accent="true">̂</mo></mover><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>ϵ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex"> \hat{\Gamma}_i = \sum_{k = 1}^K \gamma_k \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) + \epsilon_i </annotation></semantics></math></p>
 <p>with the model fitted via OLS and the doubly-robust scores
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Γ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Gamma_i</annotation></semantics></math>
-estimated via cross-fitting in the validation sample.</p>
+constructed either via cross-fitting in the validation sample or using
+the out-of-sample predictions of the nuisance models trained in the
+training sample.</p>
 <p><strong>Nonparametric</strong></p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>γ</mi><mo accent="true">̂</mo></mover><mi>k</mi></msub><mo>=</mo><mfrac><mi>K</mi><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>D</mi><mi>i</mi></msub></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>Y</mi><mi>i</mi></msub><msub><mi>D</mi><mi>i</mi></msub><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mo>ℓ</mo><mo accent="true">̂</mo></mover><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>≤</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><msub><mover><mo>ℓ</mo><mo accent="true">̂</mo></mover><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mi>K</mi><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>Y</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">[</mo><mn>1</mn><mo>−</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mn>𝟙</mn><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mo>ℓ</mo><mo accent="true">̂</mo></mover><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>≤</mo><mover><mi>τ</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><msub><mover><mo>ℓ</mo><mo accent="true">̂</mo></mover><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex"> \hat{\gamma}_k = \frac{K}{\sum_{i = 1}^n D_i} \sum_{i = 1}^n Y_i D_i \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) - \frac{K}{\sum_{i = 1}^n [ 1 - D_i ]} \sum_{i = 1}^n Y_i [ 1 - D_i ] \mathbb{1} ( \hat{\ell}_{k - 1} \leq \hat{\tau} ( X_i ) &lt; \hat{\ell}_k ) </annotation></semantics></math></p>
 </div>
@@ -395,7 +399,9 @@ returns the most-prioritized unit, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">i ( n )</annotation></semantics></math>
 returns the least-prioritized unit) and the doubly-robust scores
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Γ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Gamma_i</annotation></semantics></math>
-are estimated via cross-fitting in the validation sample.</p>
+are constructed either via cross-fitting in the validation sample or
+using the out-of-sample predictions of the nuisance models trained in
+the training sample.</p>
 <p>The <code>valiCATE</code> package considers two distinct weighting
 functions, each corresponding to a different RATE:</p>
 <ul>
@@ -465,17 +471,21 @@ constant at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.4</mn><annotation encoding="application/x-tex">0.4</annotation></semantics></math>
 for all units.<a href="#fn11" class="footnote-ref" id="fnref11"><sup>11</sup></a> We provide these values in the call below
 and allow the function to internally estimate the other nuisances.</p>
-<p>Finally, we have four additional optional arguments.
+<p>Finally, we have five additional optional arguments.
 <code>n_groups</code> controls the number of groups formed for the GATES
 analysis. <code>beneficial</code> specifies how to rank units for the
 RATE estimation (according to either increasing or decreasing values of
 the estimated CATEs). <code>n_boot</code> determines the number of
 bootstrap replications used to estimate the standard error of the
-estimated RATEs. <code>verbose</code> controls whether the
-<code>valiCATE</code> function should print progress status on the
+estimated RATEs. <code>crossfit_dr</code> controls whether the
+doubly-robust scores are constructed via cross-fitting in the validation
+sample or using the out-of-sample predictions of the nuisance models
+trained in the training sample. <code>verbose</code> controls whether
+the <code>valiCATE</code> function should print progress status on the
 console. Below, we use the default settings of 5 groups, where the
-treatment is considered beneficial, and 200 bootstrap replications. We
-prevent the function from printing progress updates.</p>
+treatment is considered beneficial, 200 bootstrap replications, and
+cross-fitting in the validation sample. We prevent the function from
+printing progress updates.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## Define arguments.</span></span>
 <span><span class="va">cates_val</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"T-learner"</span> <span class="op">=</span> <span class="va">cates_val_t</span>,</span>
