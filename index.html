@@ -75,33 +75,90 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div class="section level1">
-<div class="page-header"><h1 id="validation-of-conditional-average-treatment-effects-models-">Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="reference/figures/logo.svg" align="right" height="200"></a>
-<a class="anchor" aria-label="anchor" href="#validation-of-conditional-average-treatment-effects-models-"></a>
-</h1></div>
-<!-- badges: start -->
 
-<p>Validation of machine learning models for the conditional average treatment effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.</p>
-<p>To get started, please check the online <a href="https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html">short tutorial</a>.</p>
+<div class="section level1">
+<div class="page-header"><h1 id="causal-inference-for-qualitative-outcomes-">Causal inference for qualitative outcomes <a href="https://riccardo-df.github.io/valiCATE/"><img src="reference/figures/logo.svg" align="right" height="130"></a>
+<a class="anchor" aria-label="anchor" href="#causal-inference-for-qualitative-outcomes-"></a>
+</h1></div>
+</div>
+<div class="section level1">
+<h1 id="validation-of-conditional-average-treatment-effects-models-">Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="reference/figures/logo.svg" align="right" height="130"></a>
+<a class="anchor" aria-label="anchor" href="#validation-of-conditional-average-treatment-effects-models-"></a>
+</h1>
+<p><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a> <a href="https://CRAN.R-project.org/package=valiCATE" class="external-link"><img src="https://www.r-pkg.org/badges/version/valiCATE" alt="CRAN"></a> <a href="https://CRAN.R-project.org/package=valiCATE" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/valiCATE" alt="Downloads"></a></p>
+<p>The <code>valiCATE</code> package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Traditional methods for assessing treatment effect heterogeneity often rely on unverified modeling assumptions. <code>valiCATE</code> implements best practices in model validation to ensure robustness and reliability.</p>
+<hr>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="why-use-valicate">Why use <code>valiCATE</code>?<a class="anchor" aria-label="anchor" href="#why-use-valicate"></a>
 </h2>
-<p>The current development version of the package can be installed using the <code>devtools</code> package:</p>
-<pre><code><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"riccardo-df/valiCATE"</span><span class="op">)</span> <span class="co"># run install.packages("devtools") if needed.</span></span></code></pre>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="79%">
+</colgroup>
+<thead><tr class="header">
+<th>Feature</th>
+<th>Benefit</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ensures reliable inference</strong></td>
+<td>Evaluates CATE estimates through best linear predictor (BLP), sorted group average treatment effects (GATES), and rank-weighted ATEs (RATEs).</td>
+</tr>
+<tr class="even">
+<td><strong>Identifies systematic heterogeneity</strong></td>
+<td>Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.</td>
+</tr>
+<tr class="odd">
+<td><strong>Supports multiple estimation strategies</strong></td>
+<td>Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric validation procedures.</td>
+</tr>
+<tr class="even">
+<td><strong>Graphical analysis</strong></td>
+<td>Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.</td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup><col width="100%"></colgroup>
+<tbody>
+<tr class="odd">
+<td align="left">## 🚀 Installation</td>
+</tr>
+<tr class="even">
+<td align="left">To install the latest stable release from CRAN, run:</td>
+</tr>
+<tr class="odd">
+<td align="left"><code># install.packages("valiCATE") # Not yet available!</code></td>
+</tr>
+<tr class="even">
+<td align="left">Alternatively, the current development version of the package can be installed using the <code>devtools</code> package:</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>devtools::install_github("riccardo-df/valiCATE")</code></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
 </h2>
-<ul>
-<li><p>Imbens, G. W., &amp; Rubin, D. B. (2015). <b>Causal inference for statistics, social, and biomedical sciences: An introduction.</b> <i>Cambridge University Press</i>. [<a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB" class="external-link">book</a>]</p></li>
-<li><p>Chernozhukov, V., Demirer, M., Duflo, E., &amp; Fernandez-Val, I. (2017). <b>Generic machine learning inference on heterogeneous treatment effects in randomized experiments.</b> <i>National Bureau of Economic Research</i>. [<a href="https://arxiv.org/abs/1712.04802" class="external-link">paper</a>]</p></li>
-<li><p>Athey, S., Tibshirani, J., &amp; Wager, S. (2019). <b>Generalized random forests.</b> <i>Annals of Statistics</i>. [<a href="https://projecteuclid.org/journals/annals-of-statistics/volume-47/issue-2/Generalized-random-forests/10.1214/18-AOS1709.full" class="external-link">paper</a>]</p></li>
-<li><p>Künzel, S. R., Sekhon, J. S., Bickel, P. J., &amp; Yu, B. (2019). <b>Metalearners for estimating heterogeneous treatment effects using machine learning.</b> <i>Proceedings of the National Academy of Sciences</i>. [<a href="https://www.pnas.org/doi/abs/10.1073/pnas.1804597116" class="external-link">paper</a>]</p></li>
-<li><p>Imai, K., &amp; Li, M. (2021). <b>Statistical inference for heterogeneous treatment effects discovered by generic machine learning in randomized experiments.</b> <i>arXiv preprint</i>. [<a href="https://arxiv.org/abs/2203.14511" class="external-link">paper</a>]</p></li>
-<li><p>Yadlowsky, S., Fleming, S., Shah, N., Brunskill, E., &amp; Wager, S. (2021). <b>Evaluating treatment prioritization rules via rank-weighted average treatment effects.</b> <i>arXiv preprint</i>. [<a href="https://arxiv.org/abs/2111.07966" class="external-link">paper</a>]</p></li>
-</ul>
+<p>We welcome contributions! If you encounter issues, have feature requests, or want to contribute to the package, please follow the guidelines below.</p>
+<p>📌 <strong>Report an issue:</strong> If you encounter a bug or have a suggestion, please open an issue on GitHub: <a href="https://github.com/riccardo-df/valiCATE/issues" class="external-link">Submit an issue</a></p>
+<p>📌 <strong>Contribute code:</strong> We encourage contributions via pull requests. Before submitting, please: 1. Fork the repository and create a new branch. 2. Ensure that your code follows the existing style and documentation conventions. 3. Run tests and check for package integrity. 4. Submit a pull request with a clear description of your changes.</p>
+<p>📌 <strong>Feature requests:</strong> If you have ideas for new features or extensions, feel free to discuss them by opening an issue.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>If you use <code>valiCATE</code> in your research, please cite the corresponding paper:</p>
+<blockquote>
+<p><strong>Author(s).</strong> <em>Title of Paper.</em> arXiv, 2025</p>
+</blockquote>
 </div>
 </div>
+
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -137,12 +194,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/riccardo-df/valiCATE/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/riccardo-df/valiCATE/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-</ul>
-</div>
+
 
   </div>
 </div>
