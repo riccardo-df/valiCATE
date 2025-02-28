@@ -10,7 +10,6 @@ The `valiCATE` package provides a suite of tools for validating machine learning
 
 | Feature                             | Benefit                                                                                                                                        |
 |-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Ensures reliable inference**      | Evaluates CATE estimates through best linear predictor (BLP), sorted group average treatment effects (GATES), and rank-weighted ATEs (RATEs). |
 | **Identifies systematic heterogeneity** | Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.                              |
 | **Supports multiple estimation strategies** | Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric validation procedures.                                 |
 | **Graphical analysis**              | Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.                                                         |
