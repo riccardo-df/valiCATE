@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![CRAN](https://www.r-pkg.org/badges/version/valiCATE)](https://CRAN.R-project.org/package=valiCATE) [![Downloads](https://cranlogs.r-pkg.org/badges/valiCATE)](https://CRAN.R-project.org/package=valiCATE) 
 
-The `valiCATE` package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Traditional methods for assessing treatment effect heterogeneity often rely on unverified modeling assumptions. `valiCATE` implements best practices in model validation to ensure robustness and reliability.
+The `valiCATE` package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.
 
 ------------------------------------------------------------------------
 
