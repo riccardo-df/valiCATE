@@ -1,48 +1,58 @@
-# Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="man/figures/logo.svg" align="right" height="200" /></a>
+# Causal inference for qualitative outcomes <a href="https://riccardo-df.github.io/valiCATE/"><img src="man/figures/logo.svg" align="right" height="130"/></a>
 
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/riccardo-df/valiCATE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/riccardo-df/valiCATE/actions/workflows/R-CMD-check.yaml)
-<!-- badges: end -->
+# Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="man/figures/logo.svg" align="right" height="130"/></a>
 
-Validation of machine learning models for the conditional average treatment effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![CRAN](https://www.r-pkg.org/badges/version/valiCATE)](https://CRAN.R-project.org/package=valiCATE) [![Downloads](https://cranlogs.r-pkg.org/badges/valiCATE)](https://CRAN.R-project.org/package=valiCATE) 
 
-To get started, please check the online [short tutorial](https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html).
+The `valiCATE` package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Traditional methods for assessing treatment effect heterogeneity often rely on unverified modeling assumptions. `valiCATE` implements best practices in model validation to ensure robustness and reliability.
 
-## Installation  
-The current development version of the package can be installed using the `devtools` package:
+------------------------------------------------------------------------
 
+## Why use `valiCATE`?
+
+| Feature                             | Benefit                                                                                                                                        |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Ensures reliable inference**      | Evaluates CATE estimates through best linear predictor (BLP), sorted group average treatment effects (GATES), and rank-weighted ATEs (RATEs). |
+| **Identifies systematic heterogeneity** | Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.                              |
+| **Supports multiple estimation strategies** | Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric validation procedures.                                 |
+| **Graphical analysis**              | Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.                                                         |
+
+------------------------------------------------------------------------
+## 🚀 Installation
+
+To install the latest stable release from CRAN, run:
+
+```         
+# install.packages("valiCATE") # Not yet available!
 ```
-devtools::install_github("riccardo-df/valiCATE") # run install.packages("devtools") if needed.
+
+Alternatively, the current development version of the package can be installed using the `devtools` package:
+
+```         
+devtools::install_github("riccardo-df/valiCATE")
 ```
 
-## References
+------------------------------------------------------------------------
 
-- Imbens, G. W., & Rubin, D. B. (2015).
-<b>Causal inference for statistics, social, and biomedical sciences: An introduction.</b>
-<i>Cambridge University Press</i>.
-[<a href="https://www.cambridge.org/core/books/causal-inference-for-statistics-social-and-biomedical-sciences/71126BE90C58F1A431FE9B2DD07938AB">book</a>]
+## Contributing
 
-- Chernozhukov, V., Demirer, M., Duflo, E., & Fernandez-Val, I. (2017).
-<b>Generic machine learning inference on heterogeneous treatment effects in randomized experiments.</b>
-<i>National Bureau of Economic Research</i>.
-[<a href="https://arxiv.org/abs/1712.04802">paper</a>]
+We welcome contributions! If you encounter issues, have feature requests, or want to contribute to the package, please follow the guidelines below.
 
-- Athey, S., Tibshirani, J., & Wager, S. (2019).
-<b>Generalized random forests.</b>
-<i>Annals of Statistics</i>.
-[<a href="https://projecteuclid.org/journals/annals-of-statistics/volume-47/issue-2/Generalized-random-forests/10.1214/18-AOS1709.full">paper</a>]
+📌 **Report an issue:** If you encounter a bug or have a suggestion, please open an issue on GitHub:
+[Submit an issue](https://github.com/riccardo-df/valiCATE/issues)
 
-- Künzel, S. R., Sekhon, J. S., Bickel, P. J., & Yu, B. (2019).
-<b>Metalearners for estimating heterogeneous treatment effects using machine learning.</b>
-<i>Proceedings of the National Academy of Sciences</i>.
-[<a href="https://www.pnas.org/doi/abs/10.1073/pnas.1804597116">paper</a>]
+📌 **Contribute code:** We encourage contributions via pull requests. Before submitting, please:
+1. Fork the repository and create a new branch.
+2. Ensure that your code follows the existing style and documentation conventions.
+3. Run tests and check for package integrity.
+4. Submit a pull request with a clear description of your changes.
 
-- Imai, K., & Li, M. (2021).
-<b>Statistical inference for heterogeneous treatment effects discovered by generic machine learning in randomized experiments.</b>
-<i>arXiv preprint</i>.
-[<a href="https://arxiv.org/abs/2203.14511">paper</a>]
+📌 **Feature requests:** If you have ideas for new features or extensions, feel free to discuss them by opening an issue.
 
-- Yadlowsky, S., Fleming, S., Shah, N., Brunskill, E., & Wager, S. (2021).
-<b>Evaluating treatment prioritization rules via rank-weighted average treatment effects.</b>
-<i>arXiv preprint</i>.
-[<a href="https://arxiv.org/abs/2111.07966">paper</a>]
+------------------------------------------------------------------------
+
+## Citation
+
+If you use `valiCATE` in your research, please cite the corresponding paper:
+
+> **Author(s).** *Title of Paper.* arXiv, 2025
