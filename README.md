@@ -10,8 +10,8 @@ The `valiCATE` package provides a suite of tools for validating machine learning
 
 | Feature                             | Benefit                                                                                                                                        |
 |-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Identifies systematic heterogeneity** | Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.                              |
-| **Supports multiple estimation strategies** | Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric validation procedures.                                 |
+| **Heterogeneity detection** | Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.                              |
+| **Multiple estimation strategies** | Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric procedures.                                 |
 | **Graphical analysis**              | Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.                                                         |
 
 ------------------------------------------------------------------------
