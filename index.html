@@ -75,18 +75,12 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-
 <div class="section level1">
-<div class="page-header"><h1 id="causal-inference-for-qualitative-outcomes-">Causal inference for qualitative outcomes <a href="https://riccardo-df.github.io/valiCATE/"><img src="reference/figures/logo.svg" align="right" height="130"></a>
-<a class="anchor" aria-label="anchor" href="#causal-inference-for-qualitative-outcomes-"></a>
-</h1></div>
-</div>
-<div class="section level1">
-<h1 id="validation-of-conditional-average-treatment-effects-models-">Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="reference/figures/logo.svg" align="right" height="130"></a>
+<div class="page-header"><h1 id="validation-of-conditional-average-treatment-effects-models-">Validation of Conditional Average Treatment Effects Models <a href="https://riccardo-df.github.io/valiCATE/"><img src="reference/figures/logo.svg" align="right" height="130"></a>
 <a class="anchor" aria-label="anchor" href="#validation-of-conditional-average-treatment-effects-models-"></a>
-</h1>
+</h1></div>
 <p><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a> <a href="https://CRAN.R-project.org/package=valiCATE" class="external-link"><img src="https://www.r-pkg.org/badges/version/valiCATE" alt="CRAN"></a> <a href="https://CRAN.R-project.org/package=valiCATE" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/valiCATE" alt="Downloads"></a></p>
-<p>The <code>valiCATE</code> package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Traditional methods for assessing treatment effect heterogeneity often rely on unverified modeling assumptions. <code>valiCATE</code> implements best practices in model validation to ensure robustness and reliability.</p>
+<p>The <code>valiCATE</code> package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.</p>
 <hr>
 <div class="section level2">
 <h2 id="why-use-valicate">Why use <code>valiCATE</code>?<a class="anchor" aria-label="anchor" href="#why-use-valicate"></a>
@@ -102,18 +96,14 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><strong>Ensures reliable inference</strong></td>
-<td>Evaluates CATE estimates through best linear predictor (BLP), sorted group average treatment effects (GATES), and rank-weighted ATEs (RATEs).</td>
-</tr>
-<tr class="even">
-<td><strong>Identifies systematic heterogeneity</strong></td>
+<td><strong>Heterogeneity detection</strong></td>
 <td>Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.</td>
 </tr>
-<tr class="odd">
-<td><strong>Supports multiple estimation strategies</strong></td>
-<td>Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric validation procedures.</td>
-</tr>
 <tr class="even">
+<td><strong>Multiple estimation strategies</strong></td>
+<td>Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric procedures.</td>
+</tr>
+<tr class="odd">
 <td><strong>Graphical analysis</strong></td>
 <td>Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.</td>
 </tr>
@@ -158,7 +148,6 @@
 </blockquote>
 </div>
 </div>
-
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
