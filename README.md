@@ -1,4 +1,4 @@
-# Validation of conditional average treatment effects models <a href="https://riccardo-df.github.io/valiCATE/"><img src="man/figures/logo.svg" align="right" style="height:300px;"/></a>
+# Validation of conditional average treatment effects models <a href="https://riccardo-df.github.io/valiCATE/"><img src="man/figures/logo.svg" align="right" style="height:130px;"/></a>
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![CRAN](https://www.r-pkg.org/badges/version/valiCATE)](https://CRAN.R-project.org/package=valiCATE) [![Downloads](https://cranlogs.r-pkg.org/badges/valiCATE)](https://CRAN.R-project.org/package=valiCATE) 
 
