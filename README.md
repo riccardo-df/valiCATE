@@ -15,6 +15,7 @@ The `valiCATE` package provides a suite of tools for validating machine learning
 | **Graphical analysis**              | Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.                                                         |
 
 ------------------------------------------------------------------------
+
 ## 🚀 Installation
 
 To install the latest stable release from CRAN, run:
