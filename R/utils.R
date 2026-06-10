@@ -65,8 +65,8 @@ validate_inputs <- function(Y, D, X, cates, weights, scores,
 
 #' Safe Empirical CDF
 #'
-#' Computes the empirical CDF using \code{rank(x) / (n + 1)} to avoid 0 and 1 values, which would cause singularities in
-#' weight functions like AUTOC and AUC-HVL.
+#' Computes the empirical CDF using the Hazen plotting position \code{(rank(x) - 0.5) / n}, clipped to \code{[eps, 1 - eps]}
+#' to avoid boundary singularities in weight functions like AUTOC and AUC-HVL.
 #'
 #' @param x Numeric vector.
 #'
@@ -75,6 +75,11 @@ validate_inputs <- function(Y, D, X, cates, weights, scores,
 #'
 #' @keywords internal
 ecdf_safe <- function(x) {
+  n <- length(x)
+  eps <- 1e-3
+
+  ecdf <- (rank(x, ties.method = "average") - 0.5) / n
+
   ## Output.
-  return(rank(x, ties.method = "average") / (length(x) + 1))
+  return(pmin(pmax(ecdf, eps), 1 - eps))
 }

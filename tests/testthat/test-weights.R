@@ -66,5 +66,5 @@ test_that("ecdf_safe returns values in (0,1)", {
   x <- c(1, 2, 3, 4, 5)
   v <- valiCATE:::ecdf_safe(x)
   expect_true(all(v > 0 & v < 1))
-  expect_equal(v, 1:5 / 6)
+  expect_equal(v, (1:5 - 0.5) / 5)
 })
