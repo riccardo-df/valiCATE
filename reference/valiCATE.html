@@ -201,19 +201,19 @@ that the predicted CATEs recover the true CATEs.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weight       Estimate         SE           95% CI    p-value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   AUTOC          0.9017     0.4340 [0.0511, 1.7523]     0.0189</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   AUC-HVL        1.8342     1.2301 [-0.5767, 4.2451]     0.0680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUTOC          0.9017     0.0538 [0.7963, 1.0071]     0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUC-HVL        1.8342     0.0983 [1.6416, 2.0268]     0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   BLP            0.8683     0.0606 [0.7496, 0.9871]     0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   QINI           0.2952     0.0356 [0.2254, 0.3650]     0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   QINI           0.2952     0.0166 [0.2626, 0.3278]     0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NCWATE (H0: gamma = 1, two-sided test)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Weight       Estimate         SE           95% CI    p-value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   AUTOC          1.1646     0.1529 [0.8650, 1.4643]     0.2815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   AUC-HVL        1.2517     0.1487 [0.9602, 1.5432]     0.0906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUTOC          1.1646     0.0642 [1.0388, 1.2905]     0.0103</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUC-HVL        1.2517     0.0627 [1.1289, 1.3745]     0.0001</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   BLP            1.1983     0.0600 [1.0806, 1.3160]     0.0010</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   QINI           1.2204     0.0611 [1.1006, 1.3403]     0.0003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   QINI           1.2204     0.0612 [1.1005, 1.3404]     0.0003</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span>, latex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
@@ -234,19 +234,19 @@ that the predicted CATEs recover the true CATEs.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        AUTOC  &amp;  0.9017 &amp; 1.1646  \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.051, 1.752] &amp; [0.865, 1.464]  \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0189) &amp; (0.2815)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.796, 1.007] &amp; [1.039, 1.290]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0000) &amp; (0.0103)  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        AUC--HVL  &amp;  1.8342 &amp; 1.2517  \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [-0.577, 4.245] &amp; [0.960, 1.543]  \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0680) &amp; (0.0906)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [1.642, 2.027] &amp; [1.129, 1.375]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0000) &amp; (0.0001)  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        BLP  &amp;  0.8683 &amp; 1.1983  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.750, 0.987] &amp; [1.081, 1.316]  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0000) &amp; (0.0010)  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        QINI  &amp;  0.2952 &amp; 1.2204  \\</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.225, 0.365] &amp; [1.101, 1.340]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.263, 0.328] &amp; [1.101, 1.340]  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0000) &amp; (0.0003)  \\</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
