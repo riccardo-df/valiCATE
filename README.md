@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![CRAN](https://www.r-pkg.org/badges/version/valiCATE)](https://CRAN.R-project.org/package=valiCATE) [![Downloads](https://cranlogs.r-pkg.org/badges/valiCATE)](https://CRAN.R-project.org/package=valiCATE) 
 
-The `valiCATE` package provides a suite of tools for validating machine learning models estimating Conditional Average Treatment Effects (CATEs). Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the estimated CATEs.
+The `valiCATE` package validates machine learning predictions of Conditional Average Treatment Effects (CATEs) using the Centered-Weighted Average Treatment Effect (CWATE) and its normalized counterpart (NCWATE). These estimands unify existing validation tools — BLP, AUTOC, QINI, and AUC-HVL — as special cases of a single framework. AIPW-based estimation with cross-fitted nuisance functions provides valid inference under mild regularity conditions.
 
 ------------------------------------------------------------------------
 
@@ -10,9 +10,9 @@ The `valiCATE` package provides a suite of tools for validating machine learning
 
 | Feature                             | Benefit                                                                                                                                        |
 |-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Heterogeneity detection** | Tests whether estimated CATE variation reflects genuine treatment heterogeneity or estimation noise.                              |
-| **Multiple estimation strategies** | Implements weighted residuals, Horvitz-Thompson, AIPW, and nonparametric procedures.                                 |
-| **Graphical analysis**              | Provides intuitive visualizations of CATE estimates, GATES results, and TOC curves.                                                         |
+| **Heterogeneity detection**         | CWATE one-sided test: does estimated CATE variation reflect genuine treatment heterogeneity or estimation noise?                                |
+| **CATE recovery**                   | NCWATE two-sided test: do predicted CATEs recover the true treatment effect function?                                                          |
+| **Unified framework**               | Four built-in weight functions (AUTOC, AUC-HVL, BLP, QINI) nest existing tools as special cases of a single estimand.                         |
 
 ------------------------------------------------------------------------
 
@@ -53,4 +53,4 @@ We welcome contributions! If you encounter issues, have feature requests, or wan
 
 If you use `valiCATE` in your research, please cite the corresponding paper:
 
-> **Author(s).** *Title of Paper.* arXiv, 2025
+> **Di Francesco, R., & Knaus, M. C. (2025).** *Validating Machine Learning Predictions of Heterogeneous Treatment Effects via Centered-Weighted Average Treatment Effects.* arXiv, 2025.
