@@ -145,8 +145,8 @@ Given estimated weights $\hat{\omega}(X_i)$ and cross-fitted scores $\hat{\Gamma
 $$\hat{\theta}_n (\hat{\omega}) = \frac{1}{n}\sum_{i=1}^n \hat{\omega}(X_i)\hat{\Gamma}_i.$$
 
 Under regularity conditions (see Di Francesco & Knaus, 2025, Theorem 1),
-$$\sqrt{n}\big(\hat{\theta}_n(\hat{\omega}) - \theta(\omega)\big) \xrightarrow{d} \mathcal{N}\big(0, V(\phi_i)\big),$$
-where $\phi_i = \omega(X_i)\Gamma_i - \theta(\omega) + \mathcal{C}_\omega(Z_i)$, with $\mathcal{C}_\omega$ a correction term accounting for the fact that the weights are themselves estimated from the data. The variance $V(\phi_i)$ is estimated by $\hat{V}(\phi_i) = n^{-1}\sum_i \hat{\phi}_i^2$.
+$$\sqrt{n}\big(\hat{\theta}_n(\hat{\omega}) - \theta(\omega)\big) \xrightarrow{d} N\big(0, V(\phi_i)\big),$$
+where $\phi_i = \omega(X_i)\Gamma_i - \theta(\omega) + C_\omega(Z_i)$, with $C_\omega$ a correction term accounting for the fact that the weights are themselves estimated from the data. The variance $V(\phi_i)$ is estimated by $\hat{V}(\phi_i) = n^{-1}\sum_i \hat{\phi}_i^2$.
 
 ### NCWATE estimator
 
@@ -154,8 +154,8 @@ The NCWATE is estimated by normalizing:
 $$\hat{\gamma}_n(\hat{\omega}) = \frac{\hat{\theta}_n(\hat{\omega})}{n^{-1}\sum_{i=1}^n \hat{\omega}(X_i)\hat{\tau}(X_i)}.$$
 
 Under regularity conditions (see Di Francesco & Knaus, 2025, Theorem 2),
-$$\sqrt{n}\big(\hat{\gamma}_n(\hat{\omega}) - \gamma(\omega)\big) \xrightarrow{d} \mathcal{N}\big(0, V(\psi_i)\big),$$
-where $\psi_i = E[\omega(X_i)\hat{\tau}(X_i)]^{-1}\big(\omega(X_i)\big(\Gamma_i - \gamma(\omega)\hat{\tau}(X_i)\big) + \mathcal{C}_\omega^\gamma(Z_i)\big)$, with $\mathcal{C}_\omega^\gamma$ the corresponding correction term. The variance $V(\psi_i)$ is estimated analogously by $\hat{V}(\psi_i) = n^{-1}\sum_i \hat{\psi}_i^2$.
+$$\sqrt{n}\big(\hat{\gamma}_n(\hat{\omega}) - \gamma(\omega)\big) \xrightarrow{d} N\big(0, V(\psi_i)\big),$$
+where $\psi_i = E[\omega(X_i)\hat{\tau}(X_i)]^{-1}\big(\omega(X_i)\big(\Gamma_i - \gamma(\omega)\hat{\tau}(X_i)\big) + C_\omega^\gamma(Z_i)\big)$, with $C_\omega^\gamma$ the corresponding correction term. The variance $V(\psi_i)$ is estimated analogously by $\hat{V}(\psi_i) = n^{-1}\sum_i \hat{\psi}_i^2$.
 
 ### Training-validation split
 
