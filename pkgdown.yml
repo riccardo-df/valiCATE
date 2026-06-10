@@ -1,12 +1,9 @@
-pandoc: 3.1.11
-pkgdown: 2.1.1
+pandoc: 3.8.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  denoising: denoising.html
-  hypotheses-testing: hypotheses-testing.html
-  more-on-plotting: more-on-plotting.html
-  valiCATE-short-tutorial: valiCATE-short-tutorial.html
-last_built: 2025-03-17T13:24Z
+  valiCATE-tutorial: valiCATE-tutorial.html
+last_built: 2026-06-10T11:49Z
 urls:
   reference: https://riccardo-df.github.io/valiCATE/reference
   article: https://riccardo-df.github.io/valiCATE/articles

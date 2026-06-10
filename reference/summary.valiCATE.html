@@ -17,22 +17,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">valiCATE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
-  <a href="../articles/valiCATE-short-tutorial.html">Short Tutorial</a>
-</li>
-<li>
-  <a href="../articles/denoising.html">Denoising</a>
-</li>
-<li>
-  <a href="../articles/hypotheses-testing.html">Hypotheses Testing</a>
-</li>
-<li>
-  <a href="../articles/more-on-plotting.html">More on Plotting</a>
+  <a href="../articles/valiCATE-tutorial.html">Short Tutorial</a>
 </li>
 <li>
   <a href="../reference/index.html">Reference</a>
@@ -53,7 +44,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Summary Method for valiCATE Objects</h1>
-    <small class="dont-index">Source: <a href="https://github.com/riccardo-df/evaluCATE/blob/main/R/generic-s3.R" class="external-link"><code>R/generic-s3.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/riccardo-df/valiCATE/blob/main/R/generic-s3.R" class="external-link"><code>R/generic-s3.R</code></a></small>
     <div class="hidden name"><code>summary.valiCATE.Rd</code></div>
     </div>
 
@@ -63,14 +54,7 @@
 
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'valiCATE'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  target <span class="op">=</span> <span class="st">"BLP"</span>,</span>
-<span>  latex <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  which_models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">object</span><span class="op">$</span><span class="va">GATES</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>  rate_inference <span class="op">=</span> <span class="st">"onesided"</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">object</span>, latex <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -81,20 +65,9 @@
 <dd><p>An <code><a href="valiCATE.html">valiCATE</a></code> object.</p></dd>
 
 
-<dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
-<dd><p>String controlling which parameters we are interested in. Must be one of <code>"BLP"</code>, <code>"GATES"</code>, <code>"RATE"</code>.</p></dd>
-
-
 <dt id="arg-latex">latex<a class="anchor" aria-label="anchor" href="#arg-latex"></a></dt>
-<dd><p>Logical, whether to print LATEX code for a table. Different tables are produced according to the <code>target</code> argument.</p></dd>
-
-
-<dt id="arg-which-models">which_models<a class="anchor" aria-label="anchor" href="#arg-which-models"></a></dt>
-<dd><p>Character vector controlling which results to display. Admitted values are those stored in <code>names(object$GATES[[1]])</code>. Ignored if <code>target == "RATE"</code>.</p></dd>
-
-
-<dt id="arg-rate-inference">rate_inference<a class="anchor" aria-label="anchor" href="#arg-rate-inference"></a></dt>
-<dd><p>String, whether to display <code>"onesided"</code> (default) or <code>"twosided"</code> confidence intervals for the estimated RATEs. Ignored if <code>target != "RATE"</code>.</p></dd>
+<dd><p>Logical, whether to print LATEX code for a table. If <code>TRUE</code>, a ready-to-compile LATEX table with CWATE and
+NCWATE point estimates, confidence intervals, and p-values is printed to the console.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -107,8 +80,13 @@
     </div>
     <div id="details">
     <h2>Details</h2>
-    <p>Compilation of the LATEX code requires the following packages: <code>booktabs</code>, <code>float</code>, <code>adjustbox</code>, <code>multirow</code>.</p>
+    <p>Compilation of the LATEX code requires the following packages: <code>booktabs</code>, <code>float</code>, <code>adjustbox</code>.</p>
     </div>
+    <div id="references">
+    <h2>References</h2>
+
+<ul><li><p>Di Francesco, R., &amp; Knaus, M. C. (2025). Validating ML Predictions of Heterogeneous Treatment Effects via CWATE.</p></li>
+</ul></div>
     <div id="see-also">
     <h2>See also</h2>
     <div class="dont-index"><p><code><a href="valiCATE.html">valiCATE</a></code></p></div>
@@ -118,6 +96,112 @@
     <p>Riccardo Di Francesco</p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Generate data.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1986</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span></span>
+<span class="r-in"><span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">2</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">k</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">k</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mu0</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">mu0</span> <span class="op">+</span> <span class="va">D</span> <span class="op">*</span> <span class="op">(</span><span class="va">mu1</span> <span class="op">-</span> <span class="va">mu0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span>, sd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Split into training and validation samples.</span></span></span>
+<span class="r-in"><span><span class="va">train_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="va">n</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">val_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="va">train_idx</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Estimate CATEs on the training sample, predict on the validation sample.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/grf-labs/grf" class="external-link">grf</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/grf/man/causal_forest.html" class="external-link">causal_forest</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span><span class="va">train_idx</span>, <span class="op">]</span>, <span class="va">Y</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span>, <span class="va">D</span><span class="op">[</span><span class="va">train_idx</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cf</span>, <span class="va">X</span><span class="op">[</span><span class="va">val_idx</span>, <span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Validate using the validation sample.</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="valiCATE.html">valiCATE</a></span><span class="op">(</span><span class="va">Y</span><span class="op">[</span><span class="va">val_idx</span><span class="op">]</span>, <span class="va">D</span><span class="op">[</span><span class="va">val_idx</span><span class="op">]</span>, <span class="va">X</span><span class="op">[</span><span class="va">val_idx</span>, <span class="op">]</span>,</span></span>
+<span class="r-in"><span>                   cates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"causal_forest"</span> <span class="op">=</span> <span class="va">cates</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Estimating nuisance functions via 5 -fold cross-fitting; </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CWATE/NCWATE estimation for model: causal_forest ; </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Output. </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Summarize.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ====================================================================== </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Model: causal_forest </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ====================================================================== </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> CWATE (H0: theta &lt;= 0, one-sided test)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weight       Estimate         SE           95% CI    p-value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUTOC          0.8931     0.3735 [0.1612, 1.6251]     0.0084</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUC-HVL        1.8112     0.9246 [-0.0009, 3.6234]     0.0251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   BLP            0.8683     0.0606 [0.7496, 0.9871]     0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   QINI           0.2946     0.0356 [0.2249, 0.3643]     0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NCWATE (H0: gamma = 1, two-sided test)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Weight       Estimate         SE           95% CI    p-value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ---------------------------------------------------------------------- </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUTOC          1.1668     0.0955 [0.9795, 1.3541]     0.0808</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AUC-HVL        1.2496     0.0999 [1.0539, 1.4453]     0.0124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   BLP            1.1983     0.0600 [1.0806, 1.3160]     0.0010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   QINI           1.2204     0.0611 [1.1006, 1.3403]     0.0003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span>, latex <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> \begingroup</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \setlength{\tabcolsep}{8pt}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \renewcommand{\arraystretch}{1.1}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \begin{table}[H]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \centering</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \caption{CWATE and NCWATE results.}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \vspace{-0.3cm}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \label{table_cwate_ncwate}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{adjustbox}{width = 1\textwidth}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{tabular}{@{\extracolsep{5pt}} l c c }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  \multicolumn{2}{c}{\textit{causal\_forest}}  \\  \cmidrule{2-3} </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  CWATE &amp; NCWATE  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[2pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        AUTOC  &amp;  0.8931 &amp; 1.1668  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.161, 1.625] &amp; [0.980, 1.354]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0084) &amp; (0.0808)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        AUC--HVL  &amp;  1.8112 &amp; 1.2496  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [-0.001, 3.623] &amp; [1.054, 1.445]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0251) &amp; (0.0124)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        BLP  &amp;  0.8683 &amp; 1.1983  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.750, 0.987] &amp; [1.081, 1.316]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0000) &amp; (0.0010)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        QINI  &amp;  0.2946 &amp; 1.2204  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  [0.225, 0.364] &amp; [1.101, 1.340]  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &amp;  (0.0000) &amp; (0.0003)  \\</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \addlinespace[3pt]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \\[-1.8ex]\hline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \hline \\[-1.8ex]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{tabular}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{adjustbox}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \begin{minipage}{1\textwidth}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \scriptsize</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \renewcommand{\baselineskip}{11pt}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \vspace{0.05cm}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \textit{Notes.} 95\% confidence intervals in brackets, $p$-values in parentheses. CWATE: $\mathcal{H}_0\!: \theta \leq 0$ (one-sided). NCWATE: $\mathcal{H}_0\!: \gamma = 1$ (two-sided).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \end{minipage}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     \end{table}</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> \endgroup</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
@@ -130,7 +214,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>
