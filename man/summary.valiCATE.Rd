@@ -4,25 +4,13 @@
 \alias{summary.valiCATE}
 \title{Summary Method for valiCATE Objects}
 \usage{
-\method{summary}{valiCATE}(
-  object,
-  target = "BLP",
-  latex = FALSE,
-  which_models = names(object$GATES[[1]]),
-  rate_inference = "onesided",
-  ...
-)
+\method{summary}{valiCATE}(object, latex = FALSE, ...)
 }
 \arguments{
 \item{object}{An \code{\link{valiCATE}} object.}
 
-\item{target}{String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.}
-
-\item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
-
-\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES[[1]])}. Ignored if \code{target == "RATE"}.}
-
-\item{rate_inference}{String, whether to display \code{"onesided"} (default) or \code{"twosided"} confidence intervals for the estimated RATEs. Ignored if \code{target != "RATE"}.}
+\item{latex}{Logical, whether to print LATEX code for a table. If \code{TRUE}, a ready-to-compile LATEX table with CWATE and
+NCWATE point estimates, confidence intervals, and p-values is printed to the console.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -33,7 +21,44 @@ Summarizes an \code{\link{valiCATE}} object.
 Summarizes an \code{\link{valiCATE}} object.
 }
 \details{
-Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}, \code{multirow}.
+Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}.
+}
+\examples{
+\donttest{## Generate data.
+set.seed(1986)
+
+n <- 1000
+k <- 2
+
+X <- matrix(rnorm(n * k), ncol = k)
+colnames(X) <- paste0("x", seq_len(k))
+D <- rbinom(n, size = 1, prob = 0.5)
+mu0 <- 0.5 * X[, 1]
+mu1 <- 0.5 * X[, 1] + X[, 2]
+Y <- mu0 + D * (mu1 - mu0) + rnorm(n, sd = 0.5)
+
+## Split into training and validation samples.
+train_idx <- sample(1:n, n / 2)
+val_idx <- setdiff(1:n, train_idx)
+
+## Estimate CATEs on the training sample, predict on the validation sample.
+library(grf)
+cf <- causal_forest(X[train_idx, ], Y[train_idx], D[train_idx])
+cates <- predict(cf, X[val_idx, ])$predictions
+
+## Validate using the validation sample.
+result <- valiCATE(Y[val_idx], D[val_idx], X[val_idx, ],
+                   cates = list("causal_forest" = cates))
+
+## Summarize.
+summary(result)
+summary(result, latex = TRUE)}
+
+}
+\references{
+\itemize{
+  \item Di Francesco, R., & Knaus, M. C. (2025). Validating ML Predictions of Heterogeneous Treatment Effects via CWATE.
+}
 }
 \seealso{
 \code{\link{valiCATE}}

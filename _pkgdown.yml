@@ -7,13 +7,7 @@ navbar:
   type: default
   left:
   - text: "Short Tutorial"
-    href: articles/valiCATE-short-tutorial.html
-  - text: "Denoising"
-    href: articles/denoising.html
-  - text: "Hypotheses Testing"
-    href: articles/hypotheses-testing.html
-  - text: "More on Plotting"
-    href: articles/more-on-plotting.html
+    href: articles/valiCATE-tutorial.html
   - text: "Reference"
     href: reference/index.html
   right:
@@ -27,6 +21,6 @@ reference:
 
   - title: Generic S3
     contents:
-      - plot.valiCATE
       - summary.valiCATE
       - print.valiCATE
+      - plot.valiCATE

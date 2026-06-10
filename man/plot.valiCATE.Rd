@@ -4,36 +4,65 @@
 \alias{plot.valiCATE}
 \title{Plot Method for valiCATE Objects}
 \usage{
-\method{plot}{valiCATE}(
-  x,
-  target = "GATES",
-  which_models = names(x$GATES[[1]]),
-  gates_hline = TRUE,
-  toc_smoother = 1,
-  ...
-)
+\method{plot}{valiCATE}(x, type = "cwate", ...)
 }
 \arguments{
 \item{x}{An \code{\link{valiCATE}} object.}
 
-\item{target}{String controlling which plot to display. Must be one of \code{"GATES"}, \code{"TOC"}, or \code{"RATE"}.}
-
-\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(x$GATES[[1]])}. Ignored if \code{target != "GATES"}.}
-
-\item{gates_hline}{Logical, whether to display an horizontal line at zero in the GATES plot. Ignored if \code{target != "GATES"}.}
-
-\item{toc_smoother}{Integer number, controls the amount of smoothing in the \code{TOC} and \code{RATE} plots. Smoothing is achieved by plotting the TOCs only for every other \code{toc_smoother} unit (in order of treatment benefit). Set to 1 to plot the TOC of all units, to 2 to plot the TOC of every other unit, ecc. Ignored if \code{target == "GATES"}.}
+\item{type}{Character, either \code{"cwate"} or \code{"ncwate"}. Controls which estimand is plotted.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Plots an \code{\link{valiCATE}} object.
+A \code{ggplot} object, returned invisibly.
 }
 \description{
-Plots an \code{\link{valiCATE}} object.
+Produces a coefficient plot of CWATE or NCWATE estimates with confidence intervals.
 }
 \details{
-Check the online \href{https://riccardo-df.github.io/valiCATE/articles/more-on-plotting.html}{plotting vignette} for details.
+This method requires the \code{ggplot2} package. The plot displays point estimates as dots and
+confidence intervals as vertical whiskers, faceted by model. A horizontal reference line is drawn
+at 0 for the CWATE (null: no heterogeneity) and at 1 for the NCWATE (null: recovery).
+}
+\examples{
+\donttest{## Generate data.
+set.seed(1986)
+
+n <- 1000
+k <- 2
+
+X <- matrix(rnorm(n * k), ncol = k)
+colnames(X) <- paste0("x", seq_len(k))
+D <- rbinom(n, size = 1, prob = 0.5)
+mu0 <- 0.5 * X[, 1]
+mu1 <- 0.5 * X[, 1] + X[, 2]
+Y <- mu0 + D * (mu1 - mu0) + rnorm(n, sd = 0.5)
+
+## Split into training and validation samples.
+train_idx <- sample(1:n, n / 2)
+val_idx <- setdiff(1:n, train_idx)
+
+## Estimate CATEs on the training sample, predict on the validation sample.
+library(grf)
+cf <- causal_forest(X[train_idx, ], Y[train_idx], D[train_idx])
+cates <- predict(cf, X[val_idx, ])$predictions
+
+## Validate using the validation sample.
+result <- valiCATE(Y[val_idx], D[val_idx], X[val_idx, ],
+                   cates = list("causal_forest" = cates))
+
+## Plot.
+plot(result)
+plot(result, type = "ncwate")}
+
+}
+\references{
+\itemize{
+  \item Di Francesco, R., & Knaus, M. C. (2025). Validating ML Predictions of Heterogeneous Treatment Effects via CWATE.
+}
+}
+\seealso{
+\code{\link{valiCATE}}, \code{\link{summary.valiCATE}}
 }
 \author{
 Riccardo Di Francesco

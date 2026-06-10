@@ -5,105 +5,62 @@
 \title{CATEs Validation}
 \usage{
 valiCATE(
-  Y_tr,
-  Y_val,
-  D_tr,
-  D_val,
-  X_tr,
-  X_val,
-  cates_val,
-  strategies = c("WR", "HT", "AIPW"),
-  denoising = c("none", "cddf1", "cddf2", "mck1", "mck2", "mck3"),
-  pscore_val = NULL,
-  mu_val = NULL,
-  mu0_val = NULL,
-  mu1_val = NULL,
-  n_groups = 5,
-  beneficial = TRUE,
-  n_boot = 200,
-  crossfit_dr = TRUE,
+  Y,
+  D,
+  X,
+  cates,
+  weights = c("AUTOC", "AUC-HVL", "BLP", "QINI"),
+  scores = NULL,
+  n_folds = 5,
+  alpha = 0.05,
   verbose = TRUE
 )
 }
 \arguments{
-\item{Y_tr}{Observed outcomes for the training sample.}
+\item{Y}{Outcome vector (validation sample).}
 
-\item{Y_val}{Observed outcomes for the validation sample.}
+\item{D}{Treatment indicator vector, binary 0/1 with 1 for treated (validation sample).}
 
-\item{D_tr}{Treatment indicator for the training sample.}
+\item{X}{Covariate matrix or data frame, without intercept (validation sample).}
 
-\item{D_val}{Treatment indicator for the validation sample.}
+\item{cates}{Named list of CATE prediction vectors on the validation sample produced by different models.
+Each element must be a numeric vector of the same length as \code{Y}. CATE models must be estimated using only the training
+sample for valid inference.}
 
-\item{X_tr}{Covariate matrix for the training sample (no intercept).}
+\item{weights}{Character vector controlling which weight functions to use. Admitted values are \code{"AUTOC"}, \code{"AUC-HVL"},
+\code{"BLP"}, and \code{"QINI"}.}
 
-\item{X_val}{Covariate matrix for the validation sample (no intercept).}
+\item{scores}{Optional, pre-computed AIPW pseudo-outcomes. If not provided by the user, scores are estimated internally via
+cross-fitting. Useful to save computational time if scores have already been estimated.}
 
-\item{cates_val}{Named list storing CATE predictions on the validation sample produced by different models. Models must be estimated using only the training sample.}
+\item{n_folds}{Optional, number of cross-fitting folds for nuisance estimation. Default is 5. Ignored if \code{scores} is provided.}
 
-\item{strategies}{Character vector controlling the identification and estimation strategies to implement for BLP and GATES. Admitted values are \code{"WR"}, \code{"HT"}, and \code{"AIPW"}.}
+\item{alpha}{Optional, significance level for confidence intervals and hypothesis tests. Default is 0.05.}
 
-\item{denoising}{Character vector controlling if and which additional covariates to include in the regressions for BLP and GATES to reduce the variance of the estimation. Admitted values are \code{"none"}, \code{"cddf1"}, \code{"cddf2"}, \code{"mck1"}, \code{"mck2"}, and \code{"mck3"}.}
-
-\item{pscore_val}{Propensity score predictions on the validation sample. Must be produced by a model estimated using only the training sample (unless the propensity score is known, in which case we provide the true values).}
-
-\item{mu_val}{Conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
-
-\item{mu0_val}{Control units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
-
-\item{mu1_val}{Treated units' conditional mean predictions on the validation sample. Must be produced by a model estimated using only the training sample.}
-
-\item{n_groups}{Number of groups to be formed for the GATES analysis.}
-
-\item{beneficial}{Logical, whether the treatment is beneficial to units. If \code{TRUE}, units are ranked according to decreasing values of \code{cates_val} to estimate the RATEs, otherwise they are ranked according to increasing values of \code{cates_val}.}
-
-\item{n_boot}{Number of bootstrap replications to estimate the standard error of the RATE estimates.}
-
-\item{crossfit_dr}{Logical, whether the doubly-robust scores should be cross-fitted in the validation sample. If \code{FALSE}, the scores are constructed using the out-of-sample predictions from the nuisance models trained in the training sample.}
-
-\item{verbose}{Logical, set to FALSE to prevent the function from printing the progresses.}
+\item{verbose}{Optional, set to \code{FALSE} to prevent the function from printing the progresses.}
 }
 \value{
-An \code{valiCATE} object.
+Object of class \code{valiCATE}.
 }
 \description{
-Validates CATE models by estimating the best linear predictor (BLP) of the actual CATEs using the estimated
-CATEs, the sorted group average treatment effects (GATES), and the rank-weighted average treatment effects (RATEs) induced by
-the estimated CATEs.
+Validates machine learning predictions of conditional average treatment effects (CATEs) by estimating
+Centered-Weighted Average Treatment Effects (CWATEs) and their normalized counterparts (NCWATEs).
 }
 \details{
-The user must provide observations on the outcomes, the treatment status, and the covariates of units in the training and validation samples separately
-using the first six arguments. The user must also provide a named list storing CATE predictions on the validation sample produced from different models (the Example section below shows how to construct such a list).
-Be careful, CATE models must be estimated using only the training sample to achieve valid inference.\cr
+The user must provide observations on the outcomes, the treatment status, and the covariates of units in the validation sample
+using the first three arguments. The user must also provide CATE predictions on the validation sample as a named list
+storing predictions produced by different models. Be careful, CATE models must be estimated using only the training sample to 
+achieve valid inference.\cr
 
-The \code{\link{valiCATE}} function allows the implementation of three different strategies for BLP and GATES identification and estimation: a) Weighted Residuals (WR), Horwitz-Thompson (HT), and
-Augmented Inverse-Probability Weighting (AIPW). The user can choose their preferred strategies by controlling the \code{strategies} argument. This has no impact on RATEs estimation. GATES are also
-always estimated using an additional nonparametric approach.\cr
+Estimation is based on AIPW pseudo-outcomes, which require nuisance function estimates (propensity score, conditional mean of the
+outcome for treated and control units). By default, nuisance functions are estimated internally via honest
+\code{\link[grf]{regression_forest}}s using K-fold cross-fitting in the validation sample. Alternatively, the user can supply
+pre-computed AIPW scores via the \code{scores} argument; in this case, scores should be cross-fitted in the validation sample
+to achieve valid inference.\cr
 
-Most of the BLP and GATES estimation strategies involve fitting a suitable linear model. For each model, there exist various sets of constructed covariates that one can add to reduce the variance of
-the estimation. The user can choose whether to add these additional covariates by controlling the \code{denoising} argument (check the online
-\href{https://riccardo-df.github.io/valiCATE/articles/denoising.html}{denoising vignette} for details). This has no impact on RATEs estimation and on the results from the nonparametric GATES estimation strategy.
-
-The constructed covariates depend on particular nuisance functions, e.g., propensity score and conditional mean of the outcome. The user can supply predictions on the validation sample of these functions
-by using the  optional arguments \code{pscore_val}, \code{mu_val}, \code{mu0_val}, and \code{mu1_val}. Be careful, as these predictions must be produced by models fitted using only the training sample. If not
-provided by the user, these functions are estimated internally via honest \code{\link[grf]{regression_forest}}s using only the training sample. \cr
-
-For the linear models, standard errors are estimated using the Eicker-Huber-White estimator. Under our careful sample splitting procedure, these standard errors can then used to test various
-hypotheses of effect heterogeneity. For the GATES, we focus on two distinct hypotheses: whether all GATES are equal to each other, and whether the largest and the smallest GATES are different from each other.
-The nonparametric approach tests only the first of these hypotheses. Check the \href{https://riccardo-df.github.io/valiCATE/articles/hypotheses-testing.html}{hypotheses testing vignette}
-for details.\cr
-
-To estimate the BLP and GATES using the AIPW strategy, doubly-robust scores are estimated internally in one of two ways: if \code{crossfit_dr} is \code{TRUE}, we use
-the validation sample and 5-fold cross fitting with honest regression forests (see the
-\code{\link[aggTrees]{dr_scores}} function for details), while if \code{crossfit_dr} is \code{FALSE}, we use the out-of-sample predictions from the nuisance models trained
-using the training sample. The doubly-robust scores are also used to estimate the RATEs.\cr
-
-Groups for the GATES analysis are constructed by cutting the distribution of \code{cates_val} into \code{n_groups} quantiles. If this leads to one or more groups composed of only treated or only control units,
-the function raises an error. Possible solutions include: a) change your original training-validation sample split; b) increase the fraction of observations allocated to the validation sample.\cr
-
-The \code{\link{valiCATE}} function estimates two different RATEs: AUTOC and QINI coefficients. Sample-averaging estimators are employed. Standard errors are estimated by the standard deviation of the bootstrap
-estimates obtained using the half-sample bootstrap.\cr
-
-Check the online \href{https://riccardo-df.github.io/valiCATE/articles/valiCATE-short-tutorial.html}{short tutorial} for a guided usage of this function.\cr
+For the CWATE, a one-sided test of H0: theta <= 0 is reported. Rejection signals that the predicted CATEs capture genuine
+heterogeneity in the correct direction. For the NCWATE, a two-sided test of H0: gamma = 1 is reported. Non-rejection signals
+that the predicted CATEs recover the true CATEs.
 }
 \examples{
 \donttest{## Generate data.
@@ -114,67 +71,45 @@ k <- 2
 
 X <- matrix(rnorm(n * k), ncol = k)
 colnames(X) <- paste0("x", seq_len(k))
-D <- rbinom(n, size = 1, prob = 0.4)
+D <- rbinom(n, size = 1, prob = 0.5)
 mu0 <- 0.5 * X[, 1]
 mu1 <- 0.5 * X[, 1] + X[, 2]
-Y <- mu0 + D * (mu1 - mu0) + rnorm(n)
+Y <- mu0 + D * (mu1 - mu0) + rnorm(n, sd = 0.5)
 
-## Sample split.
-train_idx <- sample(c(TRUE, FALSE), length(Y), replace = TRUE)
+## Split into training and validation samples.
+train_idx <- sample(1:n, n / 2)
+val_idx <- setdiff(1:n, train_idx)
 
-X_tr <- X[train_idx, ]
-X_val <- X[!train_idx, ]
-
-D_tr <- D[train_idx]
-D_val <- D[!train_idx]
-
-Y_tr <- Y[train_idx]
-Y_val <- Y[!train_idx]
-
-## CATEs estimation. Models are estimated with training sample.
-# T-learner.
+## Estimate CATEs on the training sample, predict on the validation sample.
 library(grf)
+cf <- causal_forest(X[train_idx, ], Y[train_idx], D[train_idx])
+cates <- predict(cf, X[val_idx, ])$predictions
 
-forest_treated <- regression_forest(X_tr[D_tr == 1, ], Y_tr[D_tr == 1])
-forest_control <- regression_forest(X_tr[D_tr == 0, ], Y_tr[D_tr == 0])
-cates_val_t <- predict(forest_treated, X_val)$predictions - 
-               predict(forest_control, X_val)$predictions 
+## Validate using the validation sample.
+result <- valiCATE(Y[val_idx], D[val_idx], X[val_idx, ],
+                   cates = list("causal_forest" = cates))
 
-# Grf.
-forest_grf <- causal_forest(X_tr, Y_tr, D_tr) 
-cates_val_grf <- predict(forest_grf, X_val)$predictions 
+## We can also compare multiple models.
+cf2 <- causal_forest(X[train_idx, ], Y[train_idx], D[train_idx],
+                     num.trees = 500)
+cates2 <- predict(cf2, X[val_idx, ])$predictions
 
-## CATEs validation. 
-# Use all strategies with no denoising.
-strategies <- c("WR", "HT")
-denoising <- "none"
+result_multi <- valiCATE(Y[val_idx], D[val_idx], X[val_idx, ],
+                         cates = list("cf_default" = cates,
+                                      "cf_500" = cates2))
 
-# We know true pscore.
-pscore_val <- rep(0.4, length(Y_val))
+## We have compatibility with generic S3-methods.
+summary(result)
+summary(result, latex = TRUE)}
 
-# Construct CATEs list.
-cates_val <- list("T-learner" = cates_val_t,
-                  "grf" = cates_val_grf)
-
-# Call main function.
-validation <- valiCATE(Y_tr, Y_val, D_tr, D_val, X_tr, X_val, cates_val, 
-                        strategies = strategies, denoising = denoising, 
-                        pscore_val = pscore_val)
-
-## Generic S3 methods.
-summary(validation, target = "BLP")
-summary(validation, target = "BLP", latex = TRUE)
-
-summary(validation, target = "GATES")
-summary(validation, target = "GATES", latex = TRUE)
-
-summary(validation, target = "RATE")
-summary(validation, target = "RATE", latex = TRUE)
-
-plot(validation, target = "GATES")
-plot(validation, target = "TOC")
-plot(validation, target = "RATE")}
-
+}
+\references{
+\itemize{
+  \item Di Francesco, R., & Knaus, M. C. (2025). Validating ML Predictions of Heterogeneous Treatment Effects via CWATE.
+}
+}
+\seealso{
+\code{\link{summary.valiCATE}}, \code{\link{print.valiCATE}}, \code{\link{plot.valiCATE}}
 }
 \author{
 Riccardo Di Francesco

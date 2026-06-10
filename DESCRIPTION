@@ -1,36 +1,30 @@
 Package: valiCATE
 Type: Package
-Title: Validation of CATE Models
-Version: 0.1.0
+Title: Validation of CATE Predictions via CWATE and NCWATE
+Version: 1.0.0
 Authors@R: c(
-    person("Riccardo", "Di Francesco", email = "difrancesco.riccardo96@gmail.com", role = c("cre", "aut")),
+    person("Riccardo", "Di Francesco", email = "rdif@sam.sdu.dk", role = c("cre", "aut")),
     person("Michael", "Knaus", email = "michael.knaus@uni-tuebingen.de", role = c("ctb")))
-Maintainer: Riccardo Di Francesco <difrancesco.riccardo96@gmail.com>
-Description: Validation of machine learning models for the conditional average treatment effects (CATEs). 
-    Models are validated by estimating the best linear predictor of the actual CATEs using the estimated CATEs, 
-    the sorted group average treatment effects, and the rank-weighted average treatment effects induced by the 
-    estimated CATEs.
+Maintainer: Riccardo Di Francesco <rdif@sam.sdu.dk>
+Description: Validates machine learning predictions of conditional average treatment effects (CATEs)
+    using the Centered-Weighted Average Treatment Effect (CWATE) and its normalized counterpart
+    (NCWATE). These estimands unify existing validation tools (BLP, AUTOC, QINI, AUC-HVL) as special
+    cases of a single framework. AIPW-based estimation with cross-fitted nuisance functions provides
+    valid inference under weak conditions.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
-Suggests: 
+RoxygenNote: 7.3.2
+Depends:
+    R (>= 3.5.0)
+Imports:
+    grf,
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    ggplot2,
     knitr,
-    reshape2,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
-Imports: 
-    aggTrees,
-    car,
-    cli,
-    dplyr,
-    estimatr,
-    evalITR,
-    GenericML,
-    ggplot2,
-    ggsci,
-    grf,
-    gridExtra,
-    stringr
-URL: https://riccardo-df.github.io/evalueCATE/
-BugReports: https://github.com/riccardo-df/evaluCATE/issues
+Config/testthat/edition: 3
+URL: https://github.com/riccardo-df/valiCATE
+BugReports: https://github.com/riccardo-df/valiCATE/issues

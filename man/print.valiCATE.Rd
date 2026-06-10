@@ -4,22 +4,10 @@
 \alias{print.valiCATE}
 \title{Print Method for valiCATE Objects}
 \usage{
-\method{print}{valiCATE}(
-  x,
-  target = "BLP",
-  latex = FALSE,
-  which_models = names(x$GATES[[1]]),
-  ...
-)
+\method{print}{valiCATE}(x, ...)
 }
 \arguments{
 \item{x}{An \code{\link{valiCATE}} object.}
-
-\item{target}{String controlling which parameters we are interested in. Must be one of \code{"BLP"}, \code{"GATES"}, \code{"RATE"}.}
-
-\item{latex}{Logical, whether to print LATEX code for a table. Different tables are produced according to the \code{target} argument.}
-
-\item{which_models}{Character vector controlling which results to display. Admitted values are those stored in \code{names(object$GATES)}. Ignored if \code{target == "RATE"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -29,8 +17,13 @@ Prints an \code{\link{valiCATE}} object.
 \description{
 Prints an \code{\link{valiCATE}} object.
 }
-\details{
-Compilation of the LATEX code requires the following packages: \code{booktabs}, \code{float}, \code{adjustbox}, \code{multirow}.
+\references{
+\itemize{
+  \item Di Francesco, R., & Knaus, M. C. (2025). Validating ML Predictions of Heterogeneous Treatment Effects via CWATE.
+}
+}
+\seealso{
+\code{\link{valiCATE}}
 }
 \author{
 Riccardo Di Francesco
